@@ -144,10 +144,21 @@ def validate_otp(user, otp, phone):
 def update_pass(otp, password):
     token_obj = models.OTPToken.objects.filter(token=otp)[0]
     user = token_obj.user.user
-    token_obj.delete()
-    user.set_password(password)
-    user.save()
-    return True
+    invalid_password = check_password(password)
+
+    if (invalid_password):
+        data = {'message':"password does not match the rules",'status':False}
+    else:    
+        user.set_password(str(password))
+        user.save(using=settings.BRAND)
+        user_obj =  get_model('UserProfile').objects.get(user=user)
+        user_obj.reset_password = True
+        user_obj.reset_date = datetime.datetime.now()
+        user_obj.save(using=settings.BRAND)
+        data = {'message': 'Password Changed successfully', 'status': True}
+        token_obj.delete()
+
+    return data
 
 
 def format_product_object(product_obj):

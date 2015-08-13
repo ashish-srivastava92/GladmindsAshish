@@ -6,6 +6,7 @@ from django_otp.oath import TOTP
 
 from gladminds.core.exceptions import OtpFailedException
 from gladminds.core.model_fetcher import get_model
+from django.conf import settings
 from gladminds.settings import TOTP_SECRET_KEY, OTP_VALIDITY
 
 
@@ -28,7 +29,7 @@ def save_otp(token, **kwargs):
 
 
 def generate_otp(phone_number):
-    totp = TOTP(TOTP_SECRET_KEY+str(randint(10000,99999))+str(phone_number))
+    totp = TOTP(settings.TOTP_SECRET_KEY+str(randint(10000,99999))+str(phone_number))
     totp.time = 30
     token = totp.token()
     return token
@@ -36,6 +37,7 @@ def generate_otp(phone_number):
 
 def validate_otp(otp, **kwargs):
     OTPToken = get_model('OTPToken')
+    OTP_VALIDITY = settings.OTP_VALIDITY
     if 'user' in kwargs.keys():
         token_obj = OTPToken.objects.filter(user = kwargs.get('user'))[0]
     elif 'email' in kwargs.keys():

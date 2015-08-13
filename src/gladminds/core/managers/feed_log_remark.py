@@ -25,9 +25,12 @@ class FeedLogWithRemark():
         self.failed_feeds = self.failed_feeds + 1
 
     def save_to_feed_log(self):
-        success_data_count = self.total_feeds - self.failed_feeds
+        failed_feeds=self.failed_feeds
         remarks = json.dumps(self.remarks)
 
+        if self.feed_type in ['ECO Implementation Feed', 'ECO Release Feed'] and self.failed_feeds:
+            failed_feeds=self.total_feeds
+        success_data_count = self.total_feeds - failed_feeds
         path = ""
         if self.failed_feeds and settings.FEED_FAILURE_MAIL_ENABLED:
                  
@@ -37,7 +40,7 @@ class FeedLogWithRemark():
                 logger.error("Feed file not updated on s3 : %s" % ex)
         
         feed_log(brand=settings.BRAND, feed_type=self.feed_type, total_data_count=self.total_feeds,
-              failed_data_count=self.failed_feeds,
+              failed_data_count=failed_feeds,
               success_data_count=success_data_count, status=self.status,
               action=self.action, remarks=None, file_location=path)
     

@@ -12,5 +12,6 @@ setup(
                       'django-storages==1.1.8', 'boto==2.28.0', 'django-tastypie-swagger==0.1.2', 
                       'django-otp==0.2.7', 'django-oauth2-provider==0.2.6.1', 'newrelic==2.20.0.17', 
                       'django-debug-toolbar==1.2.1', 'django-extensions==1.2.5', 'django-composite-field',
-                      'django-picklefield==0.3.1', 'django-constance', 'django-registration==1.0', 'hashedin-logan']
+                      'django-picklefield==0.3.1', 'django-constance', 'django-registration==1.0', 'hashedin-logan',
+                      'longerusername']
 )

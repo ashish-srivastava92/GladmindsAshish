@@ -891,6 +891,7 @@ class NationalSparesManagerResource(CustomBaseModelResource):
         queryset = models.NationalSparesManager.objects.all()
         resource_name = "national-spares-managers"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
         
@@ -903,6 +904,7 @@ class AreaSparesManagerResource(CustomBaseModelResource):
         queryset = models.AreaSparesManager.objects.all()
         resource_name = "area-spares-managers"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
         
@@ -914,6 +916,7 @@ class PartnerResource(CustomBaseModelResource):
         queryset = models.Partner.objects.all()
         resource_name = "partners"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
 
@@ -928,6 +931,7 @@ class DistributorResource(CustomBaseModelResource):
         queryset = models.Distributor.objects.all()
         resource_name = "distributors"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
 
@@ -940,6 +944,7 @@ class RetailerResource(CustomBaseModelResource):
         queryset = models.Retailer.objects.all()
         resource_name = "retailers"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
 

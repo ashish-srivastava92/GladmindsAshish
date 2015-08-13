@@ -14,6 +14,8 @@ from gladminds.management.commands.load_mech_data import Command as mech_cmd
 from gladminds.management.commands.load_part_data import Command as part_cmd
 from gladminds.management.commands.load_asc_with_asm import Command as asm_cmd
 from gladminds.management.commands.load_sbom_data import Command as sbom_cmd
+from gladminds.management.commands.load_asm_with_rm import Command as sm_cmd
+
 
 _DEMO = GmApps.DEMO
 _BAJAJ = GmApps.BAJAJ
@@ -77,11 +79,12 @@ class Command(BaseCommand):
         self.create_territory()
         self.create_loyalty_admins()
         self.set_afterbuy_permissions()
-        if settings.ENV not in ['prod', 'staging', 'qa', 'local']:
-            self.upload_loyalty_user()
-            self.upload_asm_user()
-            self.upload_part_data()
-            self.upload_sbom_data()
+#         if settings.ENV not in ['prod', 'staging', 'qa']:
+#             self.upload_loyalty_user()
+#             self.upload_asm_user()
+#             self.upload_part_data()
+#             self.upload_sbom_data()
+#             self.upload_asm_with_rm()
         for brand in ALL_BRANDS:
             self.set_brand_permissions(brand)
             
@@ -258,6 +261,13 @@ class Command(BaseCommand):
         except Exception as ex:
             print "[upload_asm_user]: ", ex
     
+    def upload_asm_with_rm(self):
+        ''' Upload asm with rm data'''
+        try:
+            asm_data = sm_cmd()
+            asm_data.handle()
+        except Exception as ex:
+            print "[Upload sales manager ]:", ex
     def upload_sbom_data(self):
         '''
         Uploads distributor and mechanic data

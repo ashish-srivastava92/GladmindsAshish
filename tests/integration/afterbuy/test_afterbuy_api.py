@@ -81,6 +81,9 @@ class TestAfterbuyApi(base_integration.AfterBuyResourceTestCase, BaseTestCase):
     def test_user_registration_case1(self):
         '''
         Both phone and email does not exist
+        
+        Register using new phone number and email id
+        No validation required 
         '''
         
         resp = self.register_phone_number("1111111111")
@@ -94,7 +97,12 @@ class TestAfterbuyApi(base_integration.AfterBuyResourceTestCase, BaseTestCase):
     def test_user_registration_case2(self):
         '''
         phone number does not exist email exists
+        
+        Register using new phone number and existing email 
+        Validate the email id
+        Check if users with same email id are in active  
         '''
+        
         resp = self.register_phone_number("1111111112")
         self.assertEquals(json.loads(resp.content)['status'], 1)
         
@@ -121,13 +129,18 @@ class TestAfterbuyApi(base_integration.AfterBuyResourceTestCase, BaseTestCase):
     def test_user_registration_case3(self):
         '''
         phone number and email exists
+        
+        Register using existing phone number and email id
+        Validate the otp sent to mail
+        Check if the other users with same email id are in active
+
         '''
+        
         resp = self.register_phone_number("1111111112")    
         self.assertEquals(json.loads(resp.content)['status'], 1)
         
         resp = self.register_email("1111111112", "abb@gmail.com")
         self.assertEquals(json.loads(resp.content)['status'], 1)
-        
         
         resp = self.register_phone_number("1111111113")    
         self.assertEquals(json.loads(resp.content)['status'], 1)
@@ -156,6 +169,10 @@ class TestAfterbuyApi(base_integration.AfterBuyResourceTestCase, BaseTestCase):
     def test_user_registration_case4(self):
         '''
         Phone exists but email email does not exist
+        
+        Register using the existing phone number and new email.
+        Validate the email id passed.
+        Check if the other users with same email id are in active
         '''
         resp = self.register_phone_number("1111111113")    
         self.assertEquals(json.loads(resp.content)['status'], 1)

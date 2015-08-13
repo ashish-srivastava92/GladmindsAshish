@@ -49,6 +49,9 @@ class Roles():
     SDREADONLY = 'SdReadOnly'
     AREASERVICEMANAGER = 'AreaServiceManagers'
     ZSM = 'ZonalServiceManagers' 
+    AREASALESMANAGERS = 'AreaSalesManagers'
+    REGIONALMANAGERS = 'RegionalManagers'
+    CIRCLEHEADS = 'CircleHeads' 
     
     LOYALTYSUPERADMINS = 'LoyaltySuperAdmins'
     LOYALTYADMINS = 'LoyaltyAdmins'
@@ -59,14 +62,17 @@ class Roles():
     LPS = 'LogisticPartners'
     WELCOMEKITESCALATION = 'WelcomeKitEscalation'
     REDEEMESCALATION = 'RedemptionEscalation'
-    
-    VISUALIZATIONADMIN = 'VisualizationAdmin'
-    VISUALIZATIONSTAFF = 'VisualizationStaff'
-    VISUALIZATIONUSER = 'VisualizationUser'
-    
+
     COUNTRYDISTRIBUTOR = 'CountryDistributors'
     MAINCOUNTRYDEALER = 'MainCountryDealer'
 
+    VISUALIZATIONADMIN = 'VisualizationAdmins'
+    VISUALIZATIONSTAFF = 'VisualizationStaffs'
+    VISUALIZATIONUSER = 'VisualizationUsers'
+    
+    DISTRIBUTORSTAFF = 'DistributorStaffs'
+    DISTRIBUTORSALESREP = 'DisitrbutorSalesReps'
+    
 AFTERBUY_ADMIN_GROUPS = [Roles.SUPERADMINS, Roles.ADMINS]
 AFTERBUY_GROUPS = [Roles.SUPERADMINS, Roles.ADMINS, Roles.USERS]
 OTHER_GROUPS = [getattr(Roles,x) for x in dir(Roles) if not x.startswith("__")]

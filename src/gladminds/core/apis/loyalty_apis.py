@@ -37,6 +37,7 @@ class LoyaltySLAResource(CustomBaseModelResource):
         queryset = models.LoyaltySLA.objects.all()
         resource_name = "loyalty-slas"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get', 'post', 'put']
         always_return_data = True
 
@@ -47,6 +48,7 @@ class ProductResource(CustomBaseModelResource):
         queryset = models.ProductCatalog.objects.all()
         resource_name = "product-catalogs"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get', 'post', 'put']
         always_return_data = True
         
@@ -66,6 +68,7 @@ class RedemptionResource(CustomBaseModelResource):
         filtering = {
                      "member": ALL_WITH_RELATIONS,
                      "resolution_flag":ALL,
+                     "status":ALL
                      }
         ordering = ["created_date", "status", "member"]
 
@@ -146,6 +149,7 @@ class AccumulationResource(CustomBaseModelResource):
         queryset = models.AccumulationRequest.objects.all()
         resource_name = "accumulations"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get', 'post']
         always_return_data = True
         filtering = {
@@ -160,6 +164,7 @@ class WelcomeKitResource(CustomBaseModelResource):
         queryset = models.WelcomeKit.objects.all()
         resource_name = "welcome-kits"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get', 'post', 'put']
         always_return_data = True
 
@@ -172,6 +177,7 @@ class CommentThreadResource(CustomBaseModelResource):
         queryset = models.CommentThread.objects.all()
         resource_name = "comment-threads"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get', 'post', 'put']
         always_return_data = True
 
@@ -184,6 +190,7 @@ class DiscrepantAccumulationResource(CustomBaseModelResource):
         queryset = models.DiscrepantAccumulation.objects.all()
         resource_name = "accumulation-discrepancies"
         authorization = Authorization()
+        authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get']
         always_return_data = True
 

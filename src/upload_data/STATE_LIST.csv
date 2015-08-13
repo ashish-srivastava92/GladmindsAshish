@@ -1,37 +1,38 @@
-state code,state name
-AN,Andaman & Nicobar
-AP,Andhra Pradesh
-ARP,Arunachal Pradesh
-AS,Assam
-BT,Bhutan
-BH,Bihar
-CD,Chandigarh
-CH,Chattisgarh
+AN,Andaman & Nicobar,
+AP,Andhra Pradesh,
+ARP,Arunachal Pradesh,
+AS,Assam,
+BT,Bhutan,
+BH,Bihar,
+CD,Chandigarh,
+CH,Chattisgarh,
 DH,"Dadra, Nagarhaveli"
-DEL,Delhi
+DEL,Delhi,
 GDD,"Goa, Daman & Diu"
-GJ,Gujarat
-HR,Haryana
-HP,Himachal Pradesh
-JK,Jammu & Kashmir
-JH,Jharkhand
-KAR,Karnataka
-KER,Kerala
-LAK,Lakshwadeep
-MP,Madhya Pradesh
-MAH,Maharashtra
-MN,Manipur
-MG,Meghalaya
-MZ,Mizoram
-NG,Nagaland
-NP,Nepal
-OR,Orissa
-PY,Pondicherry
-PB,Punjab
-RJ,Rajasthan
-SK,Sikkim
-TN,Tamil Nadu
-TR,Tripura
-UP,Uttar Pradesh
-UT,Uttaranchal
-WB,West Bengal
+GJ,Gujarat,
+HR,Haryana,
+HP,Himachal Pradesh,
+JK,Jammu & Kashmir,
+JH,Jharkhand,
+KAR,Karnataka,
+KER,Kerala,
+LAK,Lakshwadeep,
+MP,Madhya Pradesh,
+MAH,Maharashtra,
+MN,Manipur,
+MG,Meghalaya,
+MZ,Mizoram,
+NG,Nagaland,
+NP,Nepal,
+OR,Orissa,
+PY,Pondicherry,
+PB,Punjab,
+RJ,Rajasthan,
+SK,Sikkim,
+TN,Tamil Nadu,
+TR,Tripura,
+UP,Uttar Pradesh,
+UT,Uttaranchal,
+WB,West Bengal,
+UPE,Uttar Pradesh East,
+UPW,Uttar Pradesh West,

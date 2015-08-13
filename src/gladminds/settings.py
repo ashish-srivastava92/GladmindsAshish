@@ -52,6 +52,7 @@ SDFILE_BUCKET = 'gladminds'
 
 FEED_FAILURE_DIR = 'aftersell/{0}/feed-logs/qa/'
 FEED_FAILURE_BUCKET = 'gladminds'
+MAX_USERNAME_LENGTH = 250
 
 S3_ID = 'AKIAIL7IDCSTNCG2R6JA'
 S3_KEY = '+5iYfw0LzN8gPNONTSEtyUfmsauUchW1bLX3QL9A'
@@ -367,7 +368,7 @@ ALL_APPS = (
     # 'django.contrib.admindocs',
 )
 
-INSTALLED_APPS = ALL_APPS
+INSTALLED_APPS = ("longerusername",) + ALL_APPS
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 

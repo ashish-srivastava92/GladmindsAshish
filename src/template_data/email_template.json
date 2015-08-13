@@ -221,7 +221,7 @@
         "fields": {
             "template_key": "VIN_SYNC_FEED",
             "sender": "feed-report@gladminds.co",
-            "receiver": "priyanka.n@hashedin.com",
+            "receiver": "suresh@hashedin.com",
             "subject": "Consolidated Report : GladMinds Vin Sync Feed Report",
             "body": "Please find enclosed, the details of VINs updated in GCP database through online verification requested by various Dealers / ASCs for - ", 
             "description": "Vin sycn feed mail"
@@ -233,7 +233,7 @@
         "fields": {
             "template_key": "CUSTOMER_PHONE_NUMBER_UPDATE",
             "sender": "feed-report@gladminds.co",
-            "receiver": "priyanka.n@hashedin.com",
+            "receiver": "suresh@hashedin.com",
             "subject": "Customer phone number update summary",
             "body": "Please find the enclosed, customer phone number updates on {date} ", 
             "description": "Customer phone number update mail"
@@ -245,7 +245,7 @@
         "fields": {
             "template_key": "FEED_FAILURE",
             "sender": "feed-report@gladminds.co",
-            "receiver": "priyanka.n@hashedin.com",
+            "receiver": "suresh@hashedin.com",
             "subject": "Consolidated Report: GladMinds Feed Failure - {feed_type} ",
             "body": "Please find enclosed, the failure details of {feed_type} on {date} ", 
             "description": "Feed failure mail "
@@ -317,7 +317,7 @@
         "fields": {
             "template_key": "PHONE_NUMBER_UPDATE_COUNT_EXCEEDED",
             "sender": "feed-report@gladminds.co",
-            "receiver": "",
+            "receiver": "suresh@hashedin.com",
             "subject": "limit for updating phone number exceeded",
             "body": "The count of updates to phone number of the customers with following details exceeded the limit.Please address the issue",
             "description":"Mail to ASM if count of updates to phone number of a customer exceeds"
@@ -377,7 +377,7 @@
         "fields": {
             "template_key": "MANUFACTURE_DISCREPANCY_MAIL_TO_MANAGER",
             "sender": "feed-report@gladminds.co",
-            "receiver": "",
+            "receiver": "suresh@hashedin.com",
             "subject": "Discrepancy in manufacturing data received",
             "body": "There are some discrepancy in the manufacturing data received for following vehicle",
             "description":"Mail to manager group if there discrepancy in the manufacturing data received"

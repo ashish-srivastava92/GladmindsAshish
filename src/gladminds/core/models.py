@@ -395,11 +395,34 @@ class Distributor(base_models.Distributor):
     class Meta(base_models.Distributor.Meta):
         app_label = _APP_NAME
 
+class DistributorStaff(base_models.DistributorStaff):
+    '''details of Distributor Staff'''
+    user = models.ForeignKey(UserProfile, null=True, blank=True)
+    distributor = models.ForeignKey(Distributor, null=True, blank=True)
+    
+    class Meta(base_models.DistributorStaff.Meta):
+        app_label = _APP_NAME
+
+class DistributorSalesRep(base_models.DistributorSalesRep):
+    '''details of Distributor Sales Rep'''
+    user = models.ForeignKey(UserProfile, null=True, blank=True)
+    distributor = models.ForeignKey(Distributor, null=True, blank=True)
+    
+    class Meta(base_models.DistributorSalesRep.Meta):
+        app_label = _APP_NAME
 
 class Retailer(base_models.Retailer):
     '''details of retailer'''
 
     class Meta(base_models.Retailer.Meta):
+        app_label = _APP_NAME
+
+class DSRWrokAllocation(base_models.DSRWrokAllocation):
+    '''details of DSR work allocation'''
+    distributor = models.ForeignKey(Distributor, null=True, blank=True)
+    retailer = models.ForeignKey(Retailer, null=True, blank=True)
+    
+    class Meta(base_models.DSRWrokAllocation.Meta):
         app_label = _APP_NAME
 
 class Member(base_models.Member):

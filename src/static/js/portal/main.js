@@ -111,7 +111,7 @@
 		            	}
             			if(userName==='d123'){
                 		    $('.customer-name').val(product.name).attr('readOnly', false);
-                		    $('.purchase-date').val(product.purchased).attr('readOnly', false);
+                		    $('.purchase-date').val(product.purchased).attr('disabled', false);
             			}
             		 }
 		              else{
@@ -241,6 +241,40 @@ function vinSyncFeed(vin){
         }
     });
     
+    $('.pass-reset-form').on('submit', function() {
+        if($('#password').val() !== $('#duplicate').val()) {
+            Utils.showErrorMessage('Password does not matches.', 1000, 7000);
+            return false;
+        }
+    	else{
+            var data = Utils.getFormData('.pass-reset-form');
+            $.ajax({
+                type: 'POST',
+                url: '/aftersell/users/otp/update_pass',
+                data: data,
+                success: function(data){
+                        if (data.status) {
+                            Utils.showErrorMessage(data.message, 10, 7000);
+                            
+                        setTimeout(function() {
+                        	parent.window.location='/aftersell/dealer/login';
+                        }, 2000);
+                      }
+                        else {
+                           Utils.showErrorMessage(data.message, 10, 7000);
+                       }
+                    },
+                error: function(data) {
+                    var messageModal = $('.modal.message-modal'),
+                        messageBlock = $('.modal-body', messageModal);
+                    messageBlock.text('Some error occurred. Please contact customer support: +91-7847011011');
+                    messageModal.modal('show');
+                }
+            });
+            return false;
+        }
+    });
+
     $('.cancel-change-pass').click(function(){
         history.back();
     });

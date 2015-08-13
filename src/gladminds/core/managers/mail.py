@@ -19,11 +19,8 @@ def get_email_template(key, brand=None):
     return template_object[0]
 
 def get_mail_receiver(template_name, mail_detail):
-    if (settings.ENV not in settings.IGNORE_ENV):
-        receivers = template_name['receiver']
-    else:
-        receivers = []
-        receivers.append(mail_detail['receiver'])
+    receivers = []
+    receivers.append(mail_detail['receiver'])
     return receivers
 
 def send_email_with_file_attachment(sender, receiver, subject, body, filename, content, brand='bajaj'):

@@ -1,0 +1,32 @@
+
+   	
+	<table class="table table-striped table-bordered report-table">
+		<thead>
+		    <th>VIN</th>
+			<th>Customer Name</th>
+			<th>Customer Mobile Number</th>
+			<th>SA Mobile</th>
+			<th>Service Availed Date</th>
+			<th>Status</th>
+			<th>Closed Date</th>
+			<th>Credit Date</th>
+			<th>Credit Note</th>
+		</thead>
+		<tbody>
+			{% for record in records %}
+			<tr>
+			    <td>{{record.vin|default_if_none:""}}</td>
+				<td>{{record.customer_name|default_if_none:""}}</td>
+				<td>{{record.customer_number|default_if_none:""}}</td>
+				<td>{{record.sa_phone_name|default_if_none:""}}</td>
+				<td>{{record.service_avil_date}}</td>
+				<td>{{record.service_status|default_if_none:""}}</td>
+				<td>{% if record.service_status == "Closed" %}
+					{{record.closed_date|default_if_none:""}} {% else %} n/a {% endif%}
+				</td>
+				<td>{{record.credit_date|default_if_none:""}}</td>
+				<td>{{record.credit_note|default_if_none:""}}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>

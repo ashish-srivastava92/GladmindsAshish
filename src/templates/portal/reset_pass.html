@@ -7,7 +7,7 @@
 {% block body %}
 <div class="user-message"><div class="message"></div></div>
 <label><h2>Reset Password</h2></label>
-<form role="form" action="/aftersell/users/otp/update_pass" method="post" class="pass-reset-form">
+<form role="form" class="pass-reset-form">
     {% csrf_token %}
     <div class="row">
         <div class="col-md-3">
@@ -21,10 +21,23 @@
                 <input type="password" class="form-control" id="duplicate" name="duplicate" placeholder="Retype Password" required>
             </div>
         </div>
-    </div>
+        <div class="col-md-9">
+        	<div class="row">
+	    		<div class="col-md-offset-1 col-md-12 form-group">
+	            	<label>Password rules</label>
+					<h5>The new password should meet the below rules. The password should contain:<h5>
+					<h5>1. Minimum 6 characters<h5>
+					<h5>2. At least one uppercase letter<h5>
+					<h5>3. At least one lowercase letter<h5>
+					<h5>4. At least one number<h5>
+					<h5>5. At least one special (non-alphanumeric) character<h5>
+	        	</div>
+	     	</div>	            
+        </div>
+     </div>
     <div class="row">
         <div class="col-md-4 form-group">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" value="Submit" class="btn btn-primary">
                 Submit
             </button>
         </div>
@@ -33,5 +46,7 @@
 {% endblock %}
 
 {% block dependency %}
+<script src="/static/js/portal/utils.js"></script>
+<script src="/static/js/portal/main.js"></script>
 <script src="/static/js/portal/reset.js"></script>
 {% endblock dependency %}

@@ -235,24 +235,28 @@ class CoreLoyaltyService(Services):
         
     def initiate_welcome_kit(self, mechanic_obj):
         '''Saves the welcome kit request for processing'''
-        delivery_address = ', '.join(filter(None, (mechanic_obj.shop_number,
-                                                   mechanic_obj.shop_name,
-                                                   mechanic_obj.shop_address)))
-        partner=None
-        packed_by=None
-        partner_list = get_model('Partner').objects.using(settings.BRAND).all()
-        if len(partner_list)==1:
-            partner=partner_list[0]
-            packed_by=partner.user.user.username
-        date = self.set_date('Welcome Kit', 'Open')
-        welcome_kit=get_model('WelcomeKit')(member=mechanic_obj,
-                                    delivery_address=delivery_address,
-                                    partner=partner,
-                                    packed_by=packed_by,
-                                    due_date=date['due_date'],
-                                    expected_delivery_date=date['expected_delivery_date'])
-        welcome_kit.save(using=settings.BRAND)
-        self.send_welcome_kit_mail_to_partner(welcome_kit)
+        welcome_kit=get_model('WelcomeKit').objects.filter(member=mechanic_obj)
+        if not welcome_kit:
+            delivery_address = ', '.join(filter(None, (mechanic_obj.shop_number,
+                                                       mechanic_obj.shop_name,
+                                                       mechanic_obj.shop_address)))
+            partner=None
+            packed_by=None
+            partner_list = get_model('Partner').objects.using(settings.BRAND).all()
+            if len(partner_list)==1:
+                partner=partner_list[0]
+                packed_by=partner.user.user.username
+            date = self.set_date('Welcome Kit', 'Open')
+            welcome_kit=get_model('WelcomeKit')(member=mechanic_obj,
+                                        delivery_address=delivery_address,
+                                        partner=partner,
+                                        packed_by=packed_by,
+                                        due_date=date['due_date'],
+                                        expected_delivery_date=date['expected_delivery_date'])
+            welcome_kit.save(using=settings.BRAND)
+            self.send_welcome_kit_mail_to_partner(welcome_kit)
+        else:
+            welcome_kit=welcome_kit[0]
         return welcome_kit
 
     def send_mail_to_partner(self, redemption_obj):

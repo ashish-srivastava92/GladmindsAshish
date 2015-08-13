@@ -277,3 +277,8 @@ SERVICE_STATUS = (('Pending', 'Pending'),
                   ('Confirmed', 'Confirmed'),
                   ('Completed', 'Completed'),
                   ('Cancelled', 'Cancelled'))
+
+WORKFLOW_STATUS = (
+        ('Open', 'Open'),
+        ('Completed', 'Completed')
+    )

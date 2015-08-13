@@ -387,7 +387,7 @@ class ConsumerResource(CustomBaseModelResource):
                                                                             .filter(Q(phone_number=phone_number) &
                                                                             ~Q(user__email=email) &
                                                                             Q(user__is_active=True))
-            if len(all_consumers) >0:                                                                
+            if len(all_consumers) >0:
                 all_consumers[0].has_discrepancy = True
                 user_obj = all_consumers[0].user
                 user_obj.is_active = False
@@ -582,26 +582,39 @@ class ConsumerResource(CustomBaseModelResource):
 
         phone_number = load.get('phone_number', None)
         product_id = load.get('product_id', None)
-        query_args = []
+        query_args1 = []
+        query_args2 = []
         if product_id:
-            if product_id[:3].upper()!= constants.KTM_VIN:
-                return HttpResponse(json.dumps({'message':'Incorrect VIN'}), content_type='application/json')
-            query_args.append(Q(product__product_id=product_id))
+            query_args1.append(Q(product__product_id=product_id))
+            query_args2.append(Q(product_id=product_id))
         
         if phone_number:
-            query_args.append(Q(product__customer_phone_number__contains=phone_number))
+            query_args1.append(Q(product__customer_phone_number__contains=phone_number))
+            query_args2.append(Q(customer_phone_number__contains=phone_number))
         
-        coupons = get_model('CouponData', GmApps.BAJAJ).objects.filter(reduce(operator.and_, query_args))
+        coupons = get_model('CouponData', GmApps.BAJAJ).objects.filter(reduce(operator.and_, query_args1))
+        products = get_model('ProductData', GmApps.BAJAJ).objects.filter(reduce(operator.and_, query_args2))
+        if not products:
+            return HttpResponse(json.dumps({'message': 'No products associated with the data'}),
+                                content_type='application/json')
         try:
-            if not coupons:
-                    return HttpResponse(json.dumps({'message' : 'No coupons associated with the data'}), content_type='application/json')
-            else:
-                result = {}
-                result['coupons'] = [model_to_dict(c, exclude='product_id') for c in coupons]
-                return HttpResponse(json.dumps(result, cls=DjangoJSONEncoder), content_type='application/json')
-        
-        except Exception as ex:
+            result = []
+            for coupon in coupons:
+                data = {}
+                data['coupons'] = model_to_dict(coupon)
+                user_product = filter(lambda product : product.id==coupon.product_id, products)
+                if user_product:
+                    data['sku_code'] = user_product[0].sku_code
+                    data['product_id'] = user_product[0].product_id
+                    data['customer_phone_number'] = user_product[0].customer_phone_number
+                    data['customer_name'] = user_product[0].customer_name
+                result.append(data)
+            return HttpResponse(json.dumps(result, cls=DjangoJSONEncoder), content_type='application/json')
+
+        except Exception as ex :
             logger.info("[Exception while fetching product details]:{0}".format(ex))
+            return HttpResponse(json.dumps({'message': 'Error while fetching data'}),
+                                content_type='application/json')
 
 class UserNotificationResource(CustomBaseModelResource):
     consumer = fields.ForeignKey(ConsumerResource, 'consumer', null=True, blank=True, full=True)

@@ -507,7 +507,7 @@ class AccumulationRequestAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS, Roles.LOYALTYADMINS, Roles.LOYALTYSUPERADMINS]
     search_fields = ('member__mechanic_id', 'upcs__unique_part_code')
     list_display = ( 'member',  'get_mechanic_name', 'get_mechanic_district',
-                     'asm', 'get_upcs', 'points',
+                     'get_asm', 'get_upcs', 'points',
                      'total_points', 'created_date')
     
     def get_upcs(self, obj):

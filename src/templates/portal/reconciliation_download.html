@@ -1,0 +1,36 @@
+
+	<table class="table table-striped table-bordered report-table">
+		<thead>
+			<th>Customer ID</th>
+			<th>Product Type</th>
+			<th>VIN</th>
+			<th>UCN</th>
+			<th>Service Availed Date</th>
+			<th>Closed Date</th>
+			<th>SA Mobile</th>
+			<th>Actual KMS</th>
+			<th>Service Type</th>
+			<th>Coupon Status</th>
+			<th>Special Case</th>
+		</thead>
+		<tbody>
+			{% for record in data %}
+			<tr>
+				<td>{{record.customer_id|default_if_none:""}}</td>
+				<td>{{record.product_type|default_if_none:""}}</td>
+				<td>{{record.vin|default_if_none:""}}</td>
+				<td>{% if record.service_status == "DFSC Closed" %}
+					{{record.coupon_no}} {% endif%}</td>
+				<td>{{record.service_avil_date}}</td>
+				<td>{% if record.service_status == "DFSC Closed" %}
+					{{record.closed_date|default_if_none:""}} {% else %} N/A {% endif%}
+				</td>
+				<td>{{record.sa_phone_name|default_if_none:"N/A"}}</td>
+				<td>{{record.kms|default_if_none:""}}</td>
+				<td>{{record.service_type|default_if_none:""}}</td>
+				<td>{{record.service_status|default_if_none:""}}</td>
+				<td>{% if record.special_case %} Yes {% else %} No {% endif%}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>

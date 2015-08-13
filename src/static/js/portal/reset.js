@@ -1,15 +1,5 @@
 'use strict';
 $(function() {
-    $('.pass-reset-form').on('submit', function() {
-        if($('#password').val() !== $('#duplicate').val()) {
-            var messageBlock = $('.user-message .message');
-            messageBlock.text('Passwords do not match');
-            messageBlock.stop().fadeOut(0);
-            messageBlock.fadeIn(1000).fadeOut(7000);
-            return false;
-        }
-    });
-  
     $('a.otp-redirect').click(function(event) {
         if(!$('#mobile').val()) {
             event.preventDefault();

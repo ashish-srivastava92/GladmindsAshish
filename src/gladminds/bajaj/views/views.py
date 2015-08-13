@@ -173,9 +173,9 @@ def update_pass(request):
     try:
         otp = request.POST['otp']
         password = request.POST['password']
-        utils.update_pass(otp, password)
-        logger.info('Password has been updated.')
-        return HttpResponseRedirect('/aftersell/asc/login?update=true')
+        data = utils.update_pass(otp, password)
+        return HttpResponse(json.dumps(data), content_type='application/json')
+
     except:
         logger.error('Password update failed.')
         return HttpResponseRedirect('/aftersell/asc/login?error=true')
@@ -596,10 +596,8 @@ def reports(request):
             report_data['params']['status']='2'
             template_rendered = 'portal/credit_note_report.html'
         report_data['records'] = create_reconciliation_report(report_data['params'], request.user)
-    if request.POST:
         if '_download' in request.POST:
-            return download_reconcilation_reports(report_data['records'])
-   
+            return download_reconcilation_reports(report_data)
     return render(request, template_rendered, report_data)
 
 @log_time
@@ -719,10 +717,13 @@ def get_active_asc_report(request, role=None):
     
 def download_reconcilation_reports(download_data):
     response = HttpResponse(content_type='text/excel')
-    response['Content-Disposition'] = 'attachment; filename="reconciliation-report.xlsx"'
-    t = loader.get_template('portal/reconciliation_download.txt')
+    response['Content-Disposition'] = 'attachment; filename="ReportList.xlsx"'
+    if download_data['params']['type']== 'credit':
+        template = loader.get_template('portal/reconciliation_credit_download.html')
+    else:
+        template = loader.get_template('portal/reconciliation_download.html')
     c = Context({
-        'data': download_data,
+        'data': download_data['records'],
     })
-    response.write(t.render(c))
+    response.write(template.render(c))
     return response
