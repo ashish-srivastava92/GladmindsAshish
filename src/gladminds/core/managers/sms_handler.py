@@ -11,6 +11,7 @@ from tastypie.http import HttpBadRequest
 from gladminds.core.managers.sms_parser import sms_processing
 from gladminds.core.cron_jobs.queue_utils import send_job_to_queue
 from gladminds.sqs_tasks import send_invalid_keyword_message
+import json
 
 LOGGER = logging.getLogger('gladminds')
 ANGULAR_FORMAT = lambda x: x.replace('{', '<').replace('}', '>')
@@ -56,8 +57,8 @@ class SMSResources(Resource):
         except Exception as invalid_keyword:
             LOGGER.info("The database failed to perform {0}:{1}".format(
                                             request.POST.get('action'), invalid_keyword))
-            send_job_to_queue(send_invalid_keyword_message, {"phone_number":phone_number, "message":invalid_keyword, "sms_client":settings.SMS_CLIENT})
-            return HttpBadRequest(invalid_keyword)
+            send_job_to_queue(send_invalid_keyword_message, {"phone_number":phone_number, "message":invalid_keyword.message, "sms_client":settings.SMS_CLIENT})
+            return HttpBadRequest(json.dumps({'status':False, 'message':invalid_keyword.message}))
         return self.create_response(request, data=to_be_serialized)
         
     

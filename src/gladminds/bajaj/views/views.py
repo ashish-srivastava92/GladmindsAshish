@@ -718,7 +718,7 @@ def get_active_asc_report(request, role=None):
     
 def download_reconcilation_reports(download_data):
     response = HttpResponse(content_type='text/excel')
-    response['Content-Disposition'] = 'attachment; filename="ReportList.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="ReportList.xls"'
     if download_data['params']['type']== 'credit':
         template = loader.get_template('portal/reconciliation_credit_download.html')
     else:

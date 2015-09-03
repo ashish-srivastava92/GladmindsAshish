@@ -986,7 +986,8 @@ class MemberResource(CustomBaseModelResource):
                      "member_id" : ALL,
                      "permanent_id" : ALL,
                      "mechanic_id" : ALL,
-                     "phone_number" : ALL
+                     "phone_number" : ALL,
+                     "created_date" : ALL
                      }
         ordering = ["state", "locality", "district", "registered_date",
                     "created_date", "mechanic_id", "last_transaction_date", "total_accumulation_req"
@@ -1042,7 +1043,7 @@ class MemberResource(CustomBaseModelResource):
         try:
             active_days = load.get('active_days', None)
             if not active_days:
-                active_days=30
+                active_days=90
             if not request.user.is_superuser:
                 user_group = request.user.groups.values()[0]['name']
                 area = self._meta.args['query_field'][user_group]['area']
@@ -1050,15 +1051,23 @@ class MemberResource(CustomBaseModelResource):
                 args = LoyaltyCustomAuthorization.get_filter_query(user=request.user, q_user=area, query=args)
             else:
                 region='state__state_name'
-            registered_member = models.Member.objects.filter(**args).values(region).annotate(count= Count('mechanic_id'))
-            args['last_transaction_date__gte']=datetime.now()-timedelta(int(active_days))
-            active_member = models.Member.objects.filter(**args).values(region).annotate(count= Count('mechanic_id'))
+            registered_member = get_model('Member').objects.filter(**args).values(region).annotate(count= Count('mechanic_id'))
+            active_type = load.get('active_type', None)
+            if active_type:
+                type_model={'accumulation':'AccumulationRequest', 'redemption':'RedemptionRequest'}
+                args['created_date__gte']=datetime.now()-timedelta(int(active_days))
+                region_filter='member__state__state_name'
+                active_member = get_model(type_model[active_type]).objects.filter(**args).values(region_filter).annotate(count= Count('member', distinct = True))
+            else:
+                region_filter=region
+                args['last_transaction_date__gte']=datetime.now()-timedelta(int(active_days))
+                active_member = get_model('Member').objects.filter(**args).values(region_filter).annotate(count= Count('mechanic_id'))
             member_report={}
             for member in registered_member:
                 member_report[member[region]]={}
                 member_report[member[region]]['registered_count'] = member['count']
                 member_report[member[region]]['active_count']= 0
-                active = filter(lambda active: active[region] == member[region], active_member)
+                active = filter(lambda active: active[region_filter] == member[region], active_member)
                 if active:
                     member_report[member[region]]['active_count']= active[0]['count']
         except Exception as ex:

@@ -52,7 +52,7 @@ class ProductTypeAdmin(GmModelAdmin):
                     'image_url', 'is_active')
 
 class DispatchedProduct(get_model("ProductData")):
-
+ 
     class Meta:
         proxy = True
 

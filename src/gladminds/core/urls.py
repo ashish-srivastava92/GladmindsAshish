@@ -150,4 +150,6 @@ urlpatterns = patterns('',
     url(r'^kit-download/(?P<choice>[a-zA-Z0-9]+)$', loyalty.download_welcome_kit_detail, name='download_welcome_kit_detail'),
     url(r'^redemption-download/(?P<choice>[a-zA-Z0-9]+)$', loyalty.download_redemption_detail, name='download_redemption_detail'),
     url(r'^accumulation-download/(?P<choice>[a-zA-Z0-9]+)$', loyalty.download_accumulation_detail, name='download_accumulation_detail'),
+    url(r'^loyalty/(?P<report_choice>[a-zA-Z]+)/$', 'gladminds.core.views.get_loyalty_reports'),
+    url(r'^powerrewards/$', 'gladminds.core.views.get_loyalty_login'),
 )

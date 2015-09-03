@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	    <title>Power Rewards</title>
+
+		<link rel="shortcut icon" href="/static/powerrewards/img/favicon.ico">
+		<link rel="stylesheet" href="/static/powerrewards/css/report.css">
+		<link type="text/css" href="/static/powerrewards/css/jquery-ui.css" rel="stylesheet"> 
+		
+	    <link rel="stylesheet" href="/static/powerrewards/css/themes/default/jquery.mobile-1.4.5.min.css">
+	   
+		
+
+		<link href="/static/powerrewards/css/style1.css" rel="stylesheet">
+		
+		
+	    <!-- GLOBAL STYLES - Include these on every page. -->
+	    <link href="/static/powerrewards/css/bootstrap.min.css" rel="stylesheet">
+	    
+
+	    <!-- THEME STYLES - Include these on every page. -->
+	    <link href="//themes.startbootstrap.com/flex-admin-v1.2/css/plugins/datatables/datatables.css" rel="stylesheet">
+	    <link href="/static/powerrewards/css/plugins.css" rel="stylesheet">
+
+	    <!-- THEME DEMO STYLES - Use these styles for reference if needed. Otherwise they can be deleted. -->
+
+		<script src="/static/powerrewards/js/jquery.min.js"></script>
+		<script src="/static/powerrewards/js/jquery.mobile-1.4.5.min.js"></script>
+		<link href="/static/powerrewards/css/datepicker3.css" rel="stylesheet">
+		<script src="/static/powerrewards/js/jquery.dataTables.js"></script>
+		<script src="/static/powerrewards/js/moment.js"></script>
+
+	</head>
+	<body>
+
+		
+		
+
+				
+
+		<div data-url="panel-responsive-page1" data-role="page" class="jqm-demos ui-responsive-panel" data-title="Power Rewards" id="page1">
+				
+				<div data-role="panel" id="myPanel">
+
+				 	<ul data-role="listview" data-inset="true" data-divider-theme="a" style="margin-top:33%;">
+				 		<li data-role="list-divider">Reports</li>
+						<li><a href="/loyalty/report" target="_self">Registration  Details</a></li>
+						<li><a href="/loyalty/accumulation" target="_self">Accumulation Report</a></li>
+						<li><a href="/loyalty/redemption" target="_self">Redemption Report</a></li>
+						<li><a href="/loyalty/product" target="_self">Product Fitment</a></li>
+						<li><a href="#" class="active"target="_self">Monthly Active Count</a></li>
+						<li><a href="/loyalty/monthlynot" target="_self">Monthly Inactive Count</a></li>
+					</ul> 
+				</div>
+
+			    <div data-role="header" class="jqm-header" data-id="main-header">
+					<div class="bs-example">
+					    <nav role="navigation" class="navbar navbar-default">
+					        <!-- Brand and toggle get grouped for better mobile display -->
+					        <div class="navbar-header">
+					            <a href="" title="jQuery Mobile Demos home">
+					            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
+					            </a>
+					        </div>
+					        
+					    </nav>
+					</div>
+				</div><!-- /header -->
+		
+			<div data-role="content" id="content1">
+				<div class="row">
+				    <div class="col-md-6"><div style="float: left;"><a href="#myPanel"><button  class="ui-btn ui-icon-bars ui-shadow ui-corner-all ui-btn-icon-notext ui-btn-inline">bars</button></a></div></div>
+				    <div class="col-md-6">
+				    	<div class="row">
+				    		<div class="col-md-7">	
+							    			
+				    		</div>
+				    		<div class="col-md-1" style="margin-top:22px;float: left;"><a href="." target="_self" class="ui-btn ui-icon-refresh ui-btn-icon-notext ui-corner-all"></a></div>
+				    		<div class="col-md-4">
+				    			<fieldset class="ui-field-contain">
+							        <select name="day" id="day">
+							        	<option value="">Select Days</option>
+										<option value="15">15</option>
+										<option value="30">30</option>
+										<option value="60">60</option>
+									</select>
+							    </fieldset>
+				    		</div>
+				    		
+				    	</div>
+					</div>    
+				</div>
+				<div class="portlet portlet-default">
+	                <div class="portlet-heading">
+	                    <div class="portlet-title">
+	                        <h4>Monthly Active Count</h4>
+	                     </div>
+
+	                    <div class="clearfix"></div>
+	                </div>
+	                <div class="portlet-body">
+	                	
+	                    <div class="table-responsive">
+	                    <script type="text/javascript">
+	                    var access_token=localStorage.getItem("access_token")
+
+	                    	$(document).ready(function(){
+
+                         			showLoading();
+                         			getNextPageData(1);
+ 
+									});
+
+	                    		$(document).on("change","#day",function(){
+                         				url = "/v1/members/active/?access_token="+access_token+"&active_days="
+                         				
+                         				showLoading();
+                         				$(".table-responsive").html('')
+                         				getDataFromAPI(url);
+                         				
+                         				})
+
+									function getNextPageData(url) {
+										if(url == 1) {
+											url = "/v1/members/active/?access_token="+access_token+"&active_days=90"
+										} else {
+											url = url;
+										}
+										
+										
+										getDataFromAPI(url)
+									}
+									function getPrivPageData(url) {
+										if(url == 1) {
+											url = "/v1/members/active/?access_token="+access_token+"&active_days=90"
+										} else {
+											url = url;
+										}
+										
+										
+										getDataFromAPI(url)
+									}
+
+									function getDataFromAPI(apiURL) {
+										
+										if($('#day').val()=='')
+											{
+												var val=90;
+											}
+											else
+											{
+												var val=$('#day').val();
+											}
+
+										
+
+										$.ajax({
+											url : apiURL+val,
+											type : 'GET',
+											dataType : 'json',
+											success : function(data, status) {
+												
+												createTable(data);
+											}, error: function(e) {
+												console.log(e)
+											}
+										});
+
+										
+											
+									}
+
+									function createTable(data) {
+										dat = data;
+
+										var table='<table id="reportTable" class="table table-striped table-bordered table-hover table-green dataTable" aria-describedby="example-table_info">\
+	                        	<thead>\
+	                           			<tr role="row">\
+	                           			<th class="sorting_asc" role="columnheader" tabindex="0" aria-controls="example-table" rowspan="1" colspan="1" aria-sort="ascending" aria-label="State" >State</th>\
+	                           			<th class="sorting" role="columnheader" tabindex="0" aria-controls="example-table" rowspan="1" colspan="1" aria-label="No of Mechanic Registered(till date )" >No of Mechanic Registered (till date )</th>\
+	                           			<th class="sorting" role="columnheader" tabindex="0" aria-controls="example-table" rowspan="1" colspan="1" aria-label="mechanic messaged" >No of  mechanic messaged</th>\
+	                           			<th class="sorting" role="columnheader" tabindex="0" aria-controls="example-table" rowspan="1" colspan="1" aria-label="active" >% active</th>\
+	                           			<th class="sorting" role="columnheader" tabindex="0" aria-controls="example-table" rowspan="1" colspan="1" aria-label="ASM Name"  >ASM Name</th>\
+	                           			</tr>\
+		                        </thead>\
+		                        <tbody role="alert" aria-live="polite" aria-relevant="all">';
+		                        $.each(dat, function (key, value){
+		                         	
+											var state=noofmech=noofmechmsg=active=asm='';
+											if((key!=null) || (key!=undefined))
+											 	{var state=key
+											}
+											
+											if((dat[key]["registered_count"]!=null) || (dat[key]["registered_count"]!=undefined))
+											 	{var noofmech=dat[key]["registered_count"]}
+											if((dat[key]["active_count"]!=null) || (dat[key]["active_count"]!=undefined))
+											 	{var noofmechmsg=dat[key]["active_count"]}
+
+											if(noofmechmsg==0)
+											{
+												active=0;
+											}
+											else{
+												active=((noofmechmsg*100)/noofmech).toFixed(2);
+											}
+											
+											table += '<tr class="gradeA">\
+	                                                <td class=" sorting_1">'+state+'</td>\
+	                                                <td class=" ">'+noofmech+'</td>\
+	                                                <td class="center ">'+noofmechmsg+'</td>\
+	                                                <td class="center ">'+active+'</td>\
+	                                                <td class="center ">'+asm+'</td>\
+	                                            </tr>';
+										})
+		                                table += ' </tbody></table>';	
+		                               $(".table-responsive").html('').append(table);
+ 
+		                               $("#reportTable").dataTable({"iDisplayLength": 20,"bLengthChange": false,"paging": false,"spagingType": "simple"});
+		                               $(".pagination li").remove();
+		                               $(".pagination li.active").remove();
+		                               $(".dataTables_info").remove();
+									   $(".next a").remove();
+		                               $(".prev a").remove();
+		                               
+
+		                               hideLoading();
+
+		                                
+		                               
+		                               
+		                               $("#nextBtn").click(function(){
+		                               		if($(this).attr('rel')){
+		                               			showLoading();
+		                               			getNextPageData($(this).attr('rel'))
+		                               			$(".table-responsive").html('')}
+		                               })
+		                               $("#prevBtn").click(function(){
+		                               		if($(this).attr('rel')){
+		                               			showLoading();
+			                               		getPrivPageData($(this).attr('rel'))
+			                               		$(".table-responsive").html('')}
+		                               })
+
+									}
+                            </script>
+                        </div>
+                    <!-- /.table-responsive -->
+                    </div>
+                <!-- /.portlet-body -->
+                </div>
+			</div><!-- /content -->
+
+			<div data-role="footer" class="footer" data-id="main-footer" data-position="fixed" data-tap-toggle="false">
+			</div> 
+
+		</div>
+
+		
+		<script src="/static/powerrewards/js/bootstrap.min.js"></script>
+		<script src="/static/powerrewards/js/jquery.slimscroll.min.js"></script>
+		<script src="/static/powerrewards/js/jquery.popupoverlay.js"></script>
+		<script src="/static/powerrewards/js/defaults.js"></script>
+
+
+		 <!-- <script src="http://themes.startbootstrap.com/flex-admin-v1.2/js/plugins/popupoverlay/logout.js"></script> -->
+		<!-- HISRC Retina Images -->
+		<script src="/static/powerrewards/js/hisrc.js"></script>
+
+		<!-- PAGE LEVEL PLUGIN SCRIPTS -->
+		<script src="/static/powerrewards/js/jquery.dataTables.js"></script>
+		<script src="/static/powerrewards/js/datatables-bs3.js"></script>
+		<!-- THEME SCRIPTS -->
+		<!-- <script src="http://themes.startbootstrap.com/flex-admin-v1.2/js/flex.js"></script> -->
+		<script src="/static/powerrewards/js/advanced-tables-demo.js"></script>
+				
+	  <!--   // <script src="js/inc.js"></script> -->
+
+
+	  	<script src="/static/powerrewards/js/bootstrap-datepicker.js"></script>
+	  	<script src="/static/powerrewards/js/report.js"></script>
+	  	<script src="/static/powerrewards/js/moment.js"></script>
+
+	</body>
+</html>

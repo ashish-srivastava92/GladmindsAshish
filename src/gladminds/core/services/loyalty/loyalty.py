@@ -17,6 +17,8 @@ from gladminds.core.services.message_template import get_template
 from gladminds.core.managers.mail import get_email_template, \
                        send_email_to_redemption_request_partner
 from  gladminds.core.core_utils.date_utils import get_time_in_seconds
+from gladminds.core.base_models import AreaSparesManager
+# from twisted.python.reflect import accumulateClassDict
 LOG = logging.getLogger('gladminds')
 
 AUDIT_ACTION = 'SEND TO QUEUE'
@@ -190,8 +192,13 @@ class CoreLoyaltyService(Services):
             for field in headers:
                 if field == 'upcs':
                     upcs_data = accumulation.upcs.all()
-                    ' , '.join([str(upc.unique_part_code) for upc in upcs_data])
-                    data.append((upcs_data))
+                    upc_data_list = ' , '.join([str(upc.unique_part_code) for upc in upcs_data])
+                    data.append((upc_data_list))
+                elif field == 'asm_id':
+                    if accumulation.asm:
+                        data.append(getattr(accumulation.asm, field))
+                    else:
+                        data.append(None)
                 elif field in constants.MEMBER_FIELDS:
                     data.append(getattr(accumulation.member, field))
                 else:
@@ -204,7 +211,7 @@ class CoreLoyaltyService(Services):
     def get_accumulation_detail(self, request, choice, model_name):
         kwargs={}
         if request.user.groups.filter(name=Roles.AREASPARESMANAGERS).exists():
-            asm_state_list=get_model('AreaServiceManager').objects.get(user__user=request.user).state.all()
+            asm_state_list=get_model('AreaSparesManager').objects.get(user__user=request.user).state.all()
             kwargs['member__state__in'] = asm_state_list
         accumulation = get_model(model_name).objects.using(settings.BRAND).filter(**kwargs).select_related('member__state', 'upcs')
         return accumulation

@@ -92,14 +92,18 @@ class ExportAccumulationFeed(BaseExportFeed):
                 item = {
                         "CRDAT": accumulation.created_date.date().strftime("%Y-%m-%d"),
                         "TANSSID": accumulation.transaction_id,
-                        "POINTS": accumulation.points,
                         "MECHID": accumulation.member.permanent_id,
                         "MOBNO": str(accumulation.member.phone_number),
                     }
                 upcs = accumulation.upcs.all()
+                part_number_list=upcs.values_list('part_number', flat=True)
+                upcs_point=get_model('SparePartPoint').objects.using(brand).filter(part_number__in=part_number_list, territory=accumulation.member.state.state_code)
                 for upc in upcs:
-                    item['UPCED'] = str(upc.unique_part_code)
-                    items.append(item)
+                    temp = item.copy()
+                    temp['UPCED'] = str(upc.unique_part_code)
+                    upc_point = filter(lambda point: upc.part_number == point.part_number, upcs_point)
+                    temp['POINTS'] = upc_point[0].points
+                    items.append(temp)
             except Exception as ex:
                 logger.error("[ExportAccumulationFeed]: error fetching from db {0}".format(ex))
                 total_failed = total_failed + 1

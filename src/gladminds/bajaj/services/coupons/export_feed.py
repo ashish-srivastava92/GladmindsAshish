@@ -10,6 +10,7 @@ from gladminds.core.model_fetcher import get_model
 from gladminds.core.managers.feed_log_remark import FeedLogWithRemark
 from gladminds.bajaj.services.coupons.feed_models import save_to_db
 from gladminds.core.services.feed_resources import BaseExportFeed
+from gladminds.core.core_utils.utils import log_time
 
 logger = logging.getLogger("gladminds")
 
@@ -188,7 +189,7 @@ class ExportCustomerRegistrationFeed(BaseExportFeed):
                  action='Sent', status=export_status)
 
 class ExportUnsyncProductFeed(BaseExportFeed):
-
+    @log_time
     def export(self, data=None):
         data_source = []
         message="some error occurred, please try again later."
@@ -199,11 +200,12 @@ class ExportUnsyncProductFeed(BaseExportFeed):
 
         logger.info("[ExportUnsyncProductFeed]: sending product details: {0}"\
                     .format(data['vin']))
-        
+        start_time=datetime.now()
         result = client.service.SI_GCPONL_Sync(
                 DT_ONL=[{"CHASSIS": data['vin'],"DEALER": data['current_user'].username}])
         try:
-            logger.info("[ExportUnsyncProductFeed]: Response from SAP: {0}".format(result))
+            time_taken = start_time - datetime.now()
+            logger.info("[ExportUnsyncProductFeed]:Time taken: {1} Response from SAP: {0}".format(result, time_taken))
             
             if len(result)>1:
                 return_code = result[1][0]['RETURN_CODE']
@@ -217,6 +219,7 @@ class ExportUnsyncProductFeed(BaseExportFeed):
                                                       status_code=return_code, ucn_count=ucn_count)
                 vin_sync_feed.save()
                 if return_code.upper() == 'S':
+                    start_time=datetime.now()
                     message='The Chassis was found in the main database. Please try after sometime.'
                     for results in result[0]:
                         try:
@@ -254,8 +257,8 @@ class ExportUnsyncProductFeed(BaseExportFeed):
                             feed_failure_log(brand=settings.BRAND, feed_type='VIN sync Feed', reason=remark)
                             logger.info('[ExportUnsyncProductFeed]: ' + json.dumps(feed_remark.remarks))
                         raise ValueError('dispatch feed failed!')
-                        logger.info('[ExportUnsyncProductFeed]: dispatch feed completed')
-                        
+                    time_taken = start_time - datetime.now()
+                    logger.info('[ExportUnsyncProductFeed]: dispatch feed completed - Time Taken: {0}', time_taken)        
                 else:
                     message='This Chassis is not available in Main database, please type the correct chassis number'
         except Exception as ex:

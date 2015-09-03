@@ -350,8 +350,8 @@ def update_coupon_data(sender, **kwargs):
             send_job_to_queue(send_on_product_purchase, {"phone_number":customer_phone_number, "message":message, "sms_client":settings.SMS_CLIENT}) 
 
             if not customer_id_replaced:
-                if str(vin).upper().startswith('VBK', 0, 3):
-                    if str(vin).upper()[4] in ['U','G']:
+                if str(instance.sku_code).upper()[3] == 'J': 
+                    if str(instance.sku_code).upper()[4] in ['U','G']:
                         message = templates.get_template('SEND_CUSTOMER_REGISTER_KTM_DUKE'
                                                      ).format(customer_name=instance.customer_name,
                                                               duke_android_url="http://tinyurl.com/com-ktm-ab",
@@ -362,8 +362,23 @@ def update_coupon_data(sender, **kwargs):
                                                               rc_android_url="http://tinyurl.com/COM-KTM-RC",
                                                               rc_web_url="http://ktmrcweb.gladminds.co")
                     sms_log(settings.BRAND, receiver=instance.customer_phone_number, action='SEND TO QUEUE', message=message)
-                    send_job_to_queue(send_on_product_purchase, {"phone_number":instance.customer_phone_number, "message":message, "sms_client":settings.SMS_CLIENT}) 
-            
+                    send_job_to_queue(send_on_product_purchase, {"phone_number":instance.customer_phone_number, "message":message, "sms_client":settings.SMS_CLIENT})
+                    
+#             if not customer_id_replaced:
+#                 if str(vin).upper().startswith('VBK', 0, 3):
+#                     if str(vin).upper()[4] in ['U','G']:
+#                         message = templates.get_template('SEND_CUSTOMER_REGISTER_KTM_DUKE'
+#                                                      ).format(customer_name=instance.customer_name,
+#                                                               duke_android_url="http://tinyurl.com/com-ktm-ab",
+#                                                               duke_web_url="http://ktmdukeweb.gladminds.co")
+#                     elif str(vin).upper()[4]=='Y':
+#                         message = templates.get_template('SEND_CUSTOMER_REGISTER_KTM_RC'
+#                                                      ).format(customer_name=instance.customer_name,
+#                                                               rc_android_url="http://tinyurl.com/COM-KTM-RC",
+#                                                               rc_web_url="http://ktmrcweb.gladminds.co")
+#                     sms_log(settings.BRAND, receiver=instance.customer_phone_number, action='SEND TO QUEUE', message=message)
+#                     send_job_to_queue(send_on_product_purchase, {"phone_number":instance.customer_phone_number, "message":message, "sms_client":settings.SMS_CLIENT})
+                          
         except Exception as ex:
             logger.info("[Exception]: Signal-In Update Coupon Data %s" % ex)
 
