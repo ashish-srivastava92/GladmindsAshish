@@ -47,9 +47,11 @@ def verify_access_token(key, user=None):
         try:
             token =  AccessToken.objects.using('afterbuy').get(token=key)
         except AccessToken.DoesNotExist, e:
-            logging.info('InValid access : {0}'.format(e))
-            raise AuthError('AccessToken not found at all.')
-
+            try:
+                token =  AccessToken.objects.using('bajaj').get(token=key)
+            except AccessToken.DoesNotExist, e:
+                logging.info('InValid access : {0}'.format(e))
+                raise AuthError('AccessToken not found at all.')
     logging.info('Valid access')
     return token
 

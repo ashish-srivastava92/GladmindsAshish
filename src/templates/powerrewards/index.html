@@ -1,0 +1,727 @@
+<html>
+
+	<head>
+	    <meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	    <title>Power Rewards</title>
+
+		<link type="text/css" href="/static/powerrewards/css/jquery-ui.css" rel="stylesheet"> 
+		<link type="text/css" href="/static/powerrewards/css/jquery.signature.css" rel="stylesheet"> 
+	    <link rel="stylesheet" href="/static/powerrewards/css/themes/default/jquery.mobile-1.4.5.min.css">
+	    <link rel="stylesheet" href="/static/powerrewards/_assets/css/jqm-demos.css">
+		<link rel="shortcut icon" href="/static/powerrewards/img/favicon.ico">
+	    <link rel="stylesheet" href="/static/powerrewards/css/fontfamily.css">
+	    <link rel="stylesheet" href="/static/powerrewards/css/bootstrap.min.css">
+	    <link rel='stylesheet' href="/static/powerrewards/css/bootstrap-theme.min.css"/>
+	   	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	    <link rel="stylesheet" href="/static/powerrewards/css/style.css">
+		<link rel="stylesheet" href="/static/powerrewards/css/login.css">
+		<link rel="stylesheet" href="/static/powerrewards/css/slider.css">
+
+		
+
+		<style type="text/css">
+			@media (max-width: 768px) {
+				.navbar_mob_toggle {
+					display: block;
+				}
+
+				.footer_links {
+				    font-size: 11px !important;
+				    padding: 2px 0px 1px 0px !important;
+				    margin: 0 !important;
+				}
+
+				#footerMenu {
+					height: auto !important;
+				}
+
+				.navbar-right {
+				    margin: 5px;
+				}
+
+				.navbar-right li {
+					border-right: none;
+				}
+
+				
+				#transitionExample{
+				    padding-bottom: 0;
+				}
+
+				#transitionExample-popup{
+					top: 20% !important;
+				    left: 2% !important;
+				    width: 100%;
+				}
+
+				.ui-input-text{
+					width: 100% !important;
+					margin:0 5px !important;
+				}
+
+				label {
+					width: 100%!important;
+				}
+				.imgprvw{
+					width:50%;
+					height: 50%;
+					max-width: 350px;
+					max-height: 350px;
+				}
+			}
+
+			.navbar_mob_toggle {
+				display: none;
+			} 
+		</style>
+
+		
+	</head>
+
+<body style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;" unselectable="on" onselectstart="return false;">
+
+
+<div data-role="page" id="splashScreen">
+		
+		<img src="/static/powerrewards/img/splash.jpg" class="fullWidth"/>
+	</div>
+
+<div data-role="panel" class="panel" data-position="right" data-display="reveal"  data-dismissible="true"  data-theme="a" id="add-form"  >
+	 	<div class="wrapper" style="height: 454px;">
+	 	<a href="" data-rel="close" class="ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all "></a>
+	            <div class="bajaj-header-bar centered">
+	                <div class="header content clearfix" id="brand_image">	
+	                <img class="/static/powerrewards/img-responsive logo" src="/static/powerrewards/img/Bajaj_Logo.png"></div>
+	            </div>
+	            <div class="main content clearfix">
+	                <div class="card signin-card clearfix">
+	                    <h1 class="login-aftersell-title">
+	                        One Company...One Experience
+	                    </h1>
+	                    <form method="post" id="login-form" autocomplete="off" action="#">
+	                    	<input type="hidden" id="csrfmiddlewaretoken" name="csrfmiddlewaretoken" value="" />
+	                        <div class="text-left alert alert-danger" id="error-msg-login-window">Invalid Credientials</div>
+	                        <label class="hidden-label" for="Email">Email</label>
+	                        <input id="Email" name="username" type="email" placeholder="Email" value="" spellcheck="false" required>
+	                        <label class="hidden-label" for="Passwd">Password</label>
+	                        <input id="Passwd" name="password" type="password" placeholder="Password" value="" required><br/>
+	                        <button type="submit" id="signIn" name="signIn" class="rc-button rc-button-submit">Sign In</button>
+	                        <!-- <div class="forgot-pwd">
+	                            <label class="remember">
+	                                <a href="#">
+	                                    Forgot Password?
+	                                </a>
+	                            </label>
+	                        </div> -->
+	                    </form>
+	                </div>
+	              <!--   <div class="text-center aftersell-logo">
+	                    <img class="profile-img after-sell img-circle img-responsive" src="img/aftersell.png" alt="aftersell">
+	                </div>
+	                <div class="oneApp-bajaj">
+	                    <p class="create-account">
+	                        <a id="link-signup" class="new-user-reg" href="">
+	                            Create an account
+	                        </a>
+	                    </p>
+	                </div> -->
+	            </div>
+	            <div class="browserSupport">
+	                Supporting Browsers: <a href="//www.google.co.in/chrome/" target="_blank"><img data-toggle="tooltip" title="" data-placement="top" src="/static/powerrewards/img/chrome.png" data-original-title="Download Chrome"></a> <a href="//www.mozilla.org/en-US/firefox/new/" target="_blank"><img data-toggle="tooltip" title="" data-placement="top" src="/static/powerrewards/img/firefox.png" data-original-title="Download Firefox"></a><br/>
+	            </div>
+	    </div>
+	        <footer><img id="panelimg" src="/static/powerrewards/img/panelimg.png" alt="jQuery Mobile"><br><span>All rights reserved by Bajaj Auto. Ltd.</span><br>        <div style="margin:2px 0"><span class="framed circle" style="line-height:20px;margin:10px 20px 10px 0;"><img style="width:16px;height:16px" src="/static/powerrewards/img/phone.png" alt="phone icon" align="top"> <a href="tel:917847011011">+917847011011</a></span> <span class="framed circle"><img style="width:16px;height:16px" src="/static/powerrewards/img/mail.png" alt="Mail icon" align="top"> <a href="mailto:hello@gladminds.co">hello@gladminds.co</a></span></div>        <div style="margin-bottom:10px;"><span>Powered by <a href="//www.gladminds.co/#products" target="_blank">GladMinds Connect Platform</a></span>         </div></footer>
+	</div>
+
+	
+
+<div data-url="panel-responsive-page1" data-role="page" class="jqm-demos ui-responsive-panel" data-title="Power Rewards" id="page1">
+    <div data-role="header" class="jqm-header" data-id="main-header">
+		<div class="bs-example">
+		    <nav role="navigation" class="navbar navbar-default">
+		        <!-- Brand and toggle get grouped for better mobile display -->
+		        <div class="navbar-header">
+		            <button type="button" data-target="#navbarCollapse1" data-toggle="collapse" class="navbar-toggle navbar_mob_toggle">
+		                <span class="sr-only">Toggle navigation</span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		            </button>
+		            <a href="index.html" target="_self" title="jQuery Mobile Demos home">
+		            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
+		            </a>
+		        </div>
+		        <!-- Collection of nav links, forms, and other content for toggling -->
+		        <div id="navbarCollapse1" class="collapse navbar-collapse">
+		            <ul class="nav navbar-nav navbar-right">
+		            	<li><a href="#welcome">Welcome</a></li>
+		                <li><a href="#page1">Power Rewards Program</a></li>
+		                <li><a href="#page2">Enrollment Conditions</a></li>
+		                <li><a href="#page3">FAQs</a></li>
+		                <!-- <li><a href="#page6">Registration</a></li> -->
+		                <li><a href="#add-form">Login</a></li>
+		            </ul>
+			    </div>
+		    </nav>
+		</div>	
+
+    </div><!-- /header -->
+
+
+	<div data-role="popup" id="transitionExample" class="ui-content" data-theme="a" data-shadow="true" data-overlay-theme="a">
+			<video id="video" width="100%" height="100%" controls>
+			<source src="/static/powerrewards/img/Bajaj CV Power Rewards.mp4" type="video/mp4">
+			</video> 
+			
+	</div>
+
+
+
+    <div data-role="content" id="content1">
+
+		<div id="myCarousel" class="carousel slide" data-ride="carousel">
+		    <!-- Indicators -->
+		    <ol class="carousel-indicators">
+		      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+		      <li data-target="#myCarousel" data-slide-to="1"></li>
+		      <li data-target="#myCarousel" data-slide-to="2"></li>
+		    </ol>
+
+		    <!-- Wrapper for slides -->
+		    <div class="carousel-inner" role="listbox">
+
+		      <div class="item active" style="background:#007b4d url(/static/powerrewards/img/img-1_sm.png) no-repeat top center;background-size: auto 100% ; text-align:center;">
+		        <!-- <img class="img" src="img/img-1_sm.png" alt="image1" > -->
+				<div class="carousel-caption">
+		    			
+						<a href="#transitionExample" data-transition="flow" data-rel="popup"><img class="playimg" src="/static/powerrewards/img/play.png" onmouseover="hover(this);" onmouseout="unhover(this);"></a>
+						
+		        </div>
+		      </div>
+
+		      <div class="item" style="background:#007b4d url(/static/powerrewards/img/img-2_sm.png) no-repeat top center;background-size: auto 100% ; text-align:center;">
+		        <!-- <img class="img" src="img/img-2_sm.png" alt="image2" > -->
+				<div class="carousel-caption">
+		          <a href="#transitionExample" data-transition="flow" data-rel="popup"><img class="playimg" src="/static/powerrewards/img/play.png" onmouseover="hover(this);" onmouseout="unhover(this);"></a>
+		        </div>
+		      </div>
+		    
+		      <div class="item" style="background:#007b4d url(/static/powerrewards/img/img-3_sm.png) no-repeat top center;background-size: auto 100% ; text-align:center;">
+		        <!-- <img class="img" src="img/img-3_sm.png" alt="image3" > -->
+				<div class="carousel-caption">
+		          <a href="#transitionExample" data-transition="flow" data-rel="popup"><img class="playimg" src="/static/powerrewards/img/play.png" onmouseover="hover(this);" onmouseout="unhover(this);"></a>
+		        </div>
+		      </div>
+		    </div>
+
+		    <!-- Left and right controls -->
+		    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+		      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+		      <span class="sr-only">Previous</span>
+		    </a>
+		    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+		      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+		      <span class="sr-only">Next</span>
+		    </a>
+		</div> 
+
+
+    </div><!-- /content -->
+ 
+	<div data-role="footer" class="footer" data-id="main-footer" data-position="fixed" data-tap-toggle="false">
+		
+	</div> 
+
+</div>
+
+<div data-url="panel-responsive-page1" data-role="page" class="jqm-demos ui-responsive-panel" data-title="Power Rewards" id="page2">
+
+
+    <div data-role="header" class="jqm-header" data-id="main-header">
+
+
+		<!-- <div data-role="navbar" id="topMenu" class="topMenu">
+			<ul id="navlist">
+				<li><a href="#page1">Power Rewards Program</a></li>
+				<li><a href="#page2" class="ui-btn-active">Enrollment Conditions</a></li>
+				<li><a href="#page3">FAQs</a></li>
+				<li><a href="#add-form">Login</a></li>
+			</ul>
+		</div> -->
+
+		<div class="bs-example">
+		    <nav role="navigation" class="navbar navbar-default">
+		        <!-- Brand and toggle get grouped for better mobile display -->
+		        <div class="navbar-header">
+		            <button type="button" data-target="#navbarCollapse2" data-toggle="collapse" class="navbar-toggle navbar_mob_toggle">
+		                <span class="sr-only">Toggle navigation</span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		            </button>
+		            <a href="index.html" target="_self" title="jQuery Mobile Demos home">
+		            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
+		            </a>
+		        </div>
+		        <!-- Collection of nav links, forms, and other content for toggling -->
+		        <div id="navbarCollapse2" class="collapse navbar-collapse">
+		            <ul class="nav navbar-nav navbar-right">
+		            	<li><a href="#welcome">Welcome</a></li>
+		                <li ><a href="#page1">Power Rewards Program</a></li>
+		                <li><a href="#page2">Enrollment Conditions</a></li>
+		                <li><a href="#page3">FAQs</a></li>
+		                <!-- <li><a href="#page6">Registration</a></li> -->
+		                <li><a href="#add-form">Login</a></li>
+		                
+		            </ul>
+
+		            <!-- <ul class="nav navbar-nav navbar-right">
+		                <li><a href="#">Login</a></li>
+		            </ul> -->
+		        </div>
+		    </nav>
+		</div>
+
+		
+
+
+
+		<!-- <h3>
+			<a href="index.html" title="jQuery Mobile Demos home"><img src="img/power_rewards_logo.png" alt="jQuery Mobile"></a>
+		</h3> -->
+		
+    </div><!-- /header -->
+
+
+    <div data-role="content" id="content2">
+
+		<div id="enrollment" style="padding:2% 2%">
+			<p>
+				<span class='spanclass' style="font-size:150%;">Enrolment Conditions of Power Rewards</span>
+				
+			<ul>
+				<li>This scheme is a genuine parts fitment promotional scheme, to encourage and reward garage owners who recommend and use BAJAJ GENUINE PARTS.</li> 
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Only Garage owners are eligible for participating in this program.Only one person from the participating garage is allowed to get registered in this program.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>The mandatory clauses for enrollment the person  are :- Photo identity of the person getting registered, Name, mobile number, garage name, complete address of the garage, PIN code, District/City/taluka, Clear Land Mark.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>The enrolment onto the club for garage would be physically verified periodically during the scheme period and any discrepancies if noticed,the registration will be deactivated from the scheme. Bajaj Auto's decision will be final in such decisions.The reward points if any accumulated will stand cancelled.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Each Registered Garage would be physically verified periodically during the scheme period and any discrepancies if noticed, the registration will be deactivated from the scheme. Bajaj Auto's decision will be final in such decisions. The reward points if any accumulated will stand cancelled.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Bajaj Auto do not provide any certification for the participants for the scheme.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Only the CV parts having "UNIQUE CODE" sold by Bajaj CV Distributors are covered under this program.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>The selected parts would carry "UNIQUE CODE" on its package. The reward points ar awarded when the "UNIQUE CODEs" of these parts are SMSed through the registered mobile no of the participating Garage owner.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Registered garage owners can accumulate such reward points during period of the scheme and can redeem them for eligible gifts.The eligible gifts with corresponding no of reward points required are listed in the scheme gift catalogue.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Any request for change of gifts/models other than mentioned in the gift catalogues will not be entertained. In case of any model/gift getting obsolete, BAJAJ reserves the right to offer another gift og equivalent points.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>The gifts/alternate gifts are being provided from reputed suppliers. Bajaj Auto Ltd., and their Associates are in no way shall stand guarantee to the quality/purity of gifts nor be liable for any deficiencies, defects, warranties.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>All applicable taxes including but not limited to income(With holding)tax, TDS, Gift tax &insurance charges or any other incidental charges for the program gifts will be payable by the respective Registered garage owner only.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>"UNIQUE CODEs"after gaining reward points through SMS and confirmation are to be destroyed immediately to avoid duplicity/misuse.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Reward Points accumulated cannot be exchanged for cash.</li><img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+			</ul>
+		</div>
+    </div><!-- /content -->
+ 
+	<div data-role="footer" class="footer" data-id="main-footer" data-position="fixed" data-tap-toggle="false">
+		
+	</div> 
+</div>
+
+<div data-url="panel-responsive-page1" data-role="page" class="jqm-demos ui-responsive-panel" data-title="Power Rewards" id="page3">
+
+
+    <div data-role="header" class="jqm-header" data-id="main-header">
+
+		<!--<div data-role="navbar" id="topMenu" class="topMenu">
+			<ul id="navlist">
+				<li><a href="#page1">Power Rewards Program</a></li>
+                <li class="active"><a href="#page2">Enrollment Conditions</a></li>
+                <li><a href="#page3">FAQs</a></li>
+                <li><a href="#add-form">Login</a></li>
+			</ul>
+		</div>
+    	<h3>
+			<a href="index.html" title="jQuery Mobile Demos home"><img src="img/power_rewards_logo.png" alt="jQuery Mobile"></a>
+		</h3>-->
+
+		<div class="bs-example">
+		    <nav role="navigation" class="navbar navbar-default">
+		        <!-- Brand and toggle get grouped for better mobile display -->
+		        <div class="navbar-header">
+		            <button type="button" data-target="#navbarCollapse3" data-toggle="collapse" class="navbar-toggle navbar_mob_toggle">
+		                <span class="sr-only">Toggle navigation</span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		            </button>
+		            <a href="index.html" target="_self" title="jQuery Mobile Demos home">
+		            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
+		            </a>
+		        </div>
+		        <!-- Collection of nav links, forms, and other content for toggling -->
+		        <div id="navbarCollapse3" class="collapse navbar-collapse">
+		            <ul class="nav navbar-nav navbar-right">
+		            	<li><a href="#welcome">Welcome</a></li>
+		                <li ><a href="#page1">Power Rewards Program</a></li>
+		                <li><a href="#page2">Enrollment Conditions</a></li>
+		                <li><a href="#page3">FAQs</a></li>
+		                <!-- <li><a href="#page6">Registration</a></li> -->
+		                <li><a href="#add-form">Login</a></li>
+		                
+		            </ul>
+
+		            <!-- <ul class="nav navbar-nav navbar-right">
+		                <li><a href="#">Login</a></li>
+		            </ul> -->
+		        </div>
+		    </nav>
+		</div>
+
+		
+    </div><!-- /header -->
+
+
+
+    <div data-role="content" id="content3">
+		<div id="faq" style="padding:2% 2%;">
+			<p style="color:red;">
+
+				<span class='spanclass' style="font-size:150%;">FAQs</span>
+				
+			</p>
+			<p>
+				<span class="boldheading">Invalid Unique Part Code (UPC)</span>
+				You might receive this message if the unique part code you sms is not a valid number, please check the UPC MRP sticker again and ensure you have entered it correctly.
+			</p><br/>
+			<p>
+				<span class="boldheading">Used Number</span>
+				This message might be sent to you in case this number has already been used once in our system. It might be that you have sent the sms twice. If you have not SMSed twice and yet you get this message please send used UPC MRP sticker along with your details ( xerox of your card ) to bajaj auto limited address mentioned on the reverse of the booklet.
+			</p><br/>
+			<p>
+				<span class="boldheading">SMS Cannot Be Delivered</span>
+				If your SMS fail to reach us, you can call us on our helpline number <b>+917847011011</b> to resolve the problem.
+			</p><br/>
+			<p>
+				<span class="boldheading">Change Of Your Phone Number</span>
+				If you change your mobile or address, you will have to fill in a form and send it to us. We will link your new phone number to your name and membership number.
+			</p><br/>
+			<p>
+				<span class="boldheading">Invalid Keyword</span>
+				If you received the reply SMS "Invalid Keyword". Then please check the SMS format and resend.
+			</p>
+			<b>(If you ever face any problem please call our helpline +917847011011)</b>
+		</div>
+
+
+    </div><!-- /content -->
+ 
+	<div data-role="footer" class="footer" data-id="main-footer" data-position="fixed" data-tap-toggle="false">
+		
+	</div> 
+</div>
+
+<div data-url="panel-responsive-page1" data-role="page" class="jqm-demos ui-responsive-panel" data-title="Power Rewards" id="page4">
+
+
+    <div data-role="header" class="jqm-header" data-id="main-header">
+
+		<!--<<div data-role="navbar" id="topMenu" class="topMenu">
+			<ul id="navlist">
+				<li><a href="#page1">Power Rewards Program</a></li>
+				<li><a href="#page2">Enrollment Conditions</a></li>
+				<li><a href="#page3">FAQs</a></li>
+				<li><a href="#add-form">Login</a></li>
+			</ul>
+		</div>-->
+
+
+		<div class="bs-example">
+		    <nav role="navigation" class="navbar navbar-default">
+		        <!-- Brand and toggle get grouped for better mobile display -->
+		        <div class="navbar-header">
+		            <button type="button" data-target="#navbarCollapse4" data-toggle="collapse" class="navbar-toggle navbar_mob_toggle">
+		                <span class="sr-only">Toggle navigation</span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		            </button>
+		            <a href="index.html" target="_self" title="jQuery Mobile Demos home">
+		            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
+		            </a>
+		        </div>
+		        <!-- Collection of nav links, forms, and other content for toggling -->
+		        <div id="navbarCollapse4" class="collapse navbar-collapse">
+		            <ul class="nav navbar-nav navbar-right">
+		            	<li><a href="#welcome">Welcome</a></li>
+		                <li ><a href="#page1">Power Rewards Program</a></li>
+		                <li><a href="#page2">Enrollment Conditions</a></li>
+		                <li><a href="#page3">FAQs</a></li>
+		                <!-- <li><a href="#page6">Registration</a></li> -->
+		                <li><a href="#add-form">Login</a></li>
+		                
+		            </ul>
+
+		            <!-- <ul class="nav navbar-nav navbar-right">
+		                <li><a href="#">Login</a></li>
+		            </ul> -->
+		        </div>
+		    </nav>
+		</div>
+
+
+
+    	<!--<h3>
+			<a href="index.html" title="jQuery Mobile Demos home"><img src="img/power_rewards_logo.png" alt="jQuery Mobile"></a>
+		</h3>-->
+		
+    </div><!-- /header -->
+
+
+
+    <div data-role="content" id="content3">
+
+		<div id="terms" style="padding:2% 2%">
+			<p>
+
+
+			<span class='spanclass' style="font-size:150%;">Terms & Conditions</span>
+
+
+			<ul>
+				<li>This scheme is floated by Bajaj Auto for a limited period only and may get extended or discontinued without any prior notice. All reward points, outstanding/unclaimed will automatically get expired with effect from date of scheme discontinuation. None of the participants will be eligible for compensation.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Bajaj Auto reserves right to change/modify the Rules & Regulations of the scheme at its discretion without any prior notice.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Bajaj Auto reserves the right to make any changes in "addition/deletion of parts, period of the scheme,reward points eligible under each "UNIQUE CODE" etc. without any prior notice.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>Bajaj auto reserves right to revise the gift catalogue, delete the gifts, change the gifts points mentioned in the gift catalogue at any point of time.</li>
+				<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+				<li>In the event of any dispute/issue arising out of this scheme, is subject to courts of pune jurisdiction(Maharashtra).</li>
+			</ul>
+			<br/></br/>
+			<span style="font-size:150%;text-decoration:bold;text-align:justify;">In case of query please contact our customer care at:+91-7847011011.</span>
+			<br/>
+		</div>
+
+    </div><!-- /content -->
+ 
+	<div data-role="footer" class="footer" data-id="main-footer" data-position="fixed" data-tap-toggle="false">
+		
+	</div> 
+</div>
+
+<div data-url="panel-responsive-page1" data-role="page" class="jqm-demos ui-responsive-panel" data-title="Power Rewards" id="page5">
+
+    <div data-role="header" class="jqm-header" data-id="main-header">
+
+		<!--<div data-role="navbar" id="topMenu" class="topMenu">
+			<ul id="navlist">
+				<li><a href="#page1">Power Rewards Program</a></li>
+				<li><a href="#page2">Enrollment Conditions</a></li>
+				<li><a href="#page3">FAQs</a></li>
+				<li><a href="#add-form">Login</a></li>
+			</ul>
+		</div>-->
+
+
+
+<div class="bs-example">
+		    <nav role="navigation" class="navbar navbar-default">
+		        <!-- Brand and toggle get grouped for better mobile display -->
+		        <div class="navbar-header">
+		            <button type="button" data-target="#navbarCollapse5" data-toggle="collapse" class="navbar-toggle navbar_mob_toggle">
+		                <span class="sr-only">Toggle navigation</span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		                <span class="icon-bar"></span>
+		            </button>
+		            <a href="index.html" target="_self" title="jQuery Mobile Demos home">
+		            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
+		            </a>
+		        </div>
+		        <!-- Collection of nav links, forms, and other content for toggling -->
+		        <div id="navbarCollapse5" class="collapse navbar-collapse">
+		            <ul class="nav navbar-nav navbar-right">
+		            	<li><a href="#welcome">Welcome</a></li>
+		                <li ><a href="#page1">Power Rewards Program</a></li>
+		                <li><a href="#page2">Enrollment Conditions</a></li>
+		                <li ><a href="#page3">FAQs</a></li>
+		                <!-- <li><a href="#page6">Registration</a></li> -->
+		                <li><a href="#add-form">Login</a></li>
+		                
+		            </ul>
+
+		            <!-- <ul class="nav navbar-nav navbar-right">
+		                <li><a href="#">Login</a></li>
+		            </ul> -->
+		        </div>
+		    </nav>
+		</div>
+
+
+
+
+
+
+    	<!--<h3>
+			<a href="index.html" title="jQuery Mobile Demos home"><img src="img/power_rewards_logo.png" alt="jQuery Mobile"></a>
+		</h3>-->
+		
+    </div><!-- /header -->
+
+
+
+    <div data-role="content" id="content3">
+
+		<div id="disclaimer" style="padding:2% 2%">
+			<span class='spanclass' style="font-size:150%;">Legal Disclaimer</span>
+
+
+
+			<p>By using the site or downloading materials from the site, you agree to abide by the terms and conditions set forth in this notice. If you do not agree to abide by these terms and conditions please do not use the site or download materials from the site. You may print copies of the information on this site for your personal use and store the files on your computer for personal use. You may not distribute text or graphics from this site to others without the express written consent of Bajaj Auto Ltd. Also, you may not, without the permission of Bajaj Auto Ltd., copy and distribute this information on any other server, or modify or reuse text or graphics on this or any another system. No reproduction of any part of the site may be sold or distributed for commercial gain, nor shall it be modified or incorporated in any other work, publication or site, whether in hard copy or electronic format, including postings to any other site. of Bajaj Auto Ltd. reserves all other rights. The information on this site has been included in good faith and is for general purposes only. It should not be relied upon for any specific purpose and no representation or warranty is given as regards its accuracy or completeness.</p>
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>No information on this site shall constitute an invitation to invest in of Bajaj Auto Ltd or any of its affiliates. Neither Bajaj Auto Ltd., nor their or their affiliates' officers, employees or agents shall be liable for any loss, damage or expense arising out of any access to or use of this site or any site linked to it, including, without limitation, any loss of profit, indirect, incidental or consequential loss. The foregoing are subject to the laws of the Republic of India and the courts in Mumbai, India shall have the exclusive jurisdiction on any dispute that may arise out of the use of this site.</p>
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>Please proceed only if you accept all the conditions enumerated herein above, out of your free will and consent.</p>
+
+
+		</div>
+
+
+    </div><!-- /content -->
+ 
+	<div data-role="footer" class="footer" data-id="main-footer" data-position="fixed" data-tap-toggle="false">
+		
+	</div> 
+</div>
+
+
+
+<div data-url="panel-responsive-page1" data-role="page" class="jqm-demos ui-responsive-panel" data-title="Power Rewards" id="welcome">
+
+    <div data-role="header" class="jqm-header" data-id="main-header">
+
+		<!--<div data-role="navbar" id="topMenu" class="topMenu">
+			<ul id="navlist">
+				<li><a href="#page1">Power Rewards Program</a></li>
+				<li><a href="#page2">Enrollment Conditions</a></li>
+				<li><a href="#page3">FAQs</a></li>
+				<li><a href="#add-form">Login</a></li>
+			</ul>
+		</div>-->
+
+
+
+	<div class="bs-example">
+	    <nav role="navigation" class="navbar navbar-default">
+	        <!-- Brand and toggle get grouped for better mobile display -->
+	        <div class="navbar-header">
+	            <button type="button" data-target="#navbarCollapse7" data-toggle="collapse" class="navbar-toggle navbar_mob_toggle">
+	                <span class="sr-only">Toggle navigation</span>
+	                <span class="icon-bar"></span>
+	                <span class="icon-bar"></span>
+	                <span class="icon-bar"></span>
+	            </button>
+	            <a href="index.html" target="_self" title="jQuery Mobile Demos home">
+	            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
+	            </a>
+	        </div>
+	        <!-- Collection of nav links, forms, and other content for toggling -->
+	        <div id="navbarCollapse7" class="collapse navbar-collapse">
+	            <ul class="nav navbar-nav navbar-right">
+	            	<li><a href="#welcome">Welcome</a></li>
+	                <li ><a href="#page1">Power Rewards Program</a></li>
+	                <li><a href="#page2">Enrollment Conditions</a></li>
+	                <li ><a href="#page3">FAQs</a></li>
+	                <!-- <li><a href="#page6">Registration</a></li> -->
+	                <li><a href="#add-form">Login</a></li>
+	                
+	            </ul>
+
+	            <!-- <ul class="nav navbar-nav navbar-right">
+	                <li><a href="#">Login</a></li>
+	            </ul> -->
+	        </div>
+	    </nav>
+	</div>
+</div><!-- /header -->
+
+
+
+    <div data-role="content" id="content3">
+
+		<div id="disclaimer" style="padding:2% 2%">
+			<span class='spanclass' style="font-size:150%;">Welcome</span>
+
+
+
+			<p><b>Dear Partners,</b></p>
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>We would like to thank you for the trust and support you have extended to us over the years. We are today, the most preferred brand in the country and leader in <b>AUTOMOTIVE INDUSTRY</b> as a result of your constant support.</p>
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>In appreciation of your co-operation, we are pleased to introduce to you <b>POWER REWARDS 'BAJAJ CV LOYALTY	PROGRAME'</b>- an exclusive programme designed for your benefit. In this new programme, we would like to continue offering the value and rewards that you truly deserve.</p>
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>As a member of <b>POWER REWARDS</b> program, you can now enjoy a host of privileges:- Earn points of every genuine spare parts you purchase which are later used for redeeming Exciting gifts. All you have to do is send an SMS to a unique number to accumulate points.</p>
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>To get you off to a flying start, we present to you a pre-aproved membership. Wishing you all the best to reach your first landmark of 100 points and start claiming your gifts.</p> 
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>Start sending your SMSs today and enjoy the benefits.</p> 
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>For more information on how the program works, kindly read on.</p> 
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p>Best Regards</p> 
+			<img src="/static/powerrewards/img/space.png" alt="jQuery Mobile">
+
+			<p><b>Bajaj Genuine Parts - CV Team</b><br/>Bajaj Auto Limited<br/>Pune</p>
+
+		</div>
+
+
+    </div><!-- /content -->
+ 
+	<div data-role="footer" class="footer" data-id="main-footer" data-position="fixed" data-tap-toggle="false">
+		
+	</div> 
+</div>
+
+	
+	<script type="text/javascript" src="/static/powerrewards/js/jquery.min.js"></script>
+		<script src="/static/powerrewards/js/jquery-1.10.2.js"></script>
+		<script src="/static/powerrewards/js/jquery-ui.js"></script>
+		<script>
+			$(function() {
+				$( "#datepicker" ).datepicker({
+				  changeMonth: true,
+				  changeYear: true,minDate: 0
+				});
+				$( "#datepicker1" ).datepicker({
+				  changeMonth: true,
+				  changeYear: true,minDate: 0
+				});
+			});
+		</script>
+		<script src="/static/powerrewards/js/jquery.js"></script>
+		<script src="/static/powerrewards/js/jquery-ui.min.js"></script>
+		<script src="/static/powerrewards/js/jquery.signature.js"></script>
+		<script src="/static/powerrewards/js/bootstrap.min.js"></script>
+	    <script src="/static/powerrewards/js/inc.js"></script>
+	    <script src="/static/powerrewards/js/jquery.mobile-1.4.5.min.js"></script>
+		
+	 
+</body>
+
+
+</html>

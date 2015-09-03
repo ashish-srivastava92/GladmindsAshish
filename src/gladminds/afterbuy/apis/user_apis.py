@@ -25,23 +25,20 @@ from gladminds.afterbuy import models as afterbuy_model
 from gladminds.afterbuy import utils as afterbuy_utils
 from gladminds.afterbuy.apis.validations import ConsumerValidation, \
     UserValidation
-from gladminds.core import constants
 from gladminds.core.apis.authentication import AccessTokenAuthentication
 from gladminds.core.apis.authorization import CustomAuthorization, \
     MultiAuthorization
 from gladminds.core.apis.base_apis import CustomBaseModelResource
 from gladminds.core.auth import otp_handler
 from gladminds.core.auth_helper import GmApps
-from gladminds.core.core_utils.utils import generate_temp_id
 from gladminds.core.cron_jobs.queue_utils import send_job_to_queue
 from gladminds.core.managers.mail import sent_otp_email
 from gladminds.core.model_fetcher import get_model
 from gladminds.core.model_helpers import format_phone_number
-from gladminds.core.utils import check_password, generate_unique_customer_id
-from gladminds.core.views.auth_view import get_access_token, create_access_token
-from gladminds.sqs_tasks import send_otp
-from tornado.test import httputil_test
 
+from gladminds.core.utils import check_password, generate_unique_customer_id
+from gladminds.core.views.auth_view import create_access_token
+from gladminds.sqs_tasks import send_otp
 
 logger = logging.getLogger("gladminds")
 
@@ -610,7 +607,6 @@ class ConsumerResource(CustomBaseModelResource):
                     data['customer_name'] = user_product[0].customer_name
                 result.append(data)
             return HttpResponse(json.dumps(result, cls=DjangoJSONEncoder), content_type='application/json')
-
         except Exception as ex :
             logger.info("[Exception while fetching product details]:{0}".format(ex))
             return HttpResponse(json.dumps({'message': 'Error while fetching data'}),

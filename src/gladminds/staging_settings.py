@@ -121,6 +121,9 @@ ENV = "staging"
 #     }
 # }
 
-COUPON_URL = 'staging.bajaj.gladminds.co'
+# BRAND_BASE_URL = 'staging.bajaj.gladminds.co'
 API_FLAG = True 
-LOGAN_ACTIVE = True
+
+BRAND_META["bajaj"]["base_url"]= "staging.bajaj.gladminds.co"
+BRAND_META["bajajcv"]["base_url"]= "staging.bajajcv.gladminds.co"
+BRAND_META["bajajib"]["base_url"]= "staging.bajajib.gladminds.co"

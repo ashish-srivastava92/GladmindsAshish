@@ -172,7 +172,8 @@
 							<div class="form-group" id="comments">
     		           			<label class="col-sm-2 control-label" for="comments" >Comments</label>
             	       			<div class="col-sm-10 ">
-                	  	   			<textarea class="form-control comments" name="comments" value = '{{feedback_comment.comments|default_if_none:""}}' /></textarea>
+                	  	   			<textarea class="form-control comments" name="comments" value = '{{feedback_comment.comments|default_if_none:""}}'  placeholder="Maximum 500 characters"/></textarea>
+                	  	   			<h6>* Max 500 characters</h6>
                     			</div>
                    			</div>	 					
 	 					</div>

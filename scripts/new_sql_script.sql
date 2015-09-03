@@ -96,4 +96,5 @@ alter table gm_retailer add column approved boolean default False;
 alter table gm_dealer add column sm_id integer;
 alter table gm_dealer add foreign key(sm_id) references gm_areasalesmanager(id);
 alter table auth_user modify username varchar(250);
+alter table gm_comment modify column comment varchar(512);
 

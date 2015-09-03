@@ -20,7 +20,7 @@ from django.db.models.query_utils import Q
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import F
-
+from gladminds.settings import BRAND_META
 from gladminds.bajaj import models
 from gladminds.core import utils
 from gladminds.sqs_tasks import send_otp, send_customer_phone_number_update_message,\
@@ -679,6 +679,7 @@ def get_active_asc_report(request, role=None):
         no_of_days = utils.get_number_of_days(year, month)
         coupon_resource = CouponDataResource()
         asc_query=coupon_resource.closed_ticket(year, month, role)
+
         asc_list = []
         for asc in asc_query:
             active = filter(lambda active: active['id']==asc['asc_id'], asc_list)
@@ -717,7 +718,7 @@ def get_active_asc_report(request, role=None):
     
 def download_reconcilation_reports(download_data):
     response = HttpResponse(content_type='text/excel')
-    response['Content-Disposition'] = 'attachment; filename="ReportList.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="ReportList.xls"'
     if download_data['params']['type']== 'credit':
         template = loader.get_template('portal/reconciliation_credit_download.html')
     else:

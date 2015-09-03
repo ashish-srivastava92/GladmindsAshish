@@ -1,5 +1,6 @@
 import copy
 import datetime
+
 from django import forms
 from django.contrib.admin import AdminSite, TabularInline
 from django.contrib.auth.models import User, Group
@@ -51,7 +52,7 @@ class ProductTypeAdmin(GmModelAdmin):
                     'image_url', 'is_active')
 
 class DispatchedProduct(get_model("ProductData")):
-
+ 
     class Meta:
         proxy = True
 
@@ -401,15 +402,6 @@ class ASMAdmin(GmModelAdmin):
                      'phone_number', 'state')
     list_display = ('asm_id', 'name', 'email',
                      'phone_number', 'get_state', 'nsm')
-    
-
-    def get_state(self, obj):
-        states = obj.state.all()
-        if states:
-            return ' | '.join([str(state.state_name) for state in states])
-        else:
-            return None
-    get_state.short_description = 'State'
 
     def get_form(self, request, obj=None, **kwargs):
         self.exclude = ('asm_id',)

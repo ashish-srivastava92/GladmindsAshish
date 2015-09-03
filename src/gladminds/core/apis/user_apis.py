@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models.aggregates import Count, Sum
 from django.http.response import HttpResponse
+from django.db.models.query_utils import Q
 from tastypie.utils.urls import trailing_slash
 from tastypie import fields,http
 from tastypie.http import HttpBadRequest
@@ -422,6 +423,7 @@ class UserProfileResource(CustomBaseModelResource):
                     data = {'status': 1, 'message': "login successfully",
                             'access_token': access_token, "user_id": user_auth.id, "user_groups" : user_groups}
             else:
+                logger.error('[login]: {0} {1} {2}', user_auth, user_obj.username, password)
                 data = {'status': 0, 'message': "login unsuccessful"}
         except Exception as ex:
             logger.error(ex)
@@ -436,7 +438,7 @@ class UserProfileResource(CustomBaseModelResource):
         access_token = request.GET.get('access_token')
         try:
             delete_access_token(access_token)
-            data = {'status': 0, 'message': "logout successfully"}
+            data = {'status': 1, 'message': "logout successfully"}
         except Exception as ex:
             data = {'status': 0, 'message': "access_token_not_valid"}
             logger.info("[Exception get_user_login_information]:{0}".
@@ -855,7 +857,7 @@ class StateResource(CustomBaseModelResource):
     '''
        States under loyalty resource
     '''
-    territory = fields.ForeignKey(TerritoryResource, 'territory')
+    territory = fields.ForeignKey(TerritoryResource, 'territory', null=True, blank=True)
     class Meta:
         queryset = models.State.objects.all()
         resource_name = "states"
@@ -934,6 +936,9 @@ class DistributorResource(CustomBaseModelResource):
         authentication = AccessTokenAuthentication()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
+        filtering = {
+                     "distributor_id" : ALL
+                     }
 
 
 class RetailerResource(CustomBaseModelResource):
@@ -966,9 +971,10 @@ class MemberResource(CustomBaseModelResource):
         always_return_data = True
         filtering = {
                      "state": ALL_WITH_RELATIONS,
+                     "distributor" : ALL_WITH_RELATIONS,
                      "locality":ALL,
                      "district":ALL,
-                     "last_transaction_date":['gte', 'lte'],
+                     "last_transaction_date":ALL,
                      "total_accumulation_req":ALL,
                      "total_accumulation_points":ALL,
                      "total_redemption_points":ALL,
@@ -976,11 +982,41 @@ class MemberResource(CustomBaseModelResource):
                      "first_name":ALL,
                      "middle_name":ALL,
                      "last_name":ALL,
-                     "registered_date":ALL
+                     "registered_date":ALL,
+                     "member_id" : ALL,
+                     "permanent_id" : ALL,
+                     "mechanic_id" : ALL,
+                     "phone_number" : ALL,
+                     "created_date" : ALL
                      }
         ordering = ["state", "locality", "district", "registered_date",
                     "created_date", "mechanic_id", "last_transaction_date", "total_accumulation_req"
                     "total_accumulation_points", "total_redemption_points", "total_redemption_req" ]
+    
+    def build_filters(self, filters=None):
+        if filters is None:
+            filters = {}
+        orm_filters = super(MemberResource, self).build_filters(filters)
+        
+        if 'member_id' in filters:
+            query = filters['member_id']
+            qset = (
+                    Q(mechanic_id=query)|
+                    Q(permanent_id=query)
+                      )
+            orm_filters.update({'custom':  qset})
+        return orm_filters  
+                     
+            
+    def apply_filters(self, request, applicable_filters):
+        if 'custom' in applicable_filters:
+            custom = applicable_filters.pop('custom')
+        else:
+            custom = None
+        
+        semi_filtered = super(MemberResource, self).apply_filters(request, applicable_filters)
+        
+        return semi_filtered.filter(custom) if custom else semi_filtered
         
     def prepend_urls(self):
         return [
@@ -1007,21 +1043,31 @@ class MemberResource(CustomBaseModelResource):
         try:
             active_days = load.get('active_days', None)
             if not active_days:
-                active_days=30
+                active_days=90
             if not request.user.is_superuser:
                 user_group = request.user.groups.values()[0]['name']
                 area = self._meta.args['query_field'][user_group]['area']
                 region = self._meta.args['query_field'][user_group]['group_region']
                 args = LoyaltyCustomAuthorization.get_filter_query(user=request.user, q_user=area, query=args)
-            registered_member = models.Member.objects.filter(**args).values(region).annotate(count= Count('mechanic_id'))
-            args['last_transaction_date__gte']=datetime.now()-timedelta(int(active_days))
-            active_member = models.Member.objects.filter(**args).values(region).annotate(count= Count('mechanic_id'))
+            else:
+                region='state__state_name'
+            registered_member = get_model('Member').objects.filter(**args).values(region).annotate(count= Count('mechanic_id'))
+            active_type = load.get('active_type', None)
+            if active_type:
+                type_model={'accumulation':'AccumulationRequest', 'redemption':'RedemptionRequest'}
+                args['created_date__gte']=datetime.now()-timedelta(int(active_days))
+                region_filter='member__state__state_name'
+                active_member = get_model(type_model[active_type]).objects.filter(**args).values(region_filter).annotate(count= Count('member', distinct = True))
+            else:
+                region_filter=region
+                args['last_transaction_date__gte']=datetime.now()-timedelta(int(active_days))
+                active_member = get_model('Member').objects.filter(**args).values(region_filter).annotate(count= Count('mechanic_id'))
             member_report={}
             for member in registered_member:
                 member_report[member[region]]={}
                 member_report[member[region]]['registered_count'] = member['count']
                 member_report[member[region]]['active_count']= 0
-                active = filter(lambda active: active[region] == member[region], active_member)
+                active = filter(lambda active: active[region_filter] == member[region], active_member)
                 if active:
                     member_report[member[region]]['active_count']= active[0]['count']
         except Exception as ex:

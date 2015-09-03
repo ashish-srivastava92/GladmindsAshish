@@ -17,6 +17,8 @@ from gladminds.core.services.message_template import get_template
 from gladminds.core.managers.mail import get_email_template, \
                        send_email_to_redemption_request_partner
 from  gladminds.core.core_utils.date_utils import get_time_in_seconds
+from gladminds.core.base_models import AreaSparesManager
+# from twisted.python.reflect import accumulateClassDict
 LOG = logging.getLogger('gladminds')
 
 AUDIT_ACTION = 'SEND TO QUEUE'
@@ -53,6 +55,7 @@ class CoreLoyaltyService(Services):
             asm_state_list=get_model('AreaSparesManager').objects.get(user__user=request.user).state.all()
             kwargs['state__in'] = asm_state_list
         mechanics = get_model(model_name).objects.using(settings.BRAND).filter(**kwargs).select_related('state', 'registered_by_distributor')
+        
         return mechanics
     
     def get_welcome_redemption_detail(self, request, choice, model_name):
@@ -75,7 +78,8 @@ class CoreLoyaltyService(Services):
         response = {'status': False}
         request_handler={'Member': 'get_mechanics_detail',
                          'WelcomeKit': 'get_welcome_redemption_detail',
-                         'RedemptionRequest': 'get_welcome_redemption_detail'
+                         'RedemptionRequest': 'get_welcome_redemption_detail',
+                         'AccumulationRequest' : 'get_accumulation_detail'
                          }
         handler_funtion=getattr(self, request_handler[model])
         details = handler_funtion(request, choice, model)
@@ -173,8 +177,45 @@ class CoreLoyaltyService(Services):
         response['Content-Disposition'] = 'attachment; filename={0}.csv'.format(file_name)
         LOG.error('[download_redemption_detail]: Download of redemption request data by user {0}'.format(request.user))
         return response
-
-
+    
+    def download_accumulation_detail(self, request, choice):
+        '''Download list of accumulation '''
+        file_name=choice+'_accumulation_details_' + datetime.now().strftime('%d_%m_%y')
+        headers=[]
+        headers=headers+constants.DOWNLOAD_ACCUMULATION_FIELDS
+        csvfile = StringIO.StringIO()
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(headers)
+        accumulations = self.get_accumulation_detail(request, choice, 'AccumulationRequest')
+        for accumulation in accumulations:
+            data=[]
+            for field in headers:
+                if field == 'upcs':
+                    upcs_data = accumulation.upcs.all()
+                    upc_data_list = ' , '.join([str(upc.unique_part_code) for upc in upcs_data])
+                    data.append((upc_data_list))
+                elif field == 'asm_id':
+                    if accumulation.asm:
+                        data.append(getattr(accumulation.asm, field))
+                    else:
+                        data.append(None)
+                elif field in constants.MEMBER_FIELDS:
+                    data.append(getattr(accumulation.member, field))
+                else:
+                    data.append(getattr(accumulation, field))
+            csvwriter.writerow(data)
+        response = HttpResponse(csvfile.getvalue(), content_type='application/csv')
+        response['Content-Disposition'] = 'attachment; filename={0}.csv'.format(file_name)
+        return response
+    
+    def get_accumulation_detail(self, request, choice, model_name):
+        kwargs={}
+        if request.user.groups.filter(name=Roles.AREASPARESMANAGERS).exists():
+            asm_state_list=get_model('AreaSparesManager').objects.get(user__user=request.user).state.all()
+            kwargs['member__state__in'] = asm_state_list
+        accumulation = get_model(model_name).objects.using(settings.BRAND).filter(**kwargs).select_related('member__state', 'upcs')
+        return accumulation
+        
     def send_welcome_sms(self, mech):
         '''Send welcome sms to mechanics when registered'''
         phone_number=utils.get_phone_number_format(mech.phone_number)
@@ -503,3 +544,4 @@ class CoreLoyaltyService(Services):
         return {'due_date':due_date, 'expected_delivery_date':expected_delivery_date}
     
 loyalty = CoreLoyaltyService()
+

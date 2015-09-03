@@ -70,6 +70,9 @@ class AreaSalesManager(base_models.AreaSalesManager):
     
     class Meta(base_models.AreaSalesManager.Meta):
         app_label = _APP_NAME
+    
+    def __unicode__(self):
+        return self.user.user.username
 
 class AreaServiceManager(base_models.AreaServiceManager):
     '''details of Area Service Manager'''
@@ -188,6 +191,10 @@ class ProductData(base_models.ProductData):
         app_label = _APP_NAME
         verbose_name_plural = "Product Data"
 
+# class DispatchedProduct(ProductData):
+# 
+#     class Meta:
+#         proxy = True
 
 class CouponData(base_models.CouponData):
     product = models.ForeignKey(ProductData, null=False, editable=False)

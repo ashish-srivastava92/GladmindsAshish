@@ -101,13 +101,16 @@ class SpareMasterResource(CustomBaseModelResource):
     '''
 	   Spare part master resource
 	'''
-    product_type = fields.ForeignKey(ProductTypeResource, 'product_type', full=True)
+    product_type = fields.ForeignKey(ProductTypeResource, 'product_type', full=True, null=True, blank=True)
     class Meta:
         queryset = get_model('SparePartMasterData').objects.all()
         resource_name = "spare-masters"
         authorization = Authorization()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
+        filtering = {
+                     "part_number" : ALL
+                     }
 
 class SparePartPointResource(CustomBaseModelResource):
     '''
@@ -132,6 +135,10 @@ class SparePartUPCResource(CustomBaseModelResource):
         authorization = Authorization()
         allowed_methods = ['get', 'post', 'put']
         always_return_data = True
+        filtering = {
+                     "part_number" : ALL_WITH_RELATIONS,
+                     "unique_part_code" : ALL
+                     }
 
 class ContainerIndentResource(CustomBaseModelResource):
     '''

@@ -1,19 +1,17 @@
-
-	<table class="table table-striped table-bordered report-table">
-		<thead>
-			<th>Customer ID</th>
-			<th>Product Type</th>
-			<th>VIN</th>
-			<th>UCN</th>
-			<th>Service Availed Date</th>
-			<th>Closed Date</th>
-			<th>SA Mobile</th>
-			<th>Actual KMS</th>
-			<th>Service Type</th>
-			<th>Coupon Status</th>
-			<th>Special Case</th>
-		</thead>
-		<tbody>
+	<table class="table table-striped table-bordered report-table" border="1">
+		<tr>
+			<td><strong>Customer ID</strong></td>
+			<td><strong>Product Type</strong></td>
+			<td><strong>VIN</strong></td>
+			<td><strong>UCN</strong></td>
+			<td><strong>Service Availed Date</strong></td>
+			<td><strong>Closed Date</strong></td>
+			<td><strong>SA Mobile</strong></td>
+			<td><strong>Actual KMS</strong></td>
+			<td><strong>Service Type</strong></td>
+			<td><strong>Coupon Status</strong></td>
+			<td><strong>Special Case</strong></td>
+		</tr>
 			{% for record in data %}
 			<tr>
 				<td>{{record.customer_id|default_if_none:""}}</td>
@@ -32,5 +30,4 @@
 				<td>{% if record.special_case %} Yes {% else %} No {% endif%}</td>
 			</tr>
 			{% endfor %}
-		</tbody>
 	</table>

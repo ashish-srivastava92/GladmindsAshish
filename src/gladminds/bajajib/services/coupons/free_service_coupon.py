@@ -1,23 +1,25 @@
 '''Handlers for free service coupon logic'''
 
-import logging
 from datetime import datetime, timedelta
+import logging
 
-from django.utils import timezone
 from django.conf import settings
 from django.db.models import Q
+from django.db.models.aggregates import Max
+from django.utils import timezone
 
+from gladminds.bajajib import models
+from gladminds.core import utils
+from gladminds.core.base_models import STATUS_CHOICES
+from gladminds.core.core_utils.utils import log_time
+from gladminds.core.cron_jobs.queue_utils import send_job_to_queue
 from gladminds.core.managers.audit_manager import sms_log
 from gladminds.core.services import message_template as templates
-from gladminds.bajajib import models
+from gladminds.core.stats import LOGGER
+from gladminds.settings import COUPON_VALID_DAYS
 from gladminds.sqs_tasks import send_service_detail, \
     send_coupon_detail_customer, send_coupon, send_invalid_keyword_message
-from gladminds.core import utils
-from gladminds.settings import COUPON_VALID_DAYS
-from gladminds.core.base_models import STATUS_CHOICES
-from gladminds.core.cron_jobs.queue_utils import send_job_to_queue
-from gladminds.core.core_utils.utils import log_time
-from gladminds.core.stats import LOGGER
+
 
 LOG = logging.getLogger('gladminds')
 json = utils.import_json()
@@ -54,10 +56,10 @@ def register_owner(sms_dict, phone_number):
             message = templates.get_template('INVALID_REGISTRATION_NUMBER_OR_PURCHASE_DATE').format(phone_number=customer_support)
             return {'message' : message, 'status': False}
             
-        product = models.ProductData.objects.get(registration_number=registration_number)
-        all_products = models.ProductData.objects.filter(customer_id__isnull=False).order_by('-customer_id')
-        if all_products:
-            customer_id = int(all_products[0].customer_id) + 1
+        product = models.ProductData.objects.get(veh_reg_no=registration_number)
+        all_products = models.ProductData.objects.all().aggregate(Max('customer_id'))
+        if all_products['customer_id__max']:
+            customer_id = int(all_products['customer_id__max']) + 1
         else:
             customer_id = models.Constant.objects.get(constant_name='customer_id').constant_value
         if not product.purchase_date:
@@ -102,12 +104,15 @@ def register_rider(sms_dict, phone_number):
     rider_phone_number = sms_dict['phone_number']
     try:
         customer_support = models.Constant.objects.get(constant_name='customer_support_number_uganda').constant_value
-        product = models.ProductData.objects.get(registration_number=registration_number)
+        product = models.ProductData.objects.get(veh_reg_no=registration_number)
         if product:
-            riders = models.FleetRider.objects.filter(product=product, is_active=True, phone_number=rider_phone_number)
+            riders = models.FleetRider.objects.filter(product=product, phone_number=rider_phone_number)
             if not riders:
                 rider = models.FleetRider(product=product, is_active=True, phone_number=rider_phone_number)
                 rider.save()
+            else:
+                riders.update(is_active=True)
+                    
             riders = models.FleetRider.objects.filter(Q(product=product),~Q(phone_number=rider_phone_number))
             riders.update(is_active=False)
             

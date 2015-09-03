@@ -118,7 +118,7 @@ class BOMPlatePartResource(CustomBaseModelResource):
         queryset = get_model('BOMPlatePart').objects.all()
         resource_name = 'bom-plate-parts'
         authorization = Authorization()
-#         authentication = AccessTokenAuthentication()
+        authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get', 'post']
         always_return_data = True
         include_resource_uri = False
@@ -183,7 +183,6 @@ class BOMPlatePartResource(CustomBaseModelResource):
             LOG.error('Exception while fetching plate images : {0}'.format(ex))
             return HttpResponseBadRequest()
     
-    #TODO: FIXME - remove n+1 query
     def save_plate_part(self, request, **kwargs):
         '''
            Parses the uploaded CSV and adds the
@@ -213,19 +212,23 @@ class BOMPlatePartResource(CustomBaseModelResource):
         if request.method != 'POST':
             return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
                                 status=400)
-        post_data=request.POST
-        model = post_data.get('model')
-        sku_code = post_data.get('skuCode')
-        bom_number = post_data.get('bomNumber')
-        plate_id = post_data.get('plateId')
-        plate_image=request.FILES['platImage']
-        plate_map=request.FILES['plateMap']
-        sbom_part_mapping=[]
         try:
+            post_data=request.POST
+            model = post_data.get('model')
+            sku_code = post_data.get('skuCode')
+            bom_number = post_data.get('bomNumber')
+            plate_id = post_data.get('plateId')
+            plate_image=request.FILES['plateImage']
+            plate_map=request.FILES['plateMap']
+            dashboard_image=request.FILES['dashboardImage']
+            plate_name= post_data.get('plateName')
+            sbom_part_mapping=[]
             bom_queryset = get_model('BOMPlatePart').objects.filter(bom__sku_code=sku_code,
                                                                 bom__bom_number=bom_number,
                                                                 plate__plate_id=plate_id).select_related(
                                                                                         'bom','plate','part')
+            if not bom_queryset:
+                raise ValueError('Provided SKU, BOM number and plate ID combination does not exists')
             visual_queryset=get_model('BOMVisualization').objects.filter(bom__in=bom_queryset).select_related(
                                                                             'bom__bom','bom__plate','bom__part')
             insert_visual_bom=[]
@@ -243,7 +246,10 @@ class BOMPlatePartResource(CustomBaseModelResource):
                 sbom_part_mapping.append(temp)
 
             plate_obj=bom_queryset[0].plate
+            plate_obj.plate_image.save(plate_image.name, dashboard_image)
             plate_obj.plate_image_with_part.save(plate_image.name, plate_image)
+            plate_obj.plate_txt = plate_name
+            plate_obj.save(using=settings.BRAND)
             data={'plate_id':plate_id, 'sku_code':sku_code,
                   'bom_number':bom_number,
                   'model':model, 'part':[]}
@@ -281,8 +287,9 @@ class BOMPlatePartResource(CustomBaseModelResource):
                     temp['status']='MISSING'
                     data['part'].append(temp)
         except Exception as ex:
-            LOG.info('[save_plate_part]: {0}'.format(ex))
-            data = {'message': 'Some error occurred'}
+            error_message='Error [save_plate_part]:  {0}'.format(ex)
+            LOG.info(error_message)
+            data = {'message': error_message}
         return HttpResponse(json.dumps(data), content_type="application/json")
     
     def search_sbom_for_vin(self, request):

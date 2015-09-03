@@ -68,7 +68,8 @@ class RedemptionResource(CustomBaseModelResource):
         filtering = {
                      "member": ALL_WITH_RELATIONS,
                      "resolution_flag":ALL,
-                     "status":ALL
+                     "status":ALL,
+                     "created_date" : ALL
                      }
         ordering = ["created_date", "status", "member"]
 
@@ -154,6 +155,9 @@ class AccumulationResource(CustomBaseModelResource):
         always_return_data = True
         filtering = {
                      "member":ALL_WITH_RELATIONS,
+                     "asm" : ALL_WITH_RELATIONS,
+                     "upcs" : ALL_WITH_RELATIONS,
+                     "created_date" : ALL
                      }
 
 class WelcomeKitResource(CustomBaseModelResource):

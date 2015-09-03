@@ -5,6 +5,7 @@ import datetime
 import operator
 
 from collections import OrderedDict
+from provider.oauth2.models import AccessToken
 from django.shortcuts import render_to_response, render
 from django.http.response import HttpResponseRedirect, HttpResponse,\
     HttpResponseBadRequest, Http404
@@ -16,20 +17,18 @@ from django.db.models.query_utils import Q
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import F
+from django.views.decorators.http import require_http_methods
 
-from gladminds.default.models import BrandService
 from gladminds.core.services import message_template
-from gladminds.core import utils, model_fetcher
+from gladminds.core import utils
 from gladminds.sqs_tasks import send_otp, send_customer_phone_number_update_message
 from gladminds.core.managers.mail import sent_otp_email,\
-    send_recovery_email_to_admin, send_mail_when_vin_does_not_exist
+    send_recovery_email_to_admin
 from gladminds.bajaj.services.coupons.import_feed import SAPFeed
 from gladminds.core.managers.feed_log_remark import FeedLogWithRemark
 from gladminds.core.cron_jobs.scheduler import SqsTaskQueue
-from gladminds.core.constants import PROVIDER_MAPPING, PROVIDERS, GROUP_MAPPING,\
-    USER_GROUPS, REDIRECT_USER, TEMPLATE_MAPPING, ACTIVE_MENU, MONTHS,\
-    SERVICE_MAPPING
-from gladminds.core.utils import get_email_template, format_product_object
+from gladminds.core.constants import USER_GROUPS, REDIRECT_USER, TEMPLATE_MAPPING, ACTIVE_MENU, MONTHS
+from gladminds.core.utils import format_product_object
 from gladminds.core.auth_helper import Roles
 from gladminds.core.auth.service_handler import check_service_active, Services
 from gladminds.core.core_utils.utils import log_time
@@ -41,8 +40,7 @@ from gladminds.core.auth import otp_handler
 from django.core.context_processors import csrf
 from gladminds.core.model_fetcher import models
 from gladminds.core.model_helpers import format_phone_number
-from tastypie.http import HttpBadRequest
-from django.views.decorators.http import require_http_methods
+from gladminds.core.auth.access_token_handler import create_access_token
 
 logger = logging.getLogger('gladminds')
 TEMP_ID_PREFIX = settings.TEMP_ID_PREFIX
@@ -527,8 +525,7 @@ def trigger_sqs_tasks(request):
         'export_cts_to_sap': 'export_cts_to_sap',
         'send_mail_for_feed_failure': 'send_mail_for_feed_failure',
         'send_mail_for_manufacture_data_discrepancy': 'send_mail_for_manufacture_data_discrepancy',
-        'send_vin_sync_feed_details': 'send_vin_sync_feed_details'
-        
+        'send_vin_sync_feed_details': 'send_vin_sync_feed_details'        
     }
     taskqueue = SqsTaskQueue(settings.SQS_QUEUE_NAME, settings.BRAND)
     taskqueue.add(sqs_tasks[request.POST['task']], settings.BRAND)
@@ -653,3 +650,25 @@ def get_active_asc_report(request):
                    "mon": MONTHS[month-1],
                    "cyear": str(year),
                    })
+
+def get_loyalty_login(request):
+    template = 'powerrewards/index.html'
+    return render(request, template)
+
+@login_required()
+def get_loyalty_reports(request, report_choice):
+    report_templates= {
+                        'report': 'powerrewards/Reports_Registration.html',
+                        'accumulation': 'powerrewards/Reports_Accumulation.html',
+                        'redemption': 'powerrewards/Reports_Redemption.html',
+                        'product': 'powerrewards/Reports_Product.html',
+                        'monthly': 'powerrewards/Reports_Monthly.html',
+                        'monthlynot': 'powerrewards/Reports_Monthly_Not.html',
+                     }
+    http_host = request.META.get('HTTP_HOST', 'localhost')
+    try:
+        access_token =  AccessToken.objects.using(settings.BRAND).get(user=request.user)
+    except Exception as ex:
+        access_token = create_access_token(request.user, http_host)
+    template = report_templates[report_choice]
+    return render(request, template, {'token':access_token})

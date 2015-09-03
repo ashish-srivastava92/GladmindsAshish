@@ -133,6 +133,10 @@ class ProductData(base_models.ProductData):
     class Meta(base_models.ProductData.Meta):
         app_label = _APP_NAME
 
+# class DispatchedProduct(ProductData):
+# 
+#     class Meta:
+#         proxy = True
 
 class CouponData(base_models.CouponData):
     product = models.ForeignKey(ProductData, null=False, editable=False)

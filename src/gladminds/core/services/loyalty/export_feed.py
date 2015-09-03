@@ -92,14 +92,18 @@ class ExportAccumulationFeed(BaseExportFeed):
                 item = {
                         "CRDAT": accumulation.created_date.date().strftime("%Y-%m-%d"),
                         "TANSSID": accumulation.transaction_id,
-                        "POINTS": accumulation.points,
                         "MECHID": accumulation.member.permanent_id,
                         "MOBNO": str(accumulation.member.phone_number),
                     }
                 upcs = accumulation.upcs.all()
+                part_number_list=upcs.values_list('part_number', flat=True)
+                upcs_point=get_model('SparePartPoint').objects.using(brand).filter(part_number__in=part_number_list, territory=accumulation.member.state.state_code)
                 for upc in upcs:
-                    item['UPCED'] = str(upc.unique_part_code)
-                    items.append(item)
+                    temp = item.copy()
+                    temp['UPCED'] = str(upc.unique_part_code)
+                    upc_point = filter(lambda point: upc.part_number == point.part_number, upcs_point)
+                    temp['POINTS'] = upc_point[0].points
+                    items.append(temp)
             except Exception as ex:
                 logger.error("[ExportAccumulationFeed]: error fetching from db {0}".format(ex))
                 total_failed = total_failed + 1
@@ -111,55 +115,55 @@ class ExportAccumulationFeed(BaseExportFeed):
         export_status = False
         client = self.get_client()
         total_failed = total_failed_on_feed
-        item_batch=self.get_chunk(items, settings.BATCH_SIZE)
-        for item in item_batch:
-            try:
-                result = client.service.SI_Acc_Sync(
-                        DT_Accum={'Item':list(item)}, DT_STAMP={'Item_Stamp':item_stamp})
-                logger.info("[ExportAccumulationFeed]: Response from SAP: {0}".format(result))
-                if result[0]['STATUS'] == 'SUCCESS':
-                    transaction_id_list=[]
-                    for accumulation in item:
-                        transaction_id_list.append(accumulation['TANSSID'])
-                    results = get_model('AccumulationRequest').objects.using(brand).filter(transaction_id__in=transaction_id_list)
-                    results.using(brand).update(sent_to_sap=True)
-                    logger.error("[ExportAccumulationFeed]: Sent details o SAP")
-                else:
-                    total_failed = total_failed + len(item)
-                    logger.error("[ExportAccumulationFeed]: Not received success from sap")
-            except Exception as ex:
-                total_failed = total_failed + len(item)
-                logger.error("[ExportAccumulationFeed]: Error in sending accumulation :{0}".format(ex))
-            feed_log(brand, feed_type=self.feed_type, total_data_count=len(item)\
-                 + total_failed_on_feed, failed_data_count=total_failed,\
-                 success_data_count=len(item) + total_failed_on_feed - total_failed,\
-                 action='Sent', status=export_status)
-                
-#         for item in items:
-#             logger.info("[ExportAccumulationFeed]: Trying to send SAP the member: {0}"\
-#                         .format(item))
-#             try:            
+#         item_batch=self.get_chunk(items, settings.BATCH_SIZE)
+#         for item in item_batch:
+#             try:
 #                 result = client.service.SI_Acc_Sync(
-#                     DT_Accum={'Item':[item]}, DT_STAMP={'Item_Stamp':item_batch})
+#                         DT_Accum={'Item':list(item)}, DT_STAMP={'Item_Stamp':item_stamp})
 #                 logger.info("[ExportAccumulationFeed]: Response from SAP: {0}".format(result))
 #                 if result[0]['STATUS'] == 'SUCCESS':
-#                     try:
-#                         accumulation_detail = models.AccumulationRequest.objects.get(transaction_id=item['TANSSID'])
-#                         accumulation_detail.sent_to_sap = True
-#                         accumulation_detail.save()
-#                         logger.info("[ExportAccumulationFeed]: Sent the details of member {0} to sap".format(item['TANSSID']))
-#                         export_status = True
-#                     except Exception as ex:
-#                         logger.error("[ExportAccumulationFeed]: Error in sending accumulation:{0}::{1}".format(item['TANSSID'], ex))
+#                     transaction_id_list=[]
+#                     for accumulation in item:
+#                         transaction_id_list.append(accumulation['TANSSID'])
+#                     results = get_model('AccumulationRequest').objects.using(brand).filter(transaction_id__in=transaction_id_list)
+#                     results.using(brand).update(sent_to_sap=True)
+#                     logger.error("[ExportAccumulationFeed]: Sent details to SAP")
 #                 else:
-#                     total_failed = total_failed + 1
-#                     logger.error("[ExportAccumulationFeed]: {0}:: Not received success from sap".format(item['TANSSID']))
+#                     total_failed = total_failed + len(item)
+#                     logger.error("[ExportAccumulationFeed]: Not received success from sap")
 #             except Exception as ex:
-#                 logger.error("[ExportAccumulationFeed]: Error in sending accumulation :{0}::{1}".format(item['TANSSID'], ex))
-#         feed_log(brand, feed_type=self.feed_type, total_data_count=len(items)\
+#                 total_failed = total_failed + len(item)
+#                 logger.error("[ExportAccumulationFeed]: Error in sending accumulation :{0}".format(ex))
+#             feed_log(brand, feed_type=self.feed_type, total_data_count=len(item)\
 #                  + total_failed_on_feed, failed_data_count=total_failed,\
-#                  success_data_count=len(items) + total_failed_on_feed - total_failed,\
+#                  success_data_count=len(item) + total_failed_on_feed - total_failed,\
 #                  action='Sent', status=export_status)
+                
+        for item in items:
+            logger.info("[ExportAccumulationFeed]: Trying to send SAP the member: {0}"\
+                        .format(item))
+            try:            
+                result = client.service.SI_Acc_Sync(
+                    DT_Accum={'Item':[item]}, DT_STAMP={'Item_Stamp':item_stamp})
+                logger.info("[ExportAccumulationFeed]: Response from SAP: {0}".format(result))
+                if result[0]['STATUS'] == 'SUCCESS':
+                    try:
+                        accumulation_detail = models.AccumulationRequest.objects.get(transaction_id=item['TANSSID'])
+                        accumulation_detail.sent_to_sap = True
+                        accumulation_detail.save()
+                        logger.info("[ExportAccumulationFeed]: Sent the details of accumulation {0} to sap".format(item['TANSSID']))
+                        export_status = True
+                    except Exception as ex:
+                        logger.error("[ExportAccumulationFeed]: Error in sending accumulation:{0}::{1}".format(item['TANSSID'], ex))
+                else:
+                    total_failed = total_failed + 1
+                    logger.error("[ExportAccumulationFeed]: {0}:: Not received success from sap".format(item['TANSSID']))
+            except Exception as ex:
+                logger.error("[ExportAccumulationFeed]: Error in sending accumulation :{0}::{1}".format(item['TANSSID'], ex))
+        feed_log(brand, feed_type=self.feed_type, total_data_count=len(items)\
+                 + total_failed_on_feed, failed_data_count=total_failed,\
+                 success_data_count=len(items) + total_failed_on_feed - total_failed,\
+                 action='Sent', status=export_status)
 
 class ExportRedemptionFeed(BaseExportFeed):
     

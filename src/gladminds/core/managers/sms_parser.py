@@ -1,12 +1,21 @@
 import logging
 logger = logging.getLogger('gladminds')
 from parse import *
+from django.conf import settings
+from django.db import transaction
+from gladminds.core.managers.audit_manager import sms_log
+from gladminds.core import utils
 from gladminds.core.services import message_template as templates
+
+LOGGER = logging.getLogger('gladminds')
+ANGULAR_FORMAT = lambda x: x.replace('{', '<').replace('}', '>')
+AUDIT_ACTION = 'SEND TO QUEUE'
 
 class SmsException(Exception):
     def __init__(self, message=None, template=None):
         Exception.__init__(self, message)
         self.template = template
+
 class InvalidMessage(SmsException): {}
 
 class InvalidKeyWord(SmsException): {}
@@ -47,6 +56,33 @@ def sms_parser(*args, **kwargs):
         raise InvalidKeyWord(message='invalid keyword',
                              template=templates.get_template('SEND_CUSTOMER_SUPPORTED_KEYWORD'))
 
+def sms_processing(phone_number, message, brand):
+    sms_dict = {}
+    error_template = None
+    phone_number = utils.get_phone_number_format(phone_number)
+    message = utils.format_message(message)
+    logger.info('[sms_processing]: settings brand {0}'.format(settings.BRAND))
+    sms_log(brand, action='RECEIVED', sender=phone_number,
+            receiver='+1 469-513-9856', message=message)
+    LOGGER.info('Received Message from phone number: {0} and message: {1}'.format(phone_number, message))
+    try:
+        sms_dict = sms_parser(message=message)
+    except InvalidKeyWord as ink:
+        error_template = ink.template
+    except InvalidMessage as inm:
+        error_template = inm.template
+    except InvalidFormat as inf:
+        error_template = ANGULAR_FORMAT('CORRECT FORMAT: ' + inf.template)
+    if error_template:
+        sms_log(brand, receiver=phone_number,
+                action=AUDIT_ACTION, message=error_template)
+        raise ValueError(error_template)
+    to_be_serialized = {}
+    handler = utils.get_handler(sms_dict['handler'])
+    with transaction.atomic():
+        to_be_serialized = handler(sms_dict,
+                        utils.mobile_format(phone_number))
+    return to_be_serialized
 
 def render_sms_template(keyword=None, status=None, template=None, *args, **kwargs):
     keyword = keyword

@@ -1802,6 +1802,6 @@ class FleetRider(BaseModel):
         db_table = "gm_fleetrider"
 
     def __unicode__(self):
-        return self.dealer_id
+        return self.phone_number
     
     

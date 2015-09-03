@@ -20,7 +20,11 @@ def get_email_template(key, brand=None):
 
 def get_mail_receiver(template_name, mail_detail):
     receivers = []
-    receivers.append(mail_detail['receiver'])
+
+    if isinstance(mail_detail['receiver'], unicode):
+        receivers = [e.encode('utf-8') for e in mail_detail['receiver'].strip('[]').split(',')]
+    else:
+        receivers = mail_detail['receiver']
     return receivers
 
 def send_email_with_file_attachment(sender, receiver, subject, body, filename, content, brand='bajaj'):

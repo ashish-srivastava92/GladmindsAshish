@@ -82,10 +82,7 @@ class GmModelAdmin(ModelAdmin):
     def get_asm(self, obj):
         asm_obj = models.AreaSparesManager.objects.filter(state=obj.member.state)
         if asm_obj:
-            asm_list = []
-            for asm in asm_obj:
-                asm_list.append(str(asm.name))
-        return asm_list
+            return ' | '.join([str(upc.name) for upc in asm_obj])
 
     def get_mechanic_state(self, obj):
         return obj.member.state.state_name
@@ -113,3 +110,11 @@ class GmModelAdmin(ModelAdmin):
         return obj.part_number.description
 
     get_part_description.short_description = 'Description'
+
+    def get_state(self, obj):
+        states = obj.state.all()
+        if states:
+            return ' | '.join([str(state.state_name) for state in states])
+        else:
+            return None
+    get_state.short_description = 'State'

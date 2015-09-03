@@ -64,7 +64,7 @@ class Roles():
     REDEEMESCALATION = 'RedemptionEscalation'
 
     COUNTRYDISTRIBUTOR = 'CountryDistributors'
-    MAINCOUNTRYDEALER = 'MainCountryDealer'
+    MAINCOUNTRYDEALER = 'MainCountryDealers'
 
     VISUALIZATIONADMIN = 'VisualizationAdmins'
     VISUALIZATIONSTAFF = 'VisualizationStaffs'

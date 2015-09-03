@@ -47,4 +47,13 @@ function downloadDetails(e, check_url, url){
             url = '/redemption-download/'+choice
         downloadDetails(e, check_url, url);
     });
+    
+    $(".modal-footer .download-accumulation-detail").click(function(e) {
+        $('.download-fail').addClass('hide');
+        var choice = $( "#accumulation-download-option option:selected" ).val();
+            downloadChoice = {'choice':choice},
+            check_url = '/check-detail/'+'AccumulationRequest/'+choice;
+            url = '/accumulation-download/'+choice
+        downloadDetails(e, check_url, url);
+    });
 })();

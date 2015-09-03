@@ -12,7 +12,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 
-COUPON_URL = 'staging.bajaj.gladminds.co'
+# BRAND_BASE_URL = 'staging.bajaj.gladminds.co'
 API_FLAG = True 
 BROKER_URL = 'redis://localhost:6379'
 REDIS_URL = 'redis://localhost:6379'
@@ -69,3 +69,7 @@ ENV = "dev"
 WSDL_TNS="http://dev.bajaj.gladminds.co/api/v1/feed/"
 CORE_WSDL_TNS="http://dev.bajajcv.gladminds.co/api/v1/feed/"
 IB_WSDL_TNS="http://dev.bajajib.gladminds.co/api/v1/feed/"
+
+BRAND_META["bajaj"]["base_url"]= "staging.bajaj.gladminds.co"
+BRAND_META["bajajcv"]["base_url"]= "staging.bajajcv.gladminds.co"
+BRAND_META["bajajib"]["base_url"]= "staging.bajajib.gladminds.co"
