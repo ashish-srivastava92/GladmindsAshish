@@ -98,8 +98,15 @@ def mobile_format(phone_number):
     '''
         GM store numbers in +91 format
         And when airtel pull message from customer
-        or service advisor we will check that number in +91 format'''
+        or service advisor we will check that number in +91 format
+    '''
+    if settings.BRAND == 'bajajib':
+        country_code = get_model('Country').objects.values('name').distinct()
+        for c in country_code:
+            if c['name'] == 'Uganda':
+                return '+256' + phone_number[-9:]
     return '+91' + phone_number[-10:]
+
 
 
 def format_message(message):
