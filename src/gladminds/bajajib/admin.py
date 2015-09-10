@@ -359,6 +359,7 @@ def get_admin_site_custom(brand):
     brand_admin.register(get_model("Constant", brand), ConstantAdmin)
     
     brand_admin.register(get_model("FleetRider", brand), FleetRiderAdmin)
+    brand_admin.register(get_model("Country", brand), CountryAdmin)
 
     return brand_admin
 

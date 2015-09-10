@@ -196,7 +196,6 @@ class CustomerUpdateHistory(base_models.CustomerUpdateHistory):
     class Meta(base_models.CustomerUpdateHistory.Meta):
         app_label = _APP_NAME
       
-      
 '''Service desk for Uganda is added here'''
 
 class ServiceType(base_models.ServiceType):

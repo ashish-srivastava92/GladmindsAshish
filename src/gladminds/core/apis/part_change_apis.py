@@ -300,9 +300,7 @@ class BOMPlatePartResource(CustomBaseModelResource):
         vin = get_data.get('value')
         try:
             product_obj=get_model('ProductData').objects.get(product_id=vin)
-            bom_header_obj=get_model('BOMHeader').objects.get(sku_code=product_obj.sku_code,
-                                                           valid_from__lte=product_obj.invoice_date,
-                                                           valid_to__gte=product_obj.invoice_date)
+            bom_header_obj=get_model('BOMHeader').objects.get(sku_code=product_obj.sku_code)
             return self.get_list(request, bom=bom_header_obj,
                                    valid_from__lte=product_obj.invoice_date,
                                    valid_to__gte=product_obj.invoice_date)
@@ -322,15 +320,17 @@ class BOMPlatePartResource(CustomBaseModelResource):
         data = {'objects': [model_to_dict(c, exclude='image_url') for c in product_obj]}
         return HttpResponse(json.dumps(data), content_type="application/json")
     
-    def search_revison_for_sku(self, request):
+    def search_sbom_for_sku(self, request):
         '''
            Gives list of revision for a sku code
         '''
         get_data=request.GET
         sku_code = get_data.get('value')
-        header_obj=get_model('BOMHeader').objects.filter(sku_code=sku_code)
-        data = {'objects': [model_to_dict(c, fields=['sku_code','revision_number']) for c in header_obj]}
-        return HttpResponse(json.dumps(data), content_type="application/json")
+        current_date = datetime.today()
+        bom_header_obj=get_model('BOMHeader').objects.get(sku_code=sku_code)
+        return self.get_list(request, bom=bom_header_obj,
+                                   valid_from__lte=current_date,
+                                   valid_to__gte=current_date)
     
     def search_sbom_for_revision(self, request):
         '''
@@ -358,7 +358,7 @@ class BOMPlatePartResource(CustomBaseModelResource):
         search_handler = {
                           'vin': self.search_sbom_for_vin,
                           'description': self.search_sku_for_desc,
-                          'sku_code': self.search_revison_for_sku,
+                          'sku_code': self.search_sbom_for_sku,
                           'revision': self.search_sbom_for_revision
                           }
         return search_handler[parameter](request)

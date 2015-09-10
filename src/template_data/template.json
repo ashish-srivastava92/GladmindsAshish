@@ -687,5 +687,14 @@
       "template": "Sorry you are not authorised to initiate this activity",
       "description": "Send message to unauthorised Dealer"
     }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 77,
+    "fields": {
+      "template_key": "PHONE_NUMBER_CANNOT_BE_REGISTERED",
+      "template": "This mobile number cannot be registered and exceeds maximum limit. Please contact customer support: +91-7847011011.",
+      "description": "Send this message when vin cannot be registered"
+    }
   }
 ]

@@ -1,35 +1,28 @@
-#from tastypie.constants import ALL
+import json
+import logging
+
+from django.conf.urls import url
+from django.http.response import HttpResponse
+from django.db.models.aggregates import Count
+from django.db import transaction
+from django.forms.models import model_to_dict
+from django.db.models.query_utils import Q
+
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
+from tastypie.utils.urls import trailing_slash
+from tastypie import fields
+from tastypie.authorization import Authorization
+
 from gladminds.core.apis.base_apis import CustomBaseModelResource
 from gladminds.core.model_fetcher import models, get_model
 from gladminds.core import constants
 from gladminds.core.apis.authentication import AccessTokenAuthentication
-from tastypie.authorization import Authorization
-from tastypie import fields
-from django.db.models import Count
-from gladminds.core import utils
-from gladminds.core.apis.dashboard_apis import SMSReportResource 
-from gladminds.core.apis.product_apis import ProductTypeResource
-from django.conf.urls import url
-from django.http.response import HttpResponse, HttpResponseBadRequest
-import json
-from django.forms.models import model_to_dict
-from django.db.models.query_utils import Q
-from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.utils.urls import trailing_slash
 from gladminds.core.apis.authorization import MultiAuthorization,\
     LoyaltyCustomAuthorization
-import logging
-from django.db import transaction
 from gladminds.core.auth_helper import Roles
-from django.db.models.aggregates import Count, Sum
-import itertools
-from gladminds.core.apis.user_apis import MemberResource, AreaSparesManagerResource, PartnerResource,UserResource,\
-UserProfileResource,DistributorResource,RetailerResource
+from gladminds.core.apis.user_apis import MemberResource, AreaSparesManagerResource, PartnerResource,UserResource
 from gladminds.core.apis.product_apis import ProductCatalogResource,\
     SparePartUPCResource
-from django.conf import settings
-from gladminds.core.core_utils.utils import dictfetchall
-from django.db import connections
 logger = logging.getLogger("gladminds")
 
 class LoyaltySLAResource(CustomBaseModelResource):
@@ -72,6 +65,31 @@ class RedemptionResource(CustomBaseModelResource):
                      "created_date" : ALL
                      }
         ordering = ["created_date", "status", "member"]
+    
+    def build_filters(self, filters=None):
+        if filters is None:
+            filters = {}
+        orm_filters = super(RedemptionResource, self).build_filters(filters)
+        
+        if 'member_id' in filters:
+            query = filters['member_id']
+            qset = (
+                    Q(member__mechanic_id=query)|
+                    Q(member__permanent_id=query)
+                      )
+            orm_filters.update({'custom':  qset})
+        return orm_filters  
+                     
+            
+    def apply_filters(self, request, applicable_filters):
+        if 'custom' in applicable_filters:
+            custom = applicable_filters.pop('custom')
+        else:
+            custom = None
+        
+        semi_filtered = super(RedemptionResource, self).apply_filters(request, applicable_filters)
+        
+        return semi_filtered.filter(custom) if custom else semi_filtered
 
     def prepend_urls(self):
         return [
@@ -159,6 +177,50 @@ class AccumulationResource(CustomBaseModelResource):
                      "upcs" : ALL_WITH_RELATIONS,
                      "created_date" : ALL
                      }
+    
+    def build_filters(self, filters=None):
+        if filters is None:
+            filters = {}
+        orm_filters = super(AccumulationResource, self).build_filters(filters)
+        
+        if 'member_id' in filters:
+            query = filters['member_id']
+            qset = (
+                    Q(member__mechanic_id=query)|
+                    Q(member__permanent_id=query)
+                      )
+            orm_filters.update({'custom':  qset})
+        return orm_filters  
+                     
+            
+    def apply_filters(self, request, applicable_filters):
+        if 'custom' in applicable_filters:
+            custom = applicable_filters.pop('custom')
+        else:
+            custom = None
+        
+        semi_filtered = super(AccumulationResource, self).apply_filters(request, applicable_filters)
+        
+        return semi_filtered.filter(custom) if custom else semi_filtered
+    
+    def alter_list_data_to_serialize(self, request, data):
+        part_numbers = []
+        for object in data['objects']:
+            if object.data.has_key('upcs'):
+                for upc in object.data['upcs']:            
+                    part_numbers.append(upc.data['part_number'].data['id'])
+        
+        points = models.SparePartPoint.objects.filter(part_number__in=part_numbers).values('part_number__id', 'points')
+
+        for object in data['objects']:
+            if object.data.has_key('upcs'):
+                for upc in object.data['upcs']:
+                    part_number = upc.data['part_number'].data['id']
+                    upc_mapping = filter(lambda point: point['part_number__id']==part_number, points)
+                    upc.data['part_number'].data['point'] = upc_mapping[0]['points']
+                    
+        return data
+
 
 class WelcomeKitResource(CustomBaseModelResource):
     member = fields.ForeignKey(MemberResource, 'member')

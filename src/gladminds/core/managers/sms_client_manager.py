@@ -83,6 +83,7 @@ class KapSmsClient(SmsClientBaseObject):
         self.login = kwargs['login']
         self.password = kwargs['pass']
         self.message_url = kwargs['message_url']
+        self.working_key = kwargs['working_key']
 
     def authenticate(self):
         return
@@ -94,10 +95,10 @@ class KapSmsClient(SmsClientBaseObject):
             '[INFO]: sending message {0} to {1} through kap'.format(message, phone_number))
         params = {'username': self.login,
                   'pass': self.password,
-                  'senderid': self.sender_id,
-                  'dest_mobileno' : phone_number,
+                  'sender': self.sender_id,
+                  'to' : phone_number,
                   'message' : message,
-                  'response' : 'Y',
+                  'workingkey': self.working_key,
                   }
         return self.send_request(url = self.message_url, params = params)
 
@@ -108,10 +109,10 @@ class KapSmsClient(SmsClientBaseObject):
             '[INFO]: sending message {0} to {1} through kap'.format(message, phone_number))
         params = {'username': self.login,
                   'pass': self.password,
-                  'senderid': self.sender_id,
-                  'dest_mobileno' : phone_number,
+                  'sender': self.sender_id,
+                  'to' : phone_number,
                   'message' : message,
-                  'response' : 'Y',
+                  'workingkey': self.working_key,
                   }
         return self.send_request(url = self.message_url, params = params)
 

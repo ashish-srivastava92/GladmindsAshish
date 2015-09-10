@@ -61,6 +61,24 @@ FEEDBACK_STATUS = (
         ('Pending', 'Pending')
     )
 
+FEEDBACK_STATUS_LEVEL_ONE = (
+        ('Open', 'Open'),
+        ('Closed', 'Closed'),
+        ('Resolved', 'Resolved'),
+        ('In Progress', 'In Progress'),
+        ('Pending', 'Pending'),
+        ('Assigned', 'Assigned')
+    )
+
+FEEDBACK_STATUS_LEVEL_TWO = (
+        ('Open', 'Open'),
+        ('Closed', 'Closed'),
+        ('Resolved', 'Resolved'),
+        ('In Progress', 'In Progress'),
+        ('Pending', 'Pending')
+    )
+
+
 PRIORITY = (
         ('Low', 'Low'),
         ('High', 'High'),

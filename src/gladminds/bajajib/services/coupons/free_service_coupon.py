@@ -51,7 +51,10 @@ def register_owner(sms_dict, phone_number):
     customer_name = sms_dict['customer_name']
     customer_support = models.Constant.objects.get(constant_name='customer_support_number_uganda').constant_value
     try:
-        purchase_date = datetime.strptime(sms_dict['purchase_date'], '%m-%d-%Y')
+        purchase_date_format = models.Constant.objects.get(constant_name='purchase_date_format',
+                                                           country__name='Uganda').constant_value
+        purchase_date = datetime.strptime(sms_dict['purchase_date'], purchase_date_format)
+
         if purchase_date > datetime.now():
             message = templates.get_template('INVALID_REGISTRATION_NUMBER_OR_PURCHASE_DATE').format(phone_number=customer_support)
             return {'message' : message, 'status': False}
@@ -86,6 +89,10 @@ def register_owner(sms_dict, phone_number):
     except Exception as ex:
         LOG.info('[register_owner]:Exception : '.format(ex))
         message = templates.get_template('INVALID_REGISTRATION_NUMBER_OR_PURCHASE_DATE').format(phone_number=customer_support)
+        sms_log(settings.BRAND, receiver=owner_phone_number, action=AUDIT_ACTION, message=message)
+        send_job_to_queue(send_coupon, {"phone_number":owner_phone_number, "message": message,
+                                            "sms_client":settings.SMS_CLIENT})
+
         data = {'message' : message, 'status': False}
 
     return data 
@@ -194,6 +201,7 @@ def validate_coupon(sms_dict, phone_number):
         except Exception as ax:
             LOG.error('Customer Phone Number is not stored in DB %s' % ax)
         if len(in_progress_coupon) > 0:
+            
             update_inprogress_coupon(in_progress_coupon[0], service_advisor)
             LOG.info("Validate_coupon: Already in progress coupon")
             if (in_progress_coupon[0] == valid_coupon):

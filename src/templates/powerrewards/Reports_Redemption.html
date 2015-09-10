@@ -77,8 +77,8 @@
 									        <option value="member__mechanic_id">Mechanic ID</option>
 									        <option value="member__phone_number__endswith">Mobile No</option>
 									        <option value="member__district">District</option>
-									        <option value="member__state__state_name">State Name</option>
-									        <option value="member__distributor__distributor_id">Distributor ID</option>
+									        <option value="member__state__state_name">State</option>
+									        <option value="member__distributor__distributor_id">Distributor Code</option>
 									    </select>
 									</div>
 						    		<div class="col-md-3" style="height: 35px; padding-left:0px;"><input type="search" name="search-1" id="search-1" value="" placeholder="Search"  style="height: 35px;" required></div>
@@ -113,8 +113,12 @@
 
                      			showLoading();
                      			getNextPageData(1);
+                     			$('#select-native-3').bind('change', function() {
+									 
+										    $("#search-1").val('')
+									});
 
-                     			$('#search-1').bind('input propertychange paste', function() {
+                     			$('#search-1').bind('keypress input propertychange paste', function() {
 									 
 										    var yourInput = $(this).val();
 												re = /[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi;
@@ -124,8 +128,7 @@
 													var no_spl_char = yourInput.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
 													$(this).val(no_spl_char);
 												}
-								});
-								$("#search-1").keypress(function(){
+								
 									    var col=$('#select-native-3').val();
                          				var val=$('#search-1').val();
                          				if (col==''){
@@ -134,6 +137,17 @@
                          				}
                          				else if(col=='member__phone_number__endswith'){
                          					$("#search-1").attr('maxlength', '10')
+                         					var yourInput = $(this).val();
+											re = /[a-zA-Z`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi;
+											var isnum = re.test(yourInput);
+											if(isnum)
+											{
+												var no_spl_char = yourInput.replace(/[a-zA-Z`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+												$(this).val(no_spl_char);
+											}
+                         				}
+                         				else {
+                         					$("#search-1").attr('maxlength', '')
                          				}
 									});
 
@@ -311,7 +325,7 @@
 		                               		if($(this).attr('rel')){
 		                               			}
 		                               		else{
-		                               			$('.prev').addClass('disabled').removeClass('prev');
+		                               			$('.next').addClass('disabled').removeClass('prev');
 		                               		}
 		                               	})
 		                               $("#nextBtn").click(function(){

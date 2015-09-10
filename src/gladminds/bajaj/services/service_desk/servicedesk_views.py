@@ -11,7 +11,7 @@ from django.http.response import HttpResponse, HttpResponseBadRequest, \
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
-from gladminds.bajaj import models
+from gladminds.bajaj.models import *
 from gladminds.bajaj.views import views
 from gladminds.bajaj.services.service_desk.servicedesk_manager import get_feedbacks, \
     create_feedback, get_feedback, get_servicedesk_users, get_comments, \
