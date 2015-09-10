@@ -5,10 +5,11 @@ from gladminds.default import models
 
 
 _BAJAJ_SERVICES = [Services.AFTERBUY, Services.FREE_SERVICE_COUPON, Services.LOYALTY, Services.SERVICE_DESK]
+_BAJAJIB_SERVICES = [Services.AFTERBUY, Services.FREE_SERVICE_COUPON, Services.LOYALTY, Services.SERVICE_DESK]
 _DEMO_SERVICES = [Services.SERVICE_DESK]
 _DAIMLER_SERVICES = [Services.SERVICE_DESK]
 _INDUSTRIES = ['automobiles']
-_BRANDS = {'bajaj': [_INDUSTRIES[0]], 'demo': [_INDUSTRIES[0]], 'daimler': [_INDUSTRIES[0]]}
+_BRANDS = {'bajaj': [_INDUSTRIES[0]], 'demo': [_INDUSTRIES[0]], 'daimler': [_INDUSTRIES[0]], 'bajajib': [_INDUSTRIES[0]]}
 
 class Command(BaseCommand): 
     
@@ -75,6 +76,8 @@ class Command(BaseCommand):
                 if len(brand_obj)>0:
                     if brand == 'bajaj':
                         SERVICES = _BAJAJ_SERVICES
+                    if brand == 'bajajib':
+                        SERVICES = _BAJAJIB_SERVICES
                     elif brand == 'demo':
                         SERVICES = _DEMO_SERVICES
                     elif brand == 'daimler':

@@ -100,13 +100,12 @@ def mobile_format(phone_number):
         And when airtel pull message from customer
         or service advisor we will check that number in +91 format
     '''
-    if settings.BRAND == 'bajajib':
-        country_code = get_model('Country').objects.values('name').distinct()
-        for c in country_code:
-            if c['name'] == 'Uganda':
-                return '+256' + phone_number[-9:]
+#     if settings.BRAND == 'bajajib':
+#         country_code = get_model('Country').objects.get(name = 'UGA')
+#         phone_number = country_code.area_code+phone_number
+#         return phone_number
+    
     return '+91' + phone_number[-10:]
-
 
 
 def format_message(message):
@@ -121,7 +120,21 @@ def get_phone_number_format(phone_number):
     '''
         This is used when we are sending message through sms client
     '''
-    return phone_number[-10:]
+    ''' This has to be change, we don't have to use hard-code value for country'''
+#     if settings.BRAND == 'bajajib':
+#         country_name = get_model('Country').objects.get(name = 'UGA')
+#         area_code = country_name.area_code
+#         phone_num = phone_number.split(area_code,1)[1]
+#         
+#         return phone_num
+    country_name = get_model('Country').objects.get(name = 'UGA')
+    area_code = country_name.area_code
+    try:
+        phone_number_uganda = phone_number.split(area_code,1)[1]
+        return   phone_number_uganda
+    except Exception as ex:
+        return phone_number[-10:]
+
 
 
 def save_otp(user, token, email):

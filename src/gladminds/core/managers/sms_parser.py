@@ -1,4 +1,5 @@
 import logging
+from PIL.PngImagePlugin import PngImageFile
 logger = logging.getLogger('gladminds')
 from parse import *
 from django.conf import settings

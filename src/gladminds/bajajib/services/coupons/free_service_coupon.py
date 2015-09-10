@@ -226,6 +226,10 @@ def validate_coupon(sms_dict, phone_number):
         sms_log(settings.BRAND, receiver=customer_phone_number, action=AUDIT_ACTION, message=customer_message)
         send_job_to_queue(send_coupon_detail_customer, {"phone_number":utils.get_phone_number_format(customer_phone_number), "message":customer_message, "sms_client":settings.SMS_CLIENT},
                           delay_seconds=customer_message_countdown)
+        sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=dealer_message)
+        send_job_to_queue(send_service_detail, {"phone_number": phone_number,
+                                                "message": dealer_message,
+                                                "sms_client": settings.SMS_CLIENT})
 
     except Exception as ex:
         LOG.info('[validate_coupon]:Exception : '.format(ex))
@@ -246,7 +250,7 @@ def close_coupon(sms_dict, phone_number):
     '''
     service_advisor = validate_service_advisor(phone_number, close_action=True)
     unique_service_coupon = sms_dict['usc']
-    customer_id = sms_dict.get('customer_id', None)
+    customer_id = sms_dict.get('sap_customer_id', None)
     message = None
     if settings.LOGAN_ACTIVE:
         LOGGER.post_event("close_coupon", {'sender':phone_number,
@@ -390,9 +394,9 @@ def get_product(sms_dict):
         if sms_dict.has_key('veh_reg_no'):
                 product_data = models.ProductData.objects.get(veh_reg_no = sms_dict['veh_reg_no'])
                 
-        elif sms_dict.has_key('customer_id'):
+        elif sms_dict.has_key('sap_customer_id'):
                 #customer_id = models.CustomerTempRegistration.objects.get_updated_customer_id(sms_dict['customer_id'])
-                product_data = models.ProductData.objects.get(customer_id = sms_dict['customer_id'])
+                product_data = models.ProductData.objects.get(customer_id = sms_dict['sap_customer_id'])
         
         return product_data
     except Exception as ax:

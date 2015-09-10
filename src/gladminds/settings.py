@@ -631,7 +631,7 @@ FEED_HEALTH_CHECK_INTERVAL = 8
 ################################################
 BRAND = None
 GM_BRAND = 'default'
-OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler']
+OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler','bajajib']
 
 BRANDS = OUTSIDE_BRANDS + ['afterbuy']
 ###############################################
@@ -655,7 +655,13 @@ SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                           'message_url': 'http://123.63.33.43/blank/sms/user/urlsmstemp.php?',
                           'sender_id': 'GLADMS',
                           'params': 'kap'},
-                  'MOCK': {}
+                  'MOCK': {},
+                 'SMSMEDIA' : {
+                         'login':'ufsc',
+                         'pass':'ufsc',
+                         #'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
+                         'message_url': 'http://41.190.139.91/gladminds/receive.php',
+                              }
                   }
 
 ADMIN_DETAILS = {GmApps.BAJAJ: {'user': 'bajaj', 'password': 'bajaj'},

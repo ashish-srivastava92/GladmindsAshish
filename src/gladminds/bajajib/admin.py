@@ -324,6 +324,10 @@ class ConstantAdmin(GmModelAdmin):
 class FleetRiderAdmin(GmModelAdmin):
     search_fields = ('product',  'phone_number')
     list_display = ('product',  'phone_number',)
+    
+class CountryAdmin(GmModelAdmin):
+    search_fields = ('name',  'area_code')
+    list_display = ('name',  'area_code',)
 
 def get_admin_site_custom(brand):
     brand_admin = BajajibAdminSite(name=brand)
@@ -331,7 +335,7 @@ def get_admin_site_custom(brand):
     brand_admin.register(User, UserAdmin)
     brand_admin.register(Group, GroupAdmin)
     brand_admin.register(get_model("UserProfile", brand), UserProfileAdmin)
-    brand_admin.register(get_model("Country", brand))
+    brand_admin.register(get_model("Country", brand), CountryAdmin)
     
     brand_admin.register(get_model("CountryDistributor", brand), CountryDistributorAdmin)
     brand_admin.register(get_model("MainCountryDealer", brand), MainCountryDealerAdmin)

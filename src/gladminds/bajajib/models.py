@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from gladminds.core import base_models
+from gladminds.core import base_models, constants
 from gladminds.core.auth_helper import GmApps
 import datetime
  
@@ -195,4 +195,74 @@ class CustomerUpdateHistory(base_models.CustomerUpdateHistory):
 
     class Meta(base_models.CustomerUpdateHistory.Meta):
         app_label = _APP_NAME
-                
+      
+      
+'''Service desk for Uganda is added here'''
+
+class ServiceType(base_models.ServiceType):
+    class Meta(base_models.ServiceType.Meta):
+        app_label = _APP_NAME
+
+class Service(base_models.Service):
+    service_type = models.ForeignKey(ServiceType)
+
+    class Meta(base_models.Service.Meta):
+        app_label = _APP_NAME
+
+class ServiceDeskUser(base_models.ServiceDeskUser):
+    user_profile = models.ForeignKey(UserProfile, null=True, blank=True)
+
+    class Meta(base_models.ServiceDeskUser.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Service Desk Users"
+
+class BrandDepartment(base_models.BrandDepartment):
+    
+    class Meta(base_models.BrandDepartment.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Brand Department"
+
+class DepartmentSubCategories(base_models.DepartmentSubCategories):
+    department = models.ForeignKey(BrandDepartment, null=True, blank=True)
+    
+    class Meta(base_models.DepartmentSubCategories.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Department Sub-categories"
+        
+class Feedback(base_models.Feedback):
+    priority = models.CharField(max_length=12, choices=constants.PRIORITY, default='Low')
+    reporter = models.ForeignKey(ServiceDeskUser, null=True, blank=True, related_name='bajajib_feedback_reporter')
+    assignee = models.ForeignKey(ServiceDeskUser, null=True, blank=True, related_name='bajajib_feedback_assignee')
+    previous_assignee = models.ForeignKey(ServiceDeskUser, null=True, blank=True, related_name='bajajib_previous_assignee')
+    sub_department = models.ForeignKey(DepartmentSubCategories,null=True, blank=True) 
+    
+    class Meta(base_models.Feedback.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "user feedback"
+
+
+class Activity(base_models.Activity):
+    feedback = models.ForeignKey(Feedback, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, related_name="bajajib_activity_users")
+    
+    class Meta(base_models.Activity.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "user activity info"
+
+
+class Comment(base_models.Comment):
+    feedback_object = models.ForeignKey(Feedback,null=True, blank=True)
+
+    class Meta(base_models.Comment.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "user comments"
+
+
+class FeedbackEvent(base_models.FeedbackEvent):
+    feedback = models.ForeignKey(Feedback, null=True, blank=True)
+    user = models.ForeignKey(ServiceDeskUser, null=True, blank=True)
+    activity = models.ForeignKey(Activity, null=True, blank=True)
+     
+    class Meta(base_models.FeedbackEvent.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "user feedback event "
