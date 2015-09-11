@@ -52,9 +52,8 @@ def register_owner(sms_dict, phone_number):
     customer_support = models.Constant.objects.get(constant_name='customer_support_number_uganda').constant_value
     try:
         purchase_date_format = models.Constant.objects.get(constant_name='purchase_date_format',
-                                                           country__name='Uganda').constant_value
+                                                           country__name='UGA').constant_value
         purchase_date = datetime.strptime(sms_dict['purchase_date'], purchase_date_format)
-
         if purchase_date > datetime.now():
             message = templates.get_template('INVALID_REGISTRATION_NUMBER_OR_PURCHASE_DATE').format(phone_number=customer_support)
             return {'message' : message, 'status': False}
@@ -90,8 +89,8 @@ def register_owner(sms_dict, phone_number):
         LOG.info('[register_owner]:Exception : '.format(ex))
         message = templates.get_template('INVALID_REGISTRATION_NUMBER_OR_PURCHASE_DATE').format(phone_number=customer_support)
         sms_log(settings.BRAND, receiver=owner_phone_number, action=AUDIT_ACTION, message=message)
-        send_job_to_queue(send_coupon, {"phone_number":owner_phone_number, "message": message,
-                                            "sms_client":settings.SMS_CLIENT})
+#         send_job_to_queue(send_coupon, {"phone_number":owner_phone_number, "message": message,
+#                                             "sms_client":settings.SMS_CLIENT})
 
         data = {'message' : message, 'status': False}
 
@@ -218,7 +217,7 @@ def validate_coupon(sms_dict, phone_number):
             update_coupon(valid_coupon, service_advisor, 4, datetime.now())
             dealer_message = templates.get_template('SEND_SA_VALID_COUPON').format(
                                             service_type=service_type,
-                                            customer_id=product_data_list.customer_id, customer_phone_number=product_data_list.customer_phone_number)
+                                            customer_id=product_data_list.customer_id, customer_phone=product_data_list.customer_phone_number)
 
             customer_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(
                                         customer_name=product_data_list.customer_name,coupon=valid_coupon.unique_service_coupon,

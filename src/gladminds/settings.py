@@ -161,9 +161,19 @@ SUIT_CONFIG = {
                      'label': 'SA registration'},
                     {'model': 'customertempregistration',
                      'label': ' Customer registration'},)},
+             
+        {'app': 'bajaj', 'label': 'servicedesk', 'icon': ' icon-folder-open',
+         'models':(
+                    {'model': 'servicedeskuser',
+                     'label': ' Service Desk Users'},
+                    {'model': 'servicetype',
+                     'label': ' Service type'},
+                    {'model': 'service',
+                     'label': 'Services'},)},
         {'app': 'bajaj', 'label': 'Templates', 'icon': ' icon-folder-open',
          'models':(
                     'messagetemplate', 'emailtemplate',)},)
+        
 }
 
 

@@ -696,5 +696,50 @@
       "template": "This mobile number cannot be registered and exceeds maximum limit. Please contact customer support: +91-7847011011.",
       "description": "Send this message when vin cannot be registered"
     }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 78,
+    "fields": {
+      "template_key": "INVALID_VEH_REG_NO",
+      "template": "Vehicle number you entered does not exit, Please try again.",
+      "description": "Send this message when vehicle number does not exist."
+    }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 79,
+    "fields": {
+      "template_key": "PLEASE_CLOSE_INPROGRESS_COUPON",
+      "template": "Other coupon is already in progress, Please close it first.Thankyou",
+      "description": "Send message when other coupon are in progress"
+    }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 80,
+    "fields": {
+      "template_key": "INVALID_CUSTOMER_ID",
+      "template": "Customer number you entered is not valid, Please check it, Thankyou",
+      "description": "Send message when customer number in not valid."
+    }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 81,
+    "fields": {
+      "template_key": "INVALID_UCN",
+      "template": "UCN is not valid, Please check it.Thankyou.",
+      "description": "Send message when UCN is not valid."
+    }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 82,
+    "fields": {
+      "template_key": "INVALID_ST",
+      "template": "Please enter a valid service type.",
+      "description": "Send this message when service type in not valid."
+    }
   }
 ]
