@@ -128,6 +128,7 @@ def get_phone_number_format(phone_number):
     '''
         This is used when we are sending message through sms client
     '''
+    
 #TODO: when bajajib format will come change this and return only--> phone_number[-10:]
     country_name = get_model('Country').objects.get(name = 'UGA')
     area_code = country_name.area_code
