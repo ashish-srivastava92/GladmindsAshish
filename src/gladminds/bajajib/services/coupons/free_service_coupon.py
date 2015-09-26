@@ -19,6 +19,7 @@ from gladminds.core.stats import LOGGER
 from gladminds.settings import COUPON_VALID_DAYS
 from gladminds.sqs_tasks import send_service_detail, \
     send_coupon_detail_customer, send_coupon, send_invalid_keyword_message
+from nose.util import src
 
 
 LOG = logging.getLogger('gladminds')
@@ -43,7 +44,8 @@ def register_owner(sms_dict, phone_number):
        A function that handles owner registration
     '''
     dealer = models.Dealer.objects.active_dealer(phone_number)
-    if not dealer:
+    service_advisor = validate_service_advisor(phone_number)
+    if dealer is None and service_advisor is None:
         message = templates.get_template('UNAUTHORISED_DEALER')
         return {'message' : message}
     registration_number = sms_dict['registration_number']
@@ -102,7 +104,8 @@ def register_rider(sms_dict, phone_number):
     A function that handles rider registration
     '''
     dealer = models.Dealer.objects.active_dealer(phone_number)
-    if not dealer:
+    service_advisor = validate_service_advisor(phone_number)
+    if dealer  is None and service_advisor is None:
         message = templates.get_template('UNAUTHORISED_DEALER')
         return {'message' : message}
 
@@ -199,6 +202,13 @@ def validate_coupon(sms_dict, phone_number):
             customer_phone_number = product_data_list.customer_phone_number
         except Exception as ax:
             LOG.error('Customer Phone Number is not stored in DB %s' % ax)
+            
+        try:   
+            rider = models.FleetRider.objects.get(product=product_data_list, is_active=True)
+            if rider != None:
+                rider_phone_number = rider.phone_number
+        except Exception as ex:
+            rider = None
         if len(in_progress_coupon) > 0:
             
             update_inprogress_coupon(in_progress_coupon[0], service_advisor)
@@ -210,6 +220,9 @@ def validate_coupon(sms_dict, phone_number):
                 customer_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(customer_name=product_data_list.customer_name,
                                                     coupon=in_progress_coupon[0].unique_service_coupon,
                                                     service_type=in_progress_coupon[0].service_type)
+                rider_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(
+                                        customer_name=product_data_list.customer_name,coupon=valid_coupon.unique_service_coupon,
+                                        service_type=valid_coupon.service_type)
             else:
                 dealer_message = templates.get_template('PLEASE_CLOSE_INPROGRESS_COUPON')
         elif valid_coupon:
@@ -218,8 +231,10 @@ def validate_coupon(sms_dict, phone_number):
             dealer_message = templates.get_template('SEND_SA_VALID_COUPON').format(
                                             service_type=service_type,
                                             customer_id=product_data_list.customer_id, customer_phone=product_data_list.customer_phone_number)
-
             customer_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(
+                                        customer_name=product_data_list.customer_name,coupon=valid_coupon.unique_service_coupon,
+                                        service_type=valid_coupon.service_type)
+            rider_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(
                                         customer_name=product_data_list.customer_name,coupon=valid_coupon.unique_service_coupon,
                                         service_type=valid_coupon.service_type)
         else:
@@ -230,6 +245,13 @@ def validate_coupon(sms_dict, phone_number):
                                         req_status=requested_coupon_status,
                                         customer_id=product_data_list.customer_id)
             customer_message = dealer_message
+            rider_message = dealer_message
+            
+        if rider != None:    
+            sms_log(settings.BRAND, receiver=rider_phone_number, action=AUDIT_ACTION, message=rider_message)
+            send_job_to_queue(send_coupon, {"phone_number":rider_phone_number, "message": rider_message,
+                                                "sms_client":settings.SMS_CLIENT})
+        
         sms_log(settings.BRAND, receiver=customer_phone_number, action=AUDIT_ACTION, message=customer_message)
         send_job_to_queue(send_coupon_detail_customer, {"phone_number":utils.get_phone_number_format(customer_phone_number), "message":customer_message, "sms_client":settings.SMS_CLIENT},
                           delay_seconds=customer_message_countdown)
@@ -312,7 +334,6 @@ def validate_service_advisor(phone_number, close_action=False):
         send_job_to_queue(send_service_detail, {"phone_number":sa_phone, "message": message, "sms_client":settings.SMS_CLIENT})
         return None
     service_advisor_obj = all_sa_dealer_obj[0]
-
     if service_advisor_obj.dealer:
         dealer_asc_obj = service_advisor_obj.dealer
         dealer_asc_obj.last_transaction_date = datetime.now()

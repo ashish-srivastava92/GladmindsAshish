@@ -647,7 +647,7 @@ BRANDS = OUTSIDE_BRANDS + ['afterbuy']
 ###############################################
 AIRTEL_IP = '54.84.243.77'
 SMS_CLIENT = "MOCK"
-BRAND_SMS_GATEWAY={'bajaj':'AIRTEL', 'daimler':'KAP', 'bajajcv': 'AIRTEL', 'afterbuy': 'KAP', 'bajajib': 'KAP'}
+BRAND_SMS_GATEWAY={'bajaj':'AIRTEL', 'daimler':'KAP', 'bajajcv': 'AIRTEL', 'afterbuy': 'KAP', 'bajajib': 'SMSMEDIA'}
 SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                               'pass':'bajaj',
                               'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
@@ -674,10 +674,10 @@ SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                           'params': 'kap'},
                   'MOCK': {},
                  'SMSMEDIA' : {
-                         'login':'ufsc',
-                         'pass':'ufsc',
+                         'login':'gladminds',
+                         'pass':'g8a1i9n@s',
                          #'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
-                         'message_url': 'http://41.190.139.91/gladminds/receive.php',
+                         'message_url': 'http://lambda.smsmedia.ug/api/capi/send.php'
                               }
                   }
 

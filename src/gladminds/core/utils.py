@@ -99,8 +99,8 @@ def mobile_format(phone_number):
         And when airtel pull message from customer
         or service advisor we will check that number in +91 format
     '''
-  
     return '+91' + phone_number[-10:]
+    #return '+256' + phone_number
 
 
 def format_message(message):

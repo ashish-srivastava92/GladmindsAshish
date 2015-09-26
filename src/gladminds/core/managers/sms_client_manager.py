@@ -266,12 +266,13 @@ class SmsMediaSmsClient(SmsClientBaseObject):
     def send_request(self, url, params):
         LOGGER.info(
             '[INFO]: sending message to USSD url {0}'.format(url))
-#         try:
-#             resp = requests.get(url = url, params = params)
-#         except Exception as ex:
-#             return "failed"
-        resp = requests.get(url = url, params = params)
+        try:
+            resp = requests.get(url = url, params = params)
+        except Exception as ex:
+            return "failed"
+        #resp = requests.get(url = url, params = params)
         LOGGER.info(
             '[INFO]: Response from USSD url {0} {1}'.format(resp.content, resp.status_code))
         assert resp.status_code==200
         return resp.status_code
+    
