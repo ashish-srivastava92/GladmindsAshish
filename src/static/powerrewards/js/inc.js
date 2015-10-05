@@ -173,6 +173,7 @@ $(document).on('click','#signIn',function(e){
 	showLoading();
 	var input_email = $("#Email").val();
 	var email = input_email.trim();
+	 localStorage.setItem('email', email);
 
 	var input_password = $("#Passwd").val();
 	var password = input_password.trim();
@@ -182,6 +183,8 @@ $(document).on('click','#signIn',function(e){
 
 	    var formData = {"username":email,"password":pwd_encrypted}
 	    serilizedData = JSON.stringify(formData);
+
+
 	    //console.log(formData)
 
 	    $.ajax({

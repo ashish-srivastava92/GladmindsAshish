@@ -40,14 +40,19 @@ class SBOMMainFeed(BaseFeed):
         bom_header_obj = 0
         for bom in self.data_source[1]:
             try:
-                bom_header_obj = get_model('BOMHeader')(sku_code=bom['sku_code'],
-                                                        plant=bom['plant'],
-                                                        bom_type=bom['bom_type'],
-                                                        bom_number=bom['bom_number_header'],
-                                                        created_on=bom['created_on'],
-                                                        valid_from=bom['valid_from_header'],
-                                                        valid_to=bom['valid_to_header'])
-                bom_header_obj.save(using=settings.BRAND) 
+                bom_header_obj = get_model('BOMHeader').objects.filter(sku_code=bom['sku_code'],
+                                                        bom_number=bom['bom_number_header'])
+                if not bom_header_obj:
+                    bom_header_obj = get_model('BOMHeader')(sku_code=bom['sku_code'],
+                                                            plant=bom['plant'],
+                                                            bom_type=bom['bom_type'],
+                                                            bom_number=bom['bom_number_header'],
+                                                            created_on=bom['created_on'],
+                                                            valid_from=bom['valid_from_header'],
+                                                            valid_to=bom['valid_to_header'])
+                    bom_header_obj.save(using=settings.BRAND) 
+                else:
+                    bom_header_obj=bom_header_obj[0]
             except Exception as ex:
                 ex="[Exception: ]: SBOMMainFeed {0}".format(ex)
                 logger.error(ex)
@@ -55,23 +60,37 @@ class SBOMMainFeed(BaseFeed):
 
         for bom in self.data_source[0]:
             try:
-                bom_plate_obj = get_model('BOMPlate')(plate_id=bom['plate_id'], plate_txt=bom['plate_txt'])
-                bom_plate_obj.save(using=settings.BRAND)
+                bom_plate_obj = get_model('BOMPlate').objects.filter(plate_id=bom['plate_id'])
                 
-                bom_part_obj = get_model('BOMPart')(part_number=bom['part_number'], revision_number=bom['revision_number'])
-                bom_part_obj.save(using=settings.BRAND)
+                if not bom_plate_obj:
+                    bom_plate_obj = get_model('BOMPlate')(plate_id=bom['plate_id'], plate_txt=bom['plate_txt'])
+                    bom_plate_obj.save(using=settings.BRAND)
+                else:
+                    bom_plate_obj = bom_plate_obj[0]
+                bom_part_obj = get_model('BOMPart').objects.filter(part_number=bom['part_number'], revision_number=bom['revision_number'])
+                
+                if not bom_part_obj:
+                    bom_part_obj = get_model('BOMPart')(part_number=bom['part_number'], revision_number=bom['revision_number'])
+                    bom_part_obj.save(using=settings.BRAND)
+                else:
+                    bom_part_obj=bom_part_obj[0]
 
-                bomplatepart_obj = get_model('BOMPlatePart')(quantity=bom['quantity'], uom=bom['uom'],
-                                                            change_number_to=bom['change_number_to'],
-                                                            change_number=bom['change_number'],
-                                                            valid_from=bom['valid_from'], valid_to=bom['valid_to'], 
-                                                            serial_number=bom['serial_number'],
-                                                            item=bom['item'], item_id=bom['item_id'])
-
-                bomplatepart_obj.bom = bom_header_obj
-                bomplatepart_obj.part = bom_part_obj
-                bomplatepart_obj.plate = bom_plate_obj
-                bomplatepart_obj.save(using=settings.BRAND)
+                
+                bomplatepart_obj = get_model('BOMPlatePart').objects.filter(bom = bom_header_obj,
+                                                                            part = bom_part_obj,
+                                                                            plate = bom_plate_obj)
+                if not bomplatepart_obj:
+                    bomplatepart_obj = get_model('BOMPlatePart')(quantity=bom['quantity'], uom=bom['uom'],
+                                                                change_number_to=bom['change_number_to'],
+                                                                change_number=bom['change_number'],
+                                                                valid_from=bom['valid_from'], valid_to=bom['valid_to'], 
+                                                                serial_number=bom['serial_number'],
+                                                                item=bom['item'], item_id=bom['item_id'])
+    
+                    bomplatepart_obj.bom = bom_header_obj
+                    bomplatepart_obj.part = bom_part_obj
+                    bomplatepart_obj.plate = bom_plate_obj
+                    bomplatepart_obj.save(using=settings.BRAND)
             except Exception as ex:
                 ex="[Exception: ]: SBOMMainFeed {0}".format(ex)
                 logger.error(ex)

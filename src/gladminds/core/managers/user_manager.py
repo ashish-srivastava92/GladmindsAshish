@@ -77,7 +77,6 @@ class SparePartUPCManager(models.Manager):
     def get_spare_parts(self, spare_product_codes,is_used=False):
         return super(SparePartUPCManager, self).get_query_set().filter(unique_part_code__in=spare_product_codes,is_used=is_used)
 
-
 class SparePartPointManager(models.Manager):
     def get_part_number(self, valid_product_number, state):
         return super(SparePartPointManager, self).get_query_set().filter(part_number__in=valid_product_number, territory=state)
@@ -107,7 +106,7 @@ class RegisterUser():
                     username=username, first_name=first_name, last_name=last_name, email=email)
                 if group =='customer':
                     password = settings.PASSWORD_POSTFIX
-                elif group in [Roles.ZSM, Roles.AREASERVICEMANAGER]:
+                elif len(username.split('@'))>1:
                     password = username.split('@')[0] + settings.ADMIN_PASSWORD_POSTFIX
                     new_user.is_staff = True
                 else:

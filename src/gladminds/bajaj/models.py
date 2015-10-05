@@ -404,6 +404,7 @@ class Supervisor(base_models.Supervisor):
 
 class ContainerIndent(base_models.ContainerIndent):
     ''' details of Container Indent'''
+    transporter = models.ForeignKey(Transporter,null=True,blank=True)
 
     class Meta(base_models.ContainerIndent.Meta):
         app_label = _APP_NAME

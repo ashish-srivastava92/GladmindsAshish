@@ -58,6 +58,11 @@ class GmModelAdmin(ModelAdmin):
     get_profile_address.short_description = 'Address'
     get_user.short_description = 'Name'
     
+    def get_members_mechanic_id(self,obj):
+        if obj.member.permanent_id:
+            return obj.member.permanent_id
+        return obj.member.mechanic_id
+    
     def get_mechanic_name(self, obj):
         return obj.member.first_name
 
@@ -95,6 +100,7 @@ class GmModelAdmin(ModelAdmin):
     
     get_indent_status.short_description = 'Status'
     get_mechanic_id.short_description = 'Mechanic ID'
+    get_members_mechanic_id.short_description = 'Mechanic ID'
     get_mechanic_name.short_description = 'Name'
     get_mechanic_pincode.short_description = 'PIN code'
     get_mechanic_district.short_description = 'City'

@@ -76,7 +76,8 @@ def sms_processing(phone_number, message, brand):
     if error_template:
         sms_log(brand, receiver=phone_number,
                 action=AUDIT_ACTION, message=error_template)
-        raise ValueError(error_template)
+        raise InvalidKeyWord(message='invalid keyword',
+                             template=error_template)
     to_be_serialized = {}
     handler = utils.get_handler(sms_dict['handler'])
     with transaction.atomic():

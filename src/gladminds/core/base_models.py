@@ -895,7 +895,7 @@ class Service(models.Model):
 
 class Constant(BaseModel):
     ''' Contains all the constants '''
-    constant_name = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    constant_name = models.CharField(max_length=50, null=True, blank=True)
     constant_value = models.CharField(max_length=10, null=True, blank=True)
         
     class Meta:

@@ -6,6 +6,7 @@ import json
 from datetime import datetime,timedelta
 import StringIO
 import csv
+import pytz
 from django.http import HttpResponse
 from django.conf import settings
 from gladminds.core.auth_helper import Roles
@@ -194,9 +195,9 @@ class CoreLoyaltyService(Services):
                     upcs_data = accumulation.upcs.all()
                     upc_data_list = ' , '.join([str(upc.unique_part_code) for upc in upcs_data])
                     data.append((upc_data_list))
-                elif field == 'asm_id':
+                elif field == 'ams':
                     if accumulation.asm:
-                        data.append(getattr(accumulation.asm, field))
+                        data.append(getattr(accumulation.asm.name, field))
                     else:
                         data.append(None)
                 elif field in constants.MEMBER_FIELDS:
@@ -400,6 +401,17 @@ class CoreLoyaltyService(Services):
             self.queue_service(send_point, {'phone_number': phone_number,
                     'message': message, "sms_client": settings.SMS_CLIENT})
         return {'status': True, 'message': message}
+    
+    def check_date_validity(self,valid_from,valid_till):
+        if settings.ENV not in ['prod']:
+            utc=pytz.UTC
+            date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            current_date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+            current_date_with_tz = utc.localize(current_date)
+            if valid_from<=current_date_with_tz<=valid_till:
+                return True
+            return False
+        return True
 
     def accumulate_point(self, sms_dict, phone_number):
         '''accumulate points with given upc'''
@@ -424,6 +436,7 @@ class CoreLoyaltyService(Services):
             added_points=0
             spare_upc_part_map={}
             total_points=mechanic[0].total_points
+        
             if spares:
                 for spare in spares:
                     valid_product_number.append(spare.part_number)
@@ -436,11 +449,12 @@ class CoreLoyaltyService(Services):
                                                             points=0,total_points=0)
                     accumulation_log.save(using=settings.BRAND)
                     for spare_point in spare_points:
-                        added_points=added_points+(len(spare_upc_part_map[spare_point.part_number]) * spare_point.points)
-                        valid_upc.extend(spare_upc_part_map[spare_point.part_number])
+                        if self.check_date_validity(spare_point.valid_from,spare_point.valid_till):
+                            added_points=added_points+(len(spare_upc_part_map[spare_point.part_number]) * spare_point.points)
+                            valid_upc.extend(spare_upc_part_map[spare_point.part_number])
+                    
                     total_points=self.update_points(mechanic[0],
                                     accumulate=added_points)
-
                     valid_spares = get_model('SparePartUPC').objects.get_spare_parts(valid_upc)
                     for spare in valid_spares:
                         accumulation_log.upcs.add(spare)
@@ -448,6 +462,7 @@ class CoreLoyaltyService(Services):
                     accumulation_log.total_points=total_points
                     accumulation_log.save(using=settings.BRAND)
                     valid_spares.using(settings.BRAND).update(is_used=True)
+            
             invalid_upcs = list(set(unique_product_codes).difference(valid_upc))
             if invalid_upcs:
                 invalid_upcs_message=' Invalid Entry... {0} does not exist in our records.'.format(

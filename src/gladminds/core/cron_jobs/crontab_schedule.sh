@@ -1,6 +1,6 @@
 sudo crontab -r
 sudo crontab -l | (cat;echo "*/5 * * * *  python /opt/app/gladminds/src/gladminds/core/cron_jobs/trigger_sqs_tasks.py send_reminders_for_servicedesk gladminds-prod2") | sudo crontab
-sudo crontab -l | (cat;echo "00 */4 * * *  python /opt/app/gladminds/src/gladminds/core/cron_jobs/trigger_sqs_tasks.py export_coupon_redeem_to_sap gladminds-prod2") | sudo  crontab
+sudo crontab -l | (cat;echo "00 00 * * *  python /opt/app/gladminds/src/gladminds/core/cron_jobs/trigger_sqs_tasks.py export_coupon_redeem_to_sap gladminds-prod2") | sudo  crontab
 sudo crontab -l | (cat;echo "00 00 * * *  python /opt/app/gladminds/src/gladminds/core/cron_jobs/trigger_sqs_tasks.py expire_service_coupon gladminds-prod2") | sudo  crontab
 sudo crontab -l | (cat;echo "00 00 * * *  python /opt/app/gladminds/src/gladminds/core/cron_jobs/trigger_sqs_tasks.py send_reminder gladminds-prod2") | sudo crontab
 sudo crontab -l | (cat;echo "00 00 * * *  python /opt/app/gladminds/src/gladminds/core/cron_jobs/trigger_sqs_tasks.py import_data gladminds-prod2") | sudo crontab

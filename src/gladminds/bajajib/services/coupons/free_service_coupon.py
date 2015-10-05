@@ -73,6 +73,14 @@ def register_owner(sms_dict, phone_number):
             product.purchase_date = purchase_date
             product.customer_id = customer_id
             update_coupon_expiry(product, purchase_date)
+            product.save()
+
+            owner_message = templates.get_template('SEND_OWNER_REGISTER').format(customer_name=product.customer_name,
+                                                                            customer_id=product.customer_id)
+            sms_log(settings.BRAND, receiver=product.customer_phone_number, action=AUDIT_ACTION, message=owner_message)
+            send_job_to_queue(send_coupon, {"phone_number":product.customer_phone_number, "message": owner_message,
+                                            "sms_client":settings.SMS_CLIENT})
+
         else:
             if product.customer_phone_number != owner_phone_number:
                 update_history = models.CustomerUpdateHistory(updated_field='phone_number',
@@ -80,13 +88,17 @@ def register_owner(sms_dict, phone_number):
                                                               new_value=owner_phone_number,
                                                               product=product)
                 update_history.save()
+                old_number = product.customer_phone_number
                 product.customer_phone_number = owner_phone_number
-        product.save()
-        owner_message = templates.get_template('SEND_OWNER_REGISTER').format(customer_name=product.customer_name,
-                                                                            customer_id=product.customer_id)
-        sms_log(settings.BRAND, receiver=product.customer_phone_number, action=AUDIT_ACTION, message=owner_message)
-        send_job_to_queue(send_coupon, {"phone_number":product.customer_phone_number, "message": owner_message,
+		        product.save()
+       
+                owner_message = templates.get_template('OWNER_MOBILE_NUMBER_UPDATE').format(customer_name=product.customer_name,
+                                                                                new_number=owner_phone_number,
+                for phone_number in [old_number, owner_phone_number]:
+                    sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=owner_message)
+                    send_job_to_queue(send_coupon, {"phone_number":phone_number, "message": owner_message,
                                             "sms_client":settings.SMS_CLIENT})
+
         data = {'message' : owner_message, 'status': True}
     except Exception as ex:
         LOG.info('[register_owner]:Exception : '.format(ex))

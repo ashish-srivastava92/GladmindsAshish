@@ -23,7 +23,8 @@ from gladminds.core import constants
 from gladminds.core.apis.authentication import AccessTokenAuthentication
 from gladminds.core.apis.authorization import MultiAuthorization,\
     LoyaltyCustomAuthorization,\
-     ZSMCustomAuthorization, DealerCustomAuthorization
+     ZSMCustomAuthorization, DealerCustomAuthorization,\
+     RMCustomAuthorization
 from gladminds.core.apis.base_apis import CustomBaseModelResource
 from gladminds.core.auth.access_token_handler import create_access_token, \
     delete_access_token
@@ -448,6 +449,351 @@ class UserProfileResource(CustomBaseModelResource):
                         format(ex))
         return HttpResponse(json.dumps(data), content_type="application/json")
 
+class CircleHeadResource(CustomBaseModelResource):
+        '''
+           Circle head resource
+        '''
+        user = fields.ForeignKey(UserProfileResource, 'user', full=True)
+        class Meta:
+            queryset = get_model('CircleHead',settings.BRAND).objects.all()
+            resource_name = "circle-heads"
+            authentication = AccessTokenAuthentication()
+            authorization = MultiAuthorization(DjangoAuthorization())
+            allowed_methods = ['get']
+            filtering = {
+                     "user": ALL_WITH_RELATIONS,
+                     }
+            always_return_data = True
+            
+        def prepend_urls(self):
+            return [
+                 url(r"^(?P<resource_name>%s)/register%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('register_circle_head'), name="register_circle_head"),
+                 url(r"^(?P<resource_name>%s)/update/(?P<user_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('update_circle_head'), name="update_circle_head"),
+               ]
+        
+        def register_circle_head(self, request, **kwargs):
+            '''
+               Register a new circle_head
+               params:
+                   phone_number: number of the circlehead
+                   name: name of the circlehead
+                   email: email of the Circle head
+            '''
+            self.is_authenticated(request)
+            if request.method != 'POST':
+                return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                status=400)
+            if not request.user.is_superuser:
+                return HttpResponse(json.dumps({"message" : "Not Authorized to add circle_head"}), content_type= "application/json",
+                                status=401)
+            try:
+                load = json.loads(request.body)
+            except:
+                return HttpResponse(content_type="application/json", status=404)
+            name = load.get('name')
+            phone_number = load.get('phone_number')
+            email = load.get('email')
+            
+            
+            try:
+                user = get_model('CircleHead',settings.BRAND).objects.get(user__user__username=email)
+                data = {'status': 0 , 'message' : 'Circle head with this username already exists'}
+            except Exception as ex:
+                logger.info("[register_circle_head]:New circle_head registration")
+                user_data = register_user.register_user(Roles.CIRCLEHEADS,username=email,
+                                                        phone_number=phone_number,
+                                                        first_name=name,
+                                                        email = email,
+                                                        APP=settings.BRAND)
+                circle_head_data = get_model('CircleHead',settings.BRAND)(user=user_data)
+                circle_head_data.save(using=settings.BRAND)
+                data = {"status": 1 , "message" : "Circle Head registered successfully"}
+            return HttpResponse(json.dumps(data), content_type="application/json")
+        
+        def update_circle_head(self, request, **kwargs):
+            '''
+               Update an existing circle head
+               params:
+               user_id: id of the CH to be updated
+               phone_number: number of the CH
+               name: name of the CH
+               email: email id of CH
+               
+            '''
+        
+            self.is_authenticated(request)
+            if request.method != 'POST':
+                return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                    status=400)
+            if not request.user.is_superuser:
+                return HttpResponse(json.dumps({"message" : "Not Authorized to edit CH"}), content_type= "application/json",
+                                status=401)
+            user_id=kwargs['user_id']
+            try:
+                ch_obj = get_model('CircleHead',settings.BRAND).objects.get(user__user_id=user_id)
+                load = json.loads(request.body)
+            
+                ch_profile = ch_obj.user
+                ch_profile.phone_number = load.get('phone_number')
+
+                ch_user= ch_obj.user.user
+                ch_user.first_name=load.get('name')
+                ch_user.email=load.get('email')
+            
+                ch_user.save(using=settings.BRAND)
+                ch_profile.save()
+                ch_obj.save()
+                data = {'status': 1 , 'message' : 'Circle head updated successfully'}
+            except Exception as ex:
+                logger.info("[update_circle_head]: Invalid User ID:: {0}".format(ex))
+                return HttpResponse(json.dumps({"message" : "User ID not found"}),content_type="application/json", status=404)
+            return HttpResponse(json.dumps(data), content_type="application/json")
+        
+
+class RegionalManagerResource(CustomBaseModelResource):
+    '''
+       Regional sales manager resource
+    '''
+    user = fields.ForeignKey(UserProfileResource, 'user', full=True)
+    circle_head = fields.ForeignKey(CircleHeadResource, 'circle_head')
+    class Meta:
+        queryset = models.RegionalManager.objects.all()
+        resource_name = "regional-sales-managers"
+        authentication = AccessTokenAuthentication()
+        authorization = MultiAuthorization(DjangoAuthorization())
+        allowed_methods = ['get']
+        filtering = {
+                     "user": ALL_WITH_RELATIONS,
+                     "region": ALL,
+                     "circle_head": ALL_WITH_RELATIONS,
+                     }
+        always_return_data = True
+        
+    def prepend_urls(self):
+        return [
+                 url(r"^(?P<resource_name>%s)/register%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('register_regional_sales_manager'), name="register_regional_sales_manager"),
+                 url(r"^(?P<resource_name>%s)/update/(?P<user_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('update_regional_sales_manager'), name="update_regional_sales_manager"),
+               ]
+        
+    def register_regional_sales_manager(self, request, **kwargs):
+        '''
+           Register a new RM
+           params:
+               phone_number: number of the dealer
+               name: name of the dealer
+               regional-office: region under the rm
+               circle_head_user_id: user_id of Circle Head, incharge of RM
+        '''
+        self.is_authenticated(request)
+        if request.method != 'POST':
+            return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                status=400)
+        if not request.user.is_superuser and not request.user.groups.filter(name=Roles.CIRCLEHEADS).exists():
+            return HttpResponse(json.dumps({"message" : "Not Authorized to add RM"}), content_type= "application/json",
+                                status=401)
+        try:
+            load = json.loads(request.body)
+        except:
+            return HttpResponse(content_type="application/json", status=404)
+        region = load.get('regional-office')
+        
+        name = load.get('name')
+        phone_number = load.get('phone_number')
+        email = load.get('email')
+        circle_head_user_id = load.get('circle_head_user_id')
+        try:
+            user = models.RegionalManager.objects.get(user__user__username=email)
+            data = {'status': 0 , 'message' : 'Regional Manager with this username already exists'}
+        except Exception as ex:
+            logger.info("[register_regional_sales_manager]:New RM registration")
+            user_data = register_user.register_user(Roles.REGIONALMANAGERS,username=email,
+                                                    phone_number=phone_number,
+                                                    first_name=name,
+                                                    email = email,
+                                                    APP=settings.BRAND)
+            try:
+                circle_head_data = get_model('CircleHead',settings.BRAND).objects.get(user__user_id=circle_head_user_id)
+                rm_data = models.RegionalManager(region=region, user=user_data, circle_head=circle_head_data)
+                rm_data.save()
+                data = {"status": 1 , "message" : "Regional sales manager registered successfully"}
+            except Exception as ex:
+                logger.info("[register_regional_sales_manager]: Invalid CH User ID provided :: {0}".format(ex))
+                return HttpResponse(json.dumps({"message" : "Invalid CH User ID provided "}),content_type="application/json", status=404)
+                 
+        return HttpResponse(json.dumps(data), content_type="application/json")
+    
+    def update_regional_sales_manager(self, request, **kwargs):
+        '''
+           Update an existing regional sales manager
+           params:
+               user_id: id of the RM to be updated
+               phone_number: number of the RM
+               name: name of the RM
+               regional-office: region under the RM
+               email: email id of RM
+               ch_user_id: User id of CH incharge of RM
+        '''
+        self.is_authenticated(request)
+        if request.method != 'POST':
+            return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                status=400)
+        if not request.user.is_superuser and not request.user.groups.filter(name=Roles.CIRCLEHEADS).exists():
+            return HttpResponse(json.dumps({"message" : "Not Authorized to edit RM"}), content_type= "application/json",
+                                status=401)
+        user_id=kwargs['user_id']
+        try:
+            rm_obj = models.RegionalManager.objects.get(user__user_id=user_id)
+            load = json.loads(request.body)
+            
+            rm_profile = rm_obj.user
+            rm_profile.phone_number = load.get('phone_number')
+            
+            rm_user= rm_obj.user.user
+            rm_user.first_name=load.get('name')
+            rm_user.email=load.get('email')
+            
+            rm_obj.region = load.get('regional-office')
+            ch_user_id = load.get('ch_user_id')
+            try:
+                ch_data = get_model('CircleHead',settings.BRAND).objects.get(user__user_id=ch_user_id)
+                rm_obj.circle_head=ch_data
+            except Exception as ex:
+                logger.info("[update_regional_sales_manager]: Invalid CH User ID provided :: {0}".format(ex))
+                return HttpResponse(json.dumps({"message" : "Invalid CH User ID provided "}),content_type="application/json", status=404)
+            rm_user.save(using=settings.BRAND)
+            rm_profile.save()
+            rm_obj.save()
+            data = {'status': 1 , 'message' : 'Regional sales manager updated successfully'}
+        except Exception as ex:
+            logger.info("[update_regional_sales_manager]: Invalid User ID:: {0}".format(ex))
+            return HttpResponse(json.dumps({"message" : "User ID not found"}),content_type="application/json", status=404)
+        return HttpResponse(json.dumps(data), content_type="application/json")    
+    
+class AreaSalesManagerResource(CustomBaseModelResource):
+        '''
+           Area sales manager resource
+        '''
+        user = fields.ForeignKey(UserProfileResource, 'user', full=True)
+        rm = fields.ForeignKey(RegionalManagerResource, 'rm')
+        class Meta:
+            queryset = models.AreaSalesManager.objects.all()
+            resource_name = "area-sales-managers"
+            authentication = AccessTokenAuthentication()
+            authorization = MultiAuthorization(DjangoAuthorization(), RMCustomAuthorization())
+            allowed_methods = ['get']
+            filtering = {
+                     "user": ALL_WITH_RELATIONS, 
+                     "rm": ALL_WITH_RELATIONS,
+                     }
+            always_return_data = True
+        
+        #TO-DO : verify about state
+        
+        def prepend_urls(self):
+            return [
+                    url(r"^(?P<resource_name>%s)/register%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('register_area_sales_manager'), name="register_area_sales_manager"),
+                    url(r"^(?P<resource_name>%s)/update/(?P<user_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('update_area_sales_manager'), name="update_area_sales_manager"),
+                    ]
+            
+        def register_area_sales_manager(self, request, **kwargs):
+            '''
+               Register a new sm
+               params:
+                   email: email of the sm
+                   phone_number: number of the sm
+                   name: name of the sm
+                   rm_user_id: user_id of rm incharge of sm
+            '''
+            list_of_allowed_users = [Roles.CIRCLEHEADS,Roles.REGIONALMANAGERS]
+            self.is_authenticated(request)
+            if request.method != 'POST':
+                return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                    status=400)
+            if not request.user.is_superuser and not request.user.groups.filter(name__in=list_of_allowed_users).exists():
+                return HttpResponse(json.dumps({"message" : "Not Authorized to add SM"}), content_type= "application/json",
+                                    status=401)
+            try:
+                load = json.loads(request.body)
+            except:
+                return HttpResponse(content_type="application/json", status=404)
+            name = load.get('name')
+            phone_number = load.get('phone_number')
+            email = load.get('email')
+            rm_user_id = load.get('rm_user_id')
+            try:
+                user = models.AreaSalesManager.objects.get(user__user__username=email)
+                data = {'status': 0 , 'message' : 'Area sales manager with this username already exists'}
+            except Exception as ex:
+                logger.info("[register_area_sales_manager]: New SM registration:: {0}".format(ex))
+                user_data = register_user.register_user(Roles.AREASALESMANAGERS,
+                                                        username=email,
+                                                        phone_number=phone_number,
+                                                        first_name=name,
+                                                        email = email,
+                                                        APP=settings.BRAND)
+                try:
+                    rm_data = models.RegionalManager.objects.get(user__user_id=rm_user_id)
+                    sm_data = models.AreaSalesManager(user=user_data,rm=rm_data)
+                    sm_data.save()
+                    data = {"status": 1 , "message" : "Area sales manager registered successfully"}
+                except Exception as ex:
+                    logger.info("[register_area_sales_manager]: Invalid RM User ID provided :: {0}".format(ex))
+                    return HttpResponse(json.dumps({"message" : "Invalid RM User ID provided "}),content_type="application/json", status=404)
+            return HttpResponse(json.dumps(data), content_type="application/json")
+        
+        def update_area_sales_manager(self, request, **kwargs):
+            '''
+               Update the details of an existing sm
+               params:
+                   user_id: User ID of the sm to be updated
+                   phone_number: number of the sm
+                   name: name of the sm
+                   email: email id of sm
+                   rm_user_id: user_id of rm incharge of sm
+            '''
+            list_of_allowed_users = [Roles.CIRCLEHEADS,Roles.REGIONALMANAGERS]
+            self.is_authenticated(request)
+            if request.method != 'POST':
+                return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                    status=400)
+            if not request.user.is_superuser and not request.user.groups.filter(name__in=list_of_allowed_users).exists():
+                return HttpResponse(json.dumps({"message" : "Not Authorized to edit SM"}), content_type= "application/json",
+                                    status=401)
+            user_id=kwargs['user_id']
+            try:
+                sm_obj = models.AreaSalesManager.objects.get(user__user_id=user_id)
+                load = json.loads(request.body)
+            
+                sm_profile = sm_obj.user
+                sm_profile.phone_number = load.get('phone_number')
+            
+                sm_user= sm_obj.user.user
+                sm_user.first_name=load.get('name')
+                sm_user.email=load.get('email')
+
+                rm_user_id=load.get('rm_user_id')
+                try:
+                    rm_data = models.RegionalManager.objects.get(user__user_id=rm_user_id)
+                    sm_obj.rm=rm_data
+                except Exception as ex:
+                    logger.info("[update_area_sales_manager]: Invalid RM User ID provided :: {0}".format(ex))
+                    return HttpResponse(json.dumps({"message" : "Invalid RM User ID provided"}),content_type="application/json", status=404)
+                sm_user.save(using=settings.BRAND)
+                sm_profile.save()
+                sm_obj.save()
+                data = {'status': 1 , 'message' : 'Area sales manager updated successfully'}
+            except Exception as ex:
+                logger.info("[update_area_sales_manager]: Invalid SM ID :: {0}".format(ex))
+                return HttpResponse(json.dumps({"message" : "User ID not found"}),content_type="application/json", status=404)
+            return HttpResponse(json.dumps(data), content_type="application/json")
+    
+        
 class ZonalServiceManagerResource(CustomBaseModelResource):
     '''
        Zonal service manager resource
@@ -496,6 +842,7 @@ class ZonalServiceManagerResource(CustomBaseModelResource):
         except:
             return HttpResponse(content_type="application/json", status=404)
         zsm_id = load.get('id')
+
         try:
             zsm_data = models.ZonalServiceManager.objects.get(zsm_id=zsm_id)
             data = {'status': 0 , 'message' : 'Regional service manager with this id already exists'}
@@ -680,6 +1027,7 @@ class DealerResource(CustomBaseModelResource):
     '''
     user = fields.ForeignKey(UserProfileResource, 'user', full=True)
     asm = fields.ForeignKey(AreaServiceManagerResource, 'asm', full=True, null=True)
+    sm = fields.ForeignKey(AreaSalesManagerResource, 'sm', full=True, null=True)
     
     class Meta:
         queryset = models.Dealer.objects.all()
@@ -691,6 +1039,7 @@ class DealerResource(CustomBaseModelResource):
                      "user": ALL_WITH_RELATIONS,
                      "dealer_id": ALL,
                      "asm":ALL_WITH_RELATIONS,
+                     "sm":ALL_WITH_RELATIONS,
                      }
         always_return_data = True
         ordering = ['user']
@@ -1076,8 +1425,10 @@ class MemberResource(CustomBaseModelResource):
                 active = filter(lambda active: active[region_filter] == member[region], active_member)
                 all_asm = filter(lambda active: active['state__state_name'] == member[region], active_asm)
                 if all_asm:
+                    asm_list=[]
                     for asm in all_asm:
-                        member_report[member[region]]['asm']= ' , '.join([member_report[member[region]]['asm'],asm['name']])
+                        asm_list.append(asm['name'])
+                    member_report[member[region]]['asm']= ' , '.join(asm_list)
                 if active:
                     member_report[member[region]]['active_count']= active[0]['count']
                     member_report[member[region]]['active_percent']= round(100 * float(active[0]['count'])/float(member['count']), 2)

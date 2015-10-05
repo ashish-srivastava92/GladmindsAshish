@@ -180,7 +180,7 @@
   	"pk": 20,
   	"fields": {
   		"template_key": "SEND_CUSTOMER_SUPPORTED_KEYWORD",
-  		"template": "Supported keyword: 1.A 2.C 3.SD 4.R 5.AC 6.RD 7.CHKBAL",
+  		"template": "Supported keyword: 1.A 2.C 3.SD 4.R",
   		"description": "Send supported message format to customer"
   	}
   },
@@ -746,9 +746,20 @@
     "model": "gladminds.messagetemplate",
     "pk": 83,
     "fields": {
+      "template_key": "OWNER_MOBILE_NUMBER_UPDATE",
+      "template": "Dear {customer_name}, your registered mobile number has been changed to {new_number}. If you notice any discrepancy please contact {phone_number}",
+      "description": "Send this message when owner phone number is updated"
+
+    }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 84,
+    "fields": {
       "template_key": "INVALID_SERVICE_DIFFERENCE",
       "template": "This service will be available after 15 days of 1st service is availed.",
       "description": "Send this message when diffrence between two service is < 15"
+
     }
-  }
+  },
 ]

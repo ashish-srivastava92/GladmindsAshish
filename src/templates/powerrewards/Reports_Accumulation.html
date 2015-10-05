@@ -54,28 +54,30 @@
 					    <nav role="navigation" class="navbar navbar-default">
 					        <!-- Brand and toggle get grouped for better mobile display -->
 					        <div class="navbar-header">
-					            <a href="" title="jQuery Mobile Demos home">
+					            
 					            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
-					            </a>
+					            
 					        </div>
-					        
+					        <div class='username' style="float: right;margin-top: 5px;margin-right: 5px;">
+					        </div>
 					    </nav>
 					</div>
 				</div><!-- /header -->
 		
 			<div data-role="content" id="content1">
+				<!-- <button id="download_data">Download</button> -->
 				<div class="row">
 				    <div class="col-md-1"><div style="float: left;"><a href="#myPanel"><button  class="ui-btn ui-icon-bars ui-shadow ui-corner-all ui-btn-icon-notext ui-btn-inline">bars</button></a></div></div>
-				    <div class="col-md-11">
+				    <div class="col-md-11 pull-right">
 				    	
 					    	<form id="datefilter" style="float: right;" class="pull-right">
 						    	<div class="row" style="padding-right: 10px;">
 						    		<div class="col-md-1" style="margin-top:6px;float: left;width: inherit;"><a href="." target="_self" class="ui-btn ui-icon-refresh ui-btn-icon-notext ui-corner-all"></a></div>
 						    		<div class="col-md-3" style="width: 250px;" class="" ><select name="select-native-3" id="select-native-3" data-iconpos="left" data-mini="true" required>
 						    				<option value="">Select</option>
-									        <option value="member__mechanic_id">Mechanic ID</option>
-									        <option value="member__phone_number__endswith">Mobile No</option>
+									        <option value="member_id">Mechanic ID</option>
 									        <option value="member__district">District</option>
+									        <option value="member__phone_number__endswith">Mobile No</option>
 									        <option value="member__state__state_name">State</option>
 									        <option value="member__distributor__distributor_id">Distributor Code</option>
 									        <option value="upcs__unique_part_code">Unique Code Detail</option>
@@ -103,12 +105,18 @@
 	                    <div class="portlet-title">
 	                        <h4>Accumulation Report</h4>
 	                     </div>
+	                    <div class="ui-nodisc-icon ui-alt-icon" style="float: right;">
+	                        <a title="Download" id="download_data" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-notext ui-btn-inline ui-icon-arrow-d"></a>
+	                    </div>
 	                    <div class="clearfix"></div>
 	                </div>
 	                <div class="portlet-body">
 	                	
 	                    <div class="table-responsive">
 	                    	<script type="text/javascript">
+	                    	var email=localStorage.getItem("email")
+	                    		$(".username").html(email);
+	                    		var col=val='';
 	                    		var access_token=localStorage.getItem("access_token")
 	                    		$(document).ready(function(){
 
@@ -120,7 +128,7 @@
 										    $("#search-1").val('')
 									});
 
-                     			$('#search-1').bind('keypress input propertychange paste', function() {
+                     			$('#search-1').bind('input', function() {
 								 
 									    var yourInput = $(this).val();
 											re = /[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi;
@@ -135,6 +143,7 @@
                          				var val=$('#search-1').val();
                          				if (col==''){
                          					alert('Select Column you want to search')
+                         					$('#search-1').val('');
                          					$("#select-native-3").focus();
                          				}
                          				else if(col=='member__phone_number__endswith'){
@@ -156,8 +165,8 @@
 							});
 
                          			$("#submit").click(function(){
-                         				var col=$('#select-native-3').val();
-                         				var val=$('#search-1').val();
+                         				col=$('#select-native-3').val();
+                         				val=$('#search-1').val();
                          				var from=$('#from').val();
                          				var to=$('#to').val();
                          				
@@ -226,9 +235,11 @@
 										getDataFromAPI(url)
 									}
 
+									download_apiURL = "";
+
 									function getDataFromAPI(apiURL) {
 											
-
+										download_apiURL = apiURL;
 										$.ajax({
 											url : apiURL,
 											type : 'GET',
@@ -265,6 +276,15 @@
 		                        <tbody role="alert" aria-live="polite" aria-relevant="all">';
 										for (var i = 0; i < dat.length; i++) {
 											var machid=name=district=phone=state=distributor=regdt=points=upc='';
+
+											part= dat[i]["upcs"];
+												for (var j = 0; j < part.length; j++) {
+													if((part[j]["unique_part_code"]!=null) || (part[j]["unique_part_code"]!=undefined))
+													 	{
+													 		upc=part[j]["unique_part_code"]+"<br>"}
+													if((part[j]["part_number"]["point"]!=null) || (part[j]["part_number"]["point"]!=undefined))
+									 				{var points=part[j]["part_number"]["point"]	}	
+
 											if((dat[i]["member"]["permanent_id"]!=null) || (dat[i]["member"]["permanent_id"]!=undefined))
 											 	{var machid=dat[i]["member"]["permanent_id"]}
 											 else if((dat[i]["member"]["mechanic_id"]!=null) || (dat[i]["member"]["mechanic_id"]!=undefined))
@@ -288,32 +308,47 @@
 											if((dat[i]["created_date"]!=null) || (dat[i]["created_date"]!=undefined))
 											 	{var regdt=dat[i]["created_date"]}
 
-											if((dat[i]["points"]!=null) || (dat[i]["points"]!=undefined))
-											 	{var points=dat[i]["points"]}
 											
-												part= dat[i]["upcs"];
-												for (var j = 0; j < part.length; j++) {
-													if((part[j]["unique_part_code"]!=null) || (part[j]["unique_part_code"]!=undefined))
-													 	{
-													 		upc+=part[j]["unique_part_code"]+"<br>"}
-														}
-												table += '<tr class="gradeA">\
-		                                                <td class=" sorting_1">'+machid+'</td>\
-		                                                <td class=" ">'+name+'</td>\
-		                                                <td class=" ">'+district+'</td>\
-		                                                <td class="center ">'+phone+'</td>\
-		                                                <td class="center ">'+state+'</td>\
-		                                                <td class="center ">'+distributor+'</td>\
-		                                                <td class="center ">'+upc+'</td>\
-		                                                <td class="center ">'+points+'</td>\
-		                                                <td class="center ">'+moment(regdt).format('LL')+'</td>\
-		                                            </tr>';
+											
 												
+													if(col=='upcs__unique_part_code')
+													{ 
+
+
+														if(val==part[j]["unique_part_code"]){
+															
+															table += '<tr class="gradeA">\
+				                                                <td class=" sorting_1">'+machid+'</td>\
+				                                                <td class=" ">'+name+'</td>\
+				                                                <td class=" ">'+district+'</td>\
+				                                                <td class="center ">'+phone+'</td>\
+				                                                <td class="center ">'+state+'</td>\
+				                                                <td class="center ">'+distributor+'</td>\
+				                                                <td class="center ">'+upc+'</td>\
+				                                                <td class="center ">'+points+'</td>\
+				                                                <td class="center ">'+moment(regdt).format('MMMM Do YYYY')+'</td>\
+				                                            </tr>';
+														}	
+													}	
+													else{			
+														table += '<tr class="gradeA">\
+				                                                <td class=" sorting_1">'+machid+'</td>\
+				                                                <td class=" ">'+name+'</td>\
+				                                                <td class=" ">'+district+'</td>\
+				                                                <td class="center ">'+phone+'</td>\
+				                                                <td class="center ">'+state+'</td>\
+				                                                <td class="center ">'+distributor+'</td>\
+				                                                <td class="center ">'+upc+'</td>\
+				                                                <td class="center ">'+points+'</td>\
+				                                                <td class="center ">'+moment(regdt).format('MMMM Do YYYY')+'</td>\
+				                                            </tr>';
+			                                        }
+												}
 											}
 		                                table += ' </tbody></table>';	
 		                               $(".table-responsive").html('').append(table);
  
-		                               $("#reportTable").dataTable({"bFilter": false,"iDisplayLength": 20,"bLengthChange": false,"paging": false,"spagingType": "simple"});
+		                               $("#reportTable").dataTable({"bFilter": false,"iDisplayLength": 500,"bLengthChange": false,"paging": false,"spagingType": "simple"});
 		                               $(".pagination li").removeClass("disabled");
 		                               $(".pagination li.active").remove();
 		                               $(".dataTables_info").remove();
@@ -355,8 +390,180 @@
 			                               		$(".table-responsive").html('')}
 		                               })
 
+		                               $("#reportTable th").click(function(){
+		                               		$(".pagination li").removeClass("disabled");
+		                               		$(".pagination li.active").remove();
+		                               })
+
 									}
 
+									$("#download_data").click(function(){
+								          // alert(download_apiURL)
+								          showLoading();
+
+								          $.ajax({
+								           url : download_apiURL+'&limit=10000',
+								           type : 'GET',
+								           dataType : 'json',
+								           success : function(data, success) {
+								            createCSV(data)
+								           }, error : function(e) {
+								            console.log(e)
+								           }
+								          })
+								         });
+
+								         var link = "";
+								         arrCSV_data = [];
+								         arrInnerInfo = [];
+								         mainArray = [];
+
+								         subArray = [];
+
+								         arrHeader = [];
+
+								         arrHeader.push("Mechanic Id");
+								         arrHeader.push("Mechanic Name");
+								         arrHeader.push("District");
+								         arrHeader.push("Mobile No");
+								         arrHeader.push("State");
+								         arrHeader.push("Distributor Code");
+								         arrHeader.push("Unique Code Detail");
+								         arrHeader.push("Point SMSed");
+								         arrHeader.push("Date of SMSed");
+
+								         mainArray.push(arrHeader)
+
+								         createCSV  = function(csvData) {
+								          for(index=0; index<csvData.objects.length;index++) {
+
+								           if((csvData.objects[index].member.permanent_id != null) || (csvData.objects[index].member.permanent_id != undefined)) {
+								            var mechanic_id = csvData.objects[index].member.permanent_id;
+								           } else if((csvData.objects[index].member.mechanic_id != null) || (csvData.objects[index].member.mechanic_id != undefined)) {
+								            var mechanic_id = csvData.objects[index].member.mechanic_id;
+								           } else {
+								            var mechanic_id = "";
+								           }
+
+
+								           if((csvData.objects[index].member.first_name != null) || (csvData.objects[index].member.first_name != undefined)) {
+								            var mechanic_name = csvData.objects[index].member.first_name;
+								           } else {
+								            var mechanic_name = "";
+								           }
+
+								           if((csvData.objects[index].member.district != null) || (csvData.objects[index].member.district != undefined)) {
+								            var district = csvData.objects[index].member.district;
+								           } else {
+								            var district = "";
+								           }
+
+								           if((csvData.objects[index].member.phone_number != null) || (csvData.objects[index].member.phone_number != undefined)) {
+								            var phone = (csvData.objects[index].member.phone_number).substring(3);
+								           } else {
+								            var phone = "";
+								           }
+
+								           if((csvData.objects[index].member.state.state_name != null) || (csvData.objects[index].member.state.state_name != undefined)) {
+								            var state = csvData.objects[index].member.state.state_name;
+								           } else {
+								            var state = "";
+								           }
+
+								           if((csvData.objects[index].member.distributor.distributor_id != null) || (csvData.objects[index].member.distributor.distributor_id != undefined)) {
+								            var distributor_id = csvData.objects[index].member.distributor.distributor_id;
+								           } else {
+								            var distributor_id = "";
+								           }
+
+								           if((csvData.objects[index].created_date != null) || (csvData.objects[index].created_date != undefined)) {
+								            var created_date = moment(csvData.objects[index].created_date).format('MMMM Do YYYY');
+
+								           } else {
+								            var created_date = "";
+								           }
+								          
+								           
+								           for(j=0; j<csvData.objects[index].upcs.length; j++) {
+								            
+								            
+
+									            if((csvData.objects[index].upcs[j].part_number.point != null) || (csvData.objects[index].upcs[j].part_number.point != undefined)) {
+									             var point = csvData.objects[index].upcs[j].part_number.point;
+									            } else {
+									             var point = "";
+									            }
+
+									            if((csvData.objects[index].upcs[j].unique_part_code != null) || (csvData.objects[index].upcs[j].unique_part_code != undefined)) {
+									             var unique_part_code = csvData.objects[index].upcs[j].unique_part_code;
+									            } else {
+									             var unique_part_code = "";
+									            }
+								            
+								            	if(col=='upcs__unique_part_code')
+													{ 
+
+
+														if(val==unique_part_code){
+															
+															subArray.push(mechanic_id);
+												           subArray.push(mechanic_name);
+												           subArray.push(district);
+												           subArray.push(phone);
+												           subArray.push(state);
+												           subArray.push(distributor_id);
+
+												           subArray.push(unique_part_code);
+												           subArray.push(point);
+												           subArray.push(created_date);
+
+
+												           mainArray.push(subArray);
+												           subArray=[]
+														}	
+													}	
+													else{			
+														subArray.push(mechanic_id);
+											           subArray.push(mechanic_name);
+											           subArray.push(district);
+											           subArray.push(phone);
+											           subArray.push(state);
+											           subArray.push(distributor_id);
+
+											           subArray.push(unique_part_code);
+											           subArray.push(point);
+											           subArray.push(created_date);
+
+
+											           mainArray.push(subArray);
+											           subArray=[]
+			                                        }
+									           
+									        }   
+								          }
+
+								          // console.log(mainArray)
+
+								          var csvContent = "data:text/csv;charset=utf-8,";
+								          mainArray.forEach(function(arrCSV_data, index){
+								             // console.log(arrCSV_data)
+								             arrCSV_dataString = arrCSV_data.join(",");
+								             csvContent += arrCSV_dataString+ "\n";
+								             // console.log(csvContent)
+								             var encodedUri = encodeURI(csvContent);
+
+								           link = document.createElement("a");
+								           link.setAttribute("href", encodedUri);
+								           // link.setAttribute("download", "my_arrCSV_data.csv");
+								           link.download = "Reports_Accumulation.csv";
+								          
+								          }); 
+
+								          link.click();
+								          mainArray = [];
+								          mainArray.push(arrHeader)
+								          hideLoading();
+								         }
                             </script>
                         </div>
                     <!-- /.table-responsive -->

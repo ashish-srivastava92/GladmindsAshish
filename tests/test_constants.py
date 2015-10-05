@@ -14,6 +14,21 @@ GM_USER = {
                     }
            }
 
+CIRCLE_HEAD = {
+    "name": "chtesting",
+    "email": "chtesting@abc.com",
+    "phone-number": "+919988776655"
+}
+
+RM_DATA = {
+    "name": "rmtesting",
+    "email": "rmtesting@abc.com",
+    "phone-number": "+917988776655",
+    "regional-office": "Delhi",
+    "circle_head_user_id": 2
+}
+
+
 USER = {
         "date_joined":"2015-02-04T17:10:24",
          "email":"test@gladminds.co",
@@ -401,7 +416,6 @@ AREA_SPARES_MANAGER = {
         "user":USER,
         "nsm":""
        }
-
 
 PARTNER = {
             "address": "F-89,Kamla nagar,kanpur",
@@ -802,13 +816,14 @@ ECO_RELEASE = {
                "eco_release_date": "2015-05-12",
                "id": 1,
                "interchangebility": "1",
-               "models_applicable": "12",
+               "models_applicable": "112",
                "modified_date": "2015-05-12T12:19:21",
                "parent_part": "11",
                "reason_for_change": "p",
                "resource_uri": "/v1/eco-release/1/",
                "serviceability": "1"
                }
+
 
 ECO_IMPLEMENTATION =  {
                        "action": "delete",
@@ -821,7 +836,7 @@ ECO_IMPLEMENTATION =  {
                        "created_date": "2015-05-12T12:35:29",
                        "deleted_part": "2",
                        "deleted_part_qty": 2,
-                       "eco_number": "2",
+                       "eco_number": "451",
                        "engine_number": "2",
                        "id": 1,
                        "modified_date": "2015-05-12T12:35:29",

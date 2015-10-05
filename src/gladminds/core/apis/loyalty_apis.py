@@ -167,7 +167,8 @@ class AccumulationResource(CustomBaseModelResource):
     class Meta:
         queryset = models.AccumulationRequest.objects.all()
         resource_name = "accumulations"
-        authorization = Authorization()
+        args = constants.LOYALTY_ACCESS
+        authorization = MultiAuthorization(Authorization(), LoyaltyCustomAuthorization(query_field=args['query_field']))
         authentication = AccessTokenAuthentication()
         detail_allowed_methods = ['get', 'post']
         always_return_data = True

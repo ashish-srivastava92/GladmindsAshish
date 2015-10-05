@@ -860,7 +860,8 @@ class ContainerTrackerAdmin(GmModelAdmin):
 class ContainerIndentAdmin(GmModelAdmin):
     list_display = ('indent_num',
                     'no_of_containers',
-                    'status')
+                    'status',
+                    'transporter')
 
     def suit_row_attributes(self, obj):
         class_map = {

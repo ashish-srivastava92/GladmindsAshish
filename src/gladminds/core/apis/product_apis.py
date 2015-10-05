@@ -144,6 +144,7 @@ class ContainerIndentResource(CustomBaseModelResource):
     '''
 	   Container tracker Indent resource
 	'''
+    transporter = fields.ForeignKey(TransporterResource, 'transporter', null=True, blank=True,full=True)
     class Meta:
         queryset = get_model('ContainerIndent').objects.all()
         resource_name = 'container-indents'

@@ -61,11 +61,12 @@
 					    <nav role="navigation" class="navbar navbar-default">
 					        <!-- Brand and toggle get grouped for better mobile display -->
 					        <div class="navbar-header">
-					            <a href="" title="jQuery Mobile Demos home">
+					            
 					            	<img src="/static/powerrewards/img/power_rewards_logo.png" alt="jQuery Mobile">
-					            </a>
+					          
 					        </div>
-					        
+					        <div class='username' style="float: right;margin-top: 5px;margin-right: 5px;">
+					        </div>
 					    </nav>
 					</div>
 				</div><!-- /header -->
@@ -76,10 +77,10 @@
 				    <div class="col-md-6">
 				    	<div class="row">
 				    		<div class="col-md-7">	
-							    			
+							    		<!-- <button id="download_data">Download</button>	 -->
 				    		</div>
-				    		<div class="col-md-1" style="margin-top:22px;float: left;"><a href="." target="_self" class="ui-btn ui-icon-refresh ui-btn-icon-notext ui-corner-all"></a></div>
-				    		<div class="col-md-4">
+				    		<div class="col-md-1" style="margin-top:10px;float: left;"><a href="." target="_self" class="ui-btn ui-icon-refresh ui-btn-icon-notext ui-corner-all"></a></div>
+				    		<div class="col-md-4" style="margin-top:-15px;">
 				    			<fieldset class="ui-field-contain">
 							        <select name="day" id="day">
 							        	<option value="">Select Days</option>
@@ -98,13 +99,18 @@
 	                    <div class="portlet-title">
 	                        <h4>Monthly Active Count</h4>
 	                     </div>
-
+	                    <div class="ui-nodisc-icon ui-alt-icon" style="float: right;">
+	                        <a title="Download All Data" id="download_data" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-notext ui-btn-inline ui-icon-arrow-d"></a>
+	                    </div>
 	                    <div class="clearfix"></div>
 	                </div>
 	                <div class="portlet-body">
 	                	
 	                    <div class="table-responsive">
 	                    <script type="text/javascript">
+
+	                    var email=localStorage.getItem("email")
+	                    		$(".username").html(email);
 	                    var access_token=localStorage.getItem("access_token")
 
 	                    	$(document).ready(function(){
@@ -125,7 +131,7 @@
 
 									function getNextPageData(url) {
 										if(url == 1) {
-											url = "/v1/members/active/?access_token="+access_token+"&active_days=90"
+											url = "/v1/members/active/?access_token="+access_token+"&active_days="
 										} else {
 											url = url;
 										}
@@ -135,7 +141,7 @@
 									}
 									function getPrivPageData(url) {
 										if(url == 1) {
-											url = "/v1/members/active/?access_token="+access_token+"&active_days=90"
+											url = "/v1/members/active/?access_token="+access_token+"&active_days="
 										} else {
 											url = url;
 										}
@@ -144,7 +150,12 @@
 										getDataFromAPI(url)
 									}
 
-									function getDataFromAPI(apiURL) {
+									download_apiURL = "";
+							         function getDataFromAPI(apiURL) {
+							          // console.log(apiURL) 
+							          
+
+
 										
 										if($('#day').val()=='')
 											{
@@ -169,7 +180,7 @@
 											}
 										});
 
-										
+										download_apiURL = apiURL;
 											
 									}
 
@@ -199,13 +210,11 @@
 											if((dat[key]["active_count"]!=null) || (dat[key]["active_count"]!=undefined))
 											 	{var noofmechmsg=dat[key]["active_count"]}
 
-											if(noofmechmsg==0)
-											{
-												active=0;
-											}
-											else{
-												active=((noofmechmsg*100)/noofmech).toFixed(2);
-											}
+											if((dat[key]["active_percent"]!=null) || (dat[key]["active_percent"]!=undefined))
+											 	{var active=dat[key]["active_percent"]}
+
+											if((dat[key]["asm"]!=null) || (dat[key]["asm"]!=undefined))
+											 	{var asm=dat[key]["asm"]}
 											
 											table += '<tr class="gradeA">\
 	                                                <td class=" sorting_1">'+state+'</td>\
@@ -244,7 +253,104 @@
 			                               		$(".table-responsive").html('')}
 		                               })
 
+		                               $("#reportTable th").click(function(){
+		                               		$(".pagination li").removeClass("disabled");
+		                               		$(".pagination li.active").remove();
+		                               })
+
 									}
+
+									$("#download_data").click(function(){
+							          // alert(download_apiURL)
+							          showLoading();
+
+							          $.ajax({
+							           url : download_apiURL+'&limit=10000',
+							           type : 'GET',
+							           dataType : 'json',
+							           success : function(data, success) {
+							            createCSV(data)
+							           }, error : function(e) {
+							            console.log(e)
+							           }
+							          })
+							         });
+
+							         var link = "";
+							         arrCSV_data = [];
+							         arrInnerInfo = [];
+							         mainArray = [];
+
+							         arrHeader = [];
+
+							         arrHeader.push("State");
+							         arrHeader.push("No of Mechanic Registered(till date )");
+							         arrHeader.push("No of  mechanic messaged");
+							         arrHeader.push("Active Percentage");
+							         arrHeader.push("ASM");
+							         
+							         mainArray.push(arrHeader)
+
+							         createCSV  = function(key, objects) {
+							          var arrKey = key;
+							          // console.log(arrKey)          
+
+							          $.each(dat, function (key, value){
+							                            
+							           var state=noofmech=noofmechmsg=active=asm='';
+							           if((key!=null) || (key!=undefined))
+							             {var state=key
+							           }
+							           
+							           if((dat[key]["registered_count"]!=null) || (dat[key]["registered_count"]!=undefined))
+							             {var noofmech=dat[key]["registered_count"]}
+
+							           if((dat[key]["active_count"]!=null) || (dat[key]["active_count"]!=undefined))
+							             {var noofmechmsg=dat[key]["active_count"]}
+
+							           if((dat[key]["active_percent"]!=null) || (dat[key]["active_percent"]!=undefined))
+							             {var active=dat[key]["active_percent"]}
+
+							           if((dat[key]["asm"]!=null) || (dat[key]["asm"]!=undefined))
+							             {var asm=dat[key]["asm"]}
+							      
+							           subArray=[];
+
+							           subArray.push(state);
+							           subArray.push(noofmech);
+							           subArray.push(noofmechmsg);
+							           subArray.push(active);
+							           subArray.push(asm);
+							           
+
+							           mainArray.push(subArray);
+
+							           subArray = [];
+							          });
+
+							          
+
+							          // console.log(mainArray)
+
+							          var csvContent = "data:text/csv;charset=utf-8,";
+							          mainArray.forEach(function(arrCSV_data, index){
+							             // console.log(arrCSV_data)
+							             arrCSV_dataString = arrCSV_data.join(",");
+							             csvContent += arrCSV_dataString+ "\n";
+							             var encodedUri = encodeURI(csvContent);
+
+							           link = document.createElement("a");
+							           link.setAttribute("href", encodedUri);
+							           // link.setAttribute("download", "my_arrCSV_data.csv");
+							           link.download = "Reports_Monthly_Active.csv";
+							          
+							          }); 
+
+							          link.click();
+							          mainArray = [];
+							          mainArray.push(arrHeader)
+							          hideLoading();
+							         }
                             </script>
                         </div>
                     <!-- /.table-responsive -->

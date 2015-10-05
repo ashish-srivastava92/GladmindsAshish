@@ -498,7 +498,7 @@ class PartnerAdmin(GmModelAdmin):
 class AccumulationRequestAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS, Roles.LOYALTYADMINS, Roles.LOYALTYSUPERADMINS]
     search_fields = ('member__mechanic_id', 'upcs__unique_part_code')
-    list_display = ( 'member',  'get_mechanic_name', 'get_mechanic_district',
+    list_display = ( 'get_members_mechanic_id',  'get_mechanic_name', 'get_mechanic_district',
                      'get_asm', 'get_upcs', 'points',
                      'total_points', 'created_date')
     
@@ -723,7 +723,7 @@ class WelcomeKitAdmin(GmModelAdmin):
     form = WelcomeKitCommentForm
     inlines = (CommentThreadInline,)
     search_fields = ('member__phone_number', 'partner__partner_id', 'transaction_id')
-    list_display = ('member',  'get_mechanic_name',
+    list_display = ('get_members_mechanic_id',  'get_mechanic_name',
                      'delivery_address', 'get_mechanic_pincode',
                      'get_mechanic_district', 'get_mechanic_state',
                      'created_date','due_date', 'expected_delivery_date', 'status', 'partner')

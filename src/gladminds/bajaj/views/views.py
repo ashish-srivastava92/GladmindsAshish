@@ -365,7 +365,6 @@ def register_customer(request, group=None):
                             send_job_to_queue(send_customer_phone_number_update_message, {"phone_number":phone_number, "message":message, "sms_client":settings.SMS_CLIENT})
 
             else:
-                update_count = models.Constant.objects.get(constant_name='phone_number_update_count').constant_value
                 if models.UserProfile.objects.filter(phone_number=data_source[0]['customer_phone_number']):
                     message = get_template('FAILED_UPDATE_PHONE_NUMBER').format(phone_number=data_source[0]['customer_phone_number'])
                     return json.dumps({'message': message})
@@ -727,12 +726,13 @@ def get_active_asc_report(request, role=None):
 def download_reconcilation_reports(download_data):
     response = HttpResponse(content_type='text/excel')
     response['Content-Disposition'] = 'attachment; filename="ReportList.xls"'
+    c = Context({
+        'data': download_data['records'],
+    })
     if download_data['params']['type']== 'credit':
         template = loader.get_template('portal/reconciliation_credit_download.html')
     else:
         template = loader.get_template('portal/reconciliation_download.html')
-    c = Context({
-        'data': download_data['records'],
-    })
+    
     response.write(template.render(c))
     return response

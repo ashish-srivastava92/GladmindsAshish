@@ -192,7 +192,27 @@ class Brand(object):
         data=json.dumps({"username": "15346", "password": "15346@123"})
         resp=client.post('/v1/gm-users/login/', data=data, content_type='application/json')
         return json.loads(resp.content)['access_token']
-
+    
+    def register_circle_head(self, access_token, data):
+        uri = '/v1/circle-heads/register/?access_token='+access_token
+        response = client.post(uri, data=json.dumps(data), content_type='application/json')
+        return response
+    
+    def get_circle_head(self, access_token):
+        uri = '/v1/circle-heads/?access_token='+access_token
+        response = client.get(uri, content_type='application/json')
+        return response
+    
+    def update_circle_head(self, access_token, user_id, new_data):
+        uri = '/v1/circle-heads/update/'+str(user_id)+'/?access_token='+access_token
+        response = client.post(uri, data=json.dumps(new_data), content_type='application/json')
+        return response
+    
+    def register_regional_sales_manager(self,access_token, data):
+        uri = '/v1/regional-sales-managers/register/?access_token='+access_token
+        response = client.post(uri, data=json.dumps(data), content_type='application/json')
+        return response
+    
     def get_container_indent(self, access_token):
         uri = '/v1/container-indents/?access_token='+access_token
         response = client.get(uri, content_type='application/json')

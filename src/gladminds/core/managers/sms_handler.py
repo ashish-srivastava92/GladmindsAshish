@@ -8,7 +8,7 @@ from django.conf import settings
 from tastypie.resources import Resource
 from tastypie.http import HttpBadRequest
 
-from gladminds.core.managers.sms_parser import sms_processing
+from gladminds.core.managers.sms_parser import sms_processing, InvalidKeyWord
 from gladminds.core.cron_jobs.queue_utils import send_job_to_queue
 from gladminds.sqs_tasks import send_invalid_keyword_message
 import json
@@ -54,11 +54,15 @@ class SMSResources(Resource):
                 LOGGER.info('Message to send: ' + message)
         try:    
             to_be_serialized=sms_processing(phone_number, message, settings.BRAND)
-        except Exception as invalid_keyword:
+        except InvalidKeyWord as ink:
             LOGGER.info("The database failed to perform {0}:{1}".format(
-                                            request.POST.get('action'), invalid_keyword))
-            send_job_to_queue(send_invalid_keyword_message, {"phone_number":phone_number, "message":invalid_keyword.message, "sms_client":settings.SMS_CLIENT})
-            return HttpBadRequest(json.dumps({'status':False, 'message':invalid_keyword.message}))
+                                            request.POST.get('action'), ink))
+            send_job_to_queue(send_invalid_keyword_message, {"phone_number":phone_number, "message":ink.template, "sms_client":settings.SMS_CLIENT})
+            return HttpBadRequest(json.dumps({'status':False, 'message':ink.template}))
+        except Exception as ex:
+            LOGGER.info("The database failed to perform {0}:{1}".format(
+                                            request.POST.get('action'), ex))
+            return HttpBadRequest(json.dumps({'status':False, 'message':ex}))
         return self.create_response(request, data=to_be_serialized)
         
     

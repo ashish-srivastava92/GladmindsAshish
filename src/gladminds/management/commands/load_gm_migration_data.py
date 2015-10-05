@@ -43,7 +43,7 @@ class Command(BaseCommand):
             mt = get_model('MessageTemplate', app)
             for message_temp in message_templates:
                 fields = message_temp['fields']
-                temp_obj=mt.objects.using(app).filter(template=fields['template'])
+                temp_obj=mt.objects.using(app).filter(template_key=fields['template_key'])
                 if not temp_obj:
                     temp_obj = mt(id=message_temp['pk'], created_date=TODAY, template_key=fields['template_key']\
                                , template=fields['template'], description=fields['description'])
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                 if not temp_obj:
                     temp_obj = cons(id=constant['pk'], created_date=TODAY, constant_name=fields['constant_name'],constant_value=fields['constant_value'])
                     temp_obj.save(using=app)
-                    if 'country_name' in fields.keys():
+                    if 'country_name' in fields.keys() and app=='bajajib':
                         country_obj = get_model('Country', app).objects.filter(name=fields['country_name'])
                         if not country_obj:
                             country_obj = get_model('Country', app)(name=fields['country_name'],

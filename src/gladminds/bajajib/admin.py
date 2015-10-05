@@ -14,6 +14,7 @@ from gladminds.core.services.loyalty.loyalty import loyalty
 from gladminds.core import utils
 from gladminds.core.auth_helper import GmApps, Roles
 from gladminds.core.admin_helper import GmModelAdmin
+from django.contrib import messages
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.conf import settings
 from gladminds.core.auth_helper import Roles
@@ -320,7 +321,15 @@ class EmailTemplateAdmin(GmModelAdmin):
 class ConstantAdmin(GmModelAdmin):
     search_fields = ('constant_name',  'constant_value')
     list_display = ('constant_name',  'constant_value',)
-
+    
+    def save_model(self, request, obj, form, change):
+        constant_data = models.Constant.objects.filter(constant_name=obj.constant_name,country_id=obj.country_id)
+        if constant_data:
+            self.message_user(request, "Record not added. The constant is already defined for the country specified.",
+                                level=messages.ERROR)
+        else:
+            super(ConstantAdmin, self).save_model(request, obj, form, change)
+                        
 class FleetRiderAdmin(GmModelAdmin):
     search_fields = ('product',  'phone_number')
     list_display = ('product',  'phone_number',)

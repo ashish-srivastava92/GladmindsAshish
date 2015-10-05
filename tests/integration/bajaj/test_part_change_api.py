@@ -49,6 +49,11 @@ class PartChangeTest(BaseTestCase):
         resp=self.post(uri='/v1/gm-users/login/', data=data)
         return json.loads(resp.content)['access_token']
     
+    def save_bom_header(self, access_token, data):
+        uri = '/v1/bom-headers/'
+        resp = self.post(uri, data=data, access_token=access_token)
+        return resp 
+    
     def test_get_brand_vertical(self):
         access_token = self.user_login()
         uri = '/v1/brand-verticals/'
@@ -94,19 +99,25 @@ class PartChangeTest(BaseTestCase):
         uri = '/v1/eco-releases/'
         resp = self.post(uri, data=ECO_RELEASE, access_token=access_token)
         self.assertEquals(resp.status_code, 201)
-        uri = '/v1/eco-releases/1/?access_token='+access_token
-        resp = client.get(uri, content_type='application/json')
-        self.assertEquals(resp.status_code, 200)
+               
         
     def test_eco_implementation(self):
         access_token = self.user_login()
+        resp = self.save_bom_header(access_token, BOM_HEADER)
+        self.assertEquals(resp.status_code, 201)
+        uri = '/v1/eco-releases/'
+        resp = self.post(uri, data=ECO_RELEASE, access_token=access_token)
         uri = '/v1/eco-implementations/'
         resp = self.post(uri, data=ECO_IMPLEMENTATION, access_token=access_token)
         self.assertEquals(resp.status_code, 201)
-        uri = '/v1/eco-implementations/1/?access_token='+access_token
+        uri = '/v1/eco-implementations/skucode/112/?access_token='+access_token
         resp = client.get(uri, content_type='application/json')
         self.assertEquals(resp.status_code, 200)
-    
+        eco_numbers = json.loads(resp.content)['data']
+        self.assertEquals(len(eco_numbers), 1)
+        self.assertEquals(eco_numbers[0],ECO_RELEASE["eco_number"])
+               
+               
     def test_get_plates_image(self):
         access_token = self.user_login()
         uri = '/v1/bom-plate-parts/'

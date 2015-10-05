@@ -32,11 +32,53 @@ class AreaServiceManager(base_models.AreaServiceManager):
     
     class Meta(base_models.AreaServiceManager.Meta):
         app_label = _APP_NAME 
+        
+class CircleHead(base_models.CircleHead):
+    '''details of Circle Heads'''
+    user =  models.OneToOneField(UserProfile)
+    
+    class Meta(base_models.CircleHead.Meta):
+        app_label = _APP_NAME
+        
+class RegionalManager(base_models.RegionalManager):
+    '''details of Regional Manager'''
+    user =  models.OneToOneField(UserProfile)
+    circle_head = models.ForeignKey(CircleHead, null=True, blank=True)
+
+    class Meta(base_models.RegionalManager.Meta):
+        app_label = _APP_NAME
+        
+class Territory(base_models.Territory):
+    '''List of territories'''
+    
+    class Meta(base_models.Territory.Meta):
+        app_label = _APP_NAME
+
+class State(base_models.State):
+    ''' List of states mapped to territory'''
+    territory = models.ForeignKey(Territory, null=True, blank=True)
+ 
+    class Meta(base_models.State.Meta):
+        app_label = _APP_NAME
+        
+class AreaSalesManager(base_models.AreaSalesManager):
+    '''details of Area Sales Manager'''
+    user =  models.OneToOneField(UserProfile)
+    rm = models.ForeignKey(RegionalManager, null=True, blank=True)
+    state = models.ManyToManyField(State)
+    
+    class Meta(base_models.AreaSalesManager.Meta):
+        app_label = _APP_NAME
+    
+    def __unicode__(self):
+        return self.user.user.username
+        
 
 class Dealer(base_models.Dealer):
     user = models.OneToOneField(UserProfile, primary_key=True,
                                 related_name='core_registered_dealer')
     asm = models.ForeignKey(AreaServiceManager, null=True, blank=True)
+    
 
     class Meta(base_models.Dealer.Meta):
         app_label = _APP_NAME

@@ -18,7 +18,7 @@
 		<tbody>
 			{% for record in records %}
 			<tr>
-			    <td>{{record.vin|default_if_none:""}}</td>
+			  <td>{{record.vin|default_if_none:""}}</td>
 				<td>{{record.customer_name|default_if_none:""}}</td>
 				<td>{{record.customer_number|default_if_none:""}}</td>
 				<td>{{record.sa_phone_name|default_if_none:""}}</td>

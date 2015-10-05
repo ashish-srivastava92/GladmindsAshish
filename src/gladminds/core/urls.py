@@ -22,6 +22,10 @@ api_v1.register(user_apis.CityResource())
 api_v1.register(user_apis.BrandDepartmentResource())
 api_v1.register(user_apis.DepartmentSubCategoriesResource())
 
+api_v1.register(user_apis.CircleHeadResource())
+api_v1.register(user_apis.RegionalManagerResource())
+api_v1.register(user_apis.AreaSalesManagerResource())
+
 api_v1.register(user_apis.ZonalServiceManagerResource())
 api_v1.register(user_apis.AreaServiceManagerResource())
 api_v1.register(user_apis.DealerResource())

@@ -88,13 +88,17 @@ rename table gm_constant to afterbuy_constant;
 --alter table gm_bomvisualization modify column y_coordinate int default 0;
 --alter table gm_bomvisualization modify column z_coordinate int default 0;
 --
-alter table gm_bomheader add column eco_number varchar(20) null;
+--alter table gm_bomheader add column eco_number varchar(20) null;
 
-alter table gm_retailer add column is_active boolean default True;
-alter table gm_retailer add column approved boolean default False;
+--alter table gm_retailer add column is_active boolean default True;
+--alter table gm_retailer add column approved boolean default False;
+--alter table gm_dealer add column sm_id integer;
+--alter table gm_dealer add foreign key(sm_id) references gm_areasalesmanager(id);
+--alter table auth_user modify username varchar(250);
+--alter table gm_comment modify column comment varchar(512);
 
-alter table gm_dealer add column sm_id integer;
-alter table gm_dealer add foreign key(sm_id) references gm_areasalesmanager(id);
-alter table auth_user modify username varchar(250);
-alter table gm_comment modify column comment varchar(512);
+DROP INDEX constant_name ON gm_constant;
+
+
+
 
