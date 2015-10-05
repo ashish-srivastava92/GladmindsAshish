@@ -20,6 +20,7 @@ from gladminds.settings import COUPON_VALID_DAYS
 from gladminds.sqs_tasks import send_service_detail, \
     send_coupon_detail_customer, send_coupon, send_invalid_keyword_message
 from nose.util import src
+import pytz
 
 
 LOG = logging.getLogger('gladminds')
@@ -181,6 +182,11 @@ def validate_coupon(sms_dict, phone_number):
 #         update_exceed_limit_coupon(actual_kms, product, service_advisor)
         valid_coupon = models.CouponData.objects.filter( (Q(status=1) | Q(status=4) | Q(status=5))  & Q(product=product_data_list.id)
                                                          & Q(service_type=service_type )) 
+        try :
+            closed_coupon_latest = models.CouponData.objects.filter( Q(status=2) & Q(product=product_data_list.id) ).latest('closed_date')
+        except:
+            closed_coupon_latest = []
+            
         if not valid_coupon:
             return {'status': False, 'message': templates.get_template('COUPON_ALREADY_CLOSED')}
         LOG.info("List of available valid coupons %s" % valid_coupon)
@@ -203,11 +209,10 @@ def validate_coupon(sms_dict, phone_number):
         except Exception as ax:
             LOG.error('Customer Phone Number is not stored in DB %s' % ax)
             
-        try:   
-            rider = models.FleetRider.objects.get(product=product_data_list, is_active=True)
-            if rider != None:
-                rider_phone_number = rider.phone_number
-        except Exception as ex:
+        rider = models.FleetRider.objects.get(product=product_data_list, is_active=True)
+        if rider:
+            rider_phone_number = rider.phone_number
+        else:
             rider = None
         if len(in_progress_coupon) > 0:
             
@@ -220,12 +225,18 @@ def validate_coupon(sms_dict, phone_number):
                 customer_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(customer_name=product_data_list.customer_name,
                                                     coupon=in_progress_coupon[0].unique_service_coupon,
                                                     service_type=in_progress_coupon[0].service_type)
-                rider_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(
-                                        customer_name=product_data_list.customer_name,coupon=valid_coupon.unique_service_coupon,
-                                        service_type=valid_coupon.service_type)
+                rider_message  = customer_message
             else:
                 dealer_message = templates.get_template('PLEASE_CLOSE_INPROGRESS_COUPON')
         elif valid_coupon:
+            
+            if closed_coupon_latest:
+                closed_coupon_date = closed_coupon_latest.closed_date
+                today = datetime.now(pytz.utc)
+                free_service_coupon_diffrence = (today-closed_coupon_date).days
+                if free_service_coupon_diffrence < 15:
+                    return {'status': False, 'message': templates.get_template('INVALID_SERVICE_DIFFERENCE')}
+            
             LOG.info("Validate_coupon: valid coupon")
             update_coupon(valid_coupon, service_advisor, 4, datetime.now())
             dealer_message = templates.get_template('SEND_SA_VALID_COUPON').format(
@@ -234,9 +245,7 @@ def validate_coupon(sms_dict, phone_number):
             customer_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(
                                         customer_name=product_data_list.customer_name,coupon=valid_coupon.unique_service_coupon,
                                         service_type=valid_coupon.service_type)
-            rider_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(
-                                        customer_name=product_data_list.customer_name,coupon=valid_coupon.unique_service_coupon,
-                                        service_type=valid_coupon.service_type)
+            rider_message = customer_message
         else:
             LOG.info("Validate_coupon: No valid or in-progress coupon")
             requested_coupon_status = get_requested_coupon_status(product_data_list.id, service_type)
@@ -247,7 +256,7 @@ def validate_coupon(sms_dict, phone_number):
             customer_message = dealer_message
             rider_message = dealer_message
             
-        if rider != None:    
+        if rider:    
             sms_log(settings.BRAND, receiver=rider_phone_number, action=AUDIT_ACTION, message=rider_message)
             send_job_to_queue(send_coupon, {"phone_number":rider_phone_number, "message": rider_message,
                                                 "sms_client":settings.SMS_CLIENT})

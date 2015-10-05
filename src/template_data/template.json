@@ -741,5 +741,14 @@
       "template": "Please enter a valid service type.",
       "description": "Send this message when service type in not valid."
     }
+  },
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 83,
+    "fields": {
+      "template_key": "INVALID_SERVICE_DIFFERENCE",
+      "template": "This service will be available after 15 days of 1st service is availed.",
+      "description": "Send this message when diffrence between two service is < 15"
+    }
   }
 ]
