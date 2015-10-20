@@ -45,10 +45,10 @@ def register_owner(sms_dict, phone_number):
        A function that handles owner registration
     '''
     dealer = models.Dealer.objects.active_dealer(phone_number)
-    service_advisor = validate_service_advisor(phone_number)
-    if dealer is None and service_advisor is None:
+    service_advisor = validate_sa_for_registration(phone_number)
+    if (dealer is None)  and (service_advisor is None) :
         message = templates.get_template('UNAUTHORISED_DEALER')
-        return {'message' : message}
+        return {'message' : message, 'status': False}
     registration_number = sms_dict['registration_number']
     owner_phone_number = sms_dict['phone_number']
     customer_name = sms_dict['customer_name']
@@ -57,6 +57,7 @@ def register_owner(sms_dict, phone_number):
         purchase_date_format = models.Constant.objects.get(constant_name='purchase_date_format',
                                                            country__name='UGA').constant_value
         purchase_date = datetime.strptime(sms_dict['purchase_date'], purchase_date_format)
+        
         if purchase_date > datetime.now():
             message = templates.get_template('INVALID_REGISTRATION_NUMBER_OR_PURCHASE_DATE').format(phone_number=customer_support)
             return {'message' : message, 'status': False}
@@ -90,10 +91,10 @@ def register_owner(sms_dict, phone_number):
                 update_history.save()
                 old_number = product.customer_phone_number
                 product.customer_phone_number = owner_phone_number
-		        product.save()
+                product.save()
        
                 owner_message = templates.get_template('OWNER_MOBILE_NUMBER_UPDATE').format(customer_name=product.customer_name,
-                                                                                new_number=owner_phone_number,
+                                                                                new_number=owner_phone_number)
                 for phone_number in [old_number, owner_phone_number]:
                     sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=owner_message)
                     send_job_to_queue(send_coupon, {"phone_number":phone_number, "message": owner_message,
@@ -117,7 +118,7 @@ def register_rider(sms_dict, phone_number):
     A function that handles rider registration
     '''
     dealer = models.Dealer.objects.active_dealer(phone_number)
-    service_advisor = validate_service_advisor(phone_number)
+    service_advisor = validate_sa_for_registration(phone_number)
     if dealer  is None and service_advisor is None:
         message = templates.get_template('UNAUTHORISED_DEALER')
         return {'message' : message}
@@ -216,18 +217,19 @@ def validate_coupon(sms_dict, phone_number):
 
         in_progress_coupon = models.CouponData.objects.filter(product=product_data_list.id, status=4) \
                              .select_related ('product').order_by('service_type')
+                             
         try:
             customer_phone_number = product_data_list.customer_phone_number
         except Exception as ax:
             LOG.error('Customer Phone Number is not stored in DB %s' % ax)
             
         rider = models.FleetRider.objects.get(product=product_data_list, is_active=True)
+        rider_message={'message':None}
         if rider:
             rider_phone_number = rider.phone_number
         else:
             rider = None
         if len(in_progress_coupon) > 0:
-            
             update_inprogress_coupon(in_progress_coupon[0], service_advisor)
             LOG.info("Validate_coupon: Already in progress coupon")
             if (in_progress_coupon[0] == valid_coupon):
@@ -238,8 +240,13 @@ def validate_coupon(sms_dict, phone_number):
                                                     coupon=in_progress_coupon[0].unique_service_coupon,
                                                     service_type=in_progress_coupon[0].service_type)
                 rider_message  = customer_message
+                
             else:
-                dealer_message = templates.get_template('PLEASE_CLOSE_INPROGRESS_COUPON')
+                #in_progress_coupon_name = in_progress_coupon[0].unique_service_coupon
+                dealer_message = templates.get_template('PLEASE_CLOSE_INPROGRESS_COUPON').format(
+                                                    coupon=in_progress_coupon[0].unique_service_coupon)
+                
+                #dealer_message = templates.get_template('PLEASE_CLOSE_INPROGRESS_COUPON')
         elif valid_coupon:
             
             if closed_coupon_latest:
@@ -268,11 +275,10 @@ def validate_coupon(sms_dict, phone_number):
             customer_message = dealer_message
             rider_message = dealer_message
             
-        if rider:    
+        if rider and rider_message:
             sms_log(settings.BRAND, receiver=rider_phone_number, action=AUDIT_ACTION, message=rider_message)
             send_job_to_queue(send_coupon, {"phone_number":rider_phone_number, "message": rider_message,
                                                 "sms_client":settings.SMS_CLIENT})
-        
         sms_log(settings.BRAND, receiver=customer_phone_number, action=AUDIT_ACTION, message=customer_message)
         send_job_to_queue(send_coupon_detail_customer, {"phone_number":utils.get_phone_number_format(customer_phone_number), "message":customer_message, "sms_client":settings.SMS_CLIENT},
                           delay_seconds=customer_message_countdown)
@@ -292,6 +298,7 @@ def validate_coupon(sms_dict, phone_number):
                                                 "message": dealer_message,
                                                 "sms_client": settings.SMS_CLIENT})
     return {'status': True, 'message': dealer_message}
+
 
 @log_time
 def close_coupon(sms_dict, phone_number):
@@ -493,3 +500,32 @@ def get_requested_coupon_status(product, service_type):
     else:
         status = STATUS_CHOICES[requested_coupon[0].status - 1][1]
     return status
+
+
+
+
+
+
+def validate_sa_for_registration( phone_number):
+    message = None
+    all_sa_dealer_obj = models.ServiceAdvisor.objects.active(phone_number)
+    if not len(all_sa_dealer_obj):
+        all_sa_dealer_obj = None
+#     elif close_action and all_sa_dealer_obj[0].dealer and all_sa_dealer_obj[0].dealer.use_cdms:
+#         message = templates.get_template('DEALER_UNAUTHORISED')
+#     if message:
+#         sa_phone = utils.get_phone_number_format(phone_number)
+#         sms_log(settings.BRAND, receiver=sa_phone, action=AUDIT_ACTION, message=message)
+#         send_job_to_queue(send_service_detail, {"phone_number":sa_phone, "message": message, "sms_client":settings.SMS_CLIENT})
+#         return None
+#     service_advisor_obj = all_sa_dealer_obj[0]
+#     if service_advisor_obj.dealer:
+#         dealer_asc_obj = service_advisor_obj.dealer
+#         dealer_asc_obj.last_transaction_date = datetime.now()
+#     else:
+#         dealer_asc_obj = service_advisor_obj.asc
+#         dealer_asc_obj.last_transaction_date = datetime.now()
+# 
+#     dealer_asc_obj.save(using=settings.BRAND) 
+
+    return all_sa_dealer_obj
