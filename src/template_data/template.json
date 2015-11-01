@@ -711,7 +711,7 @@
     "pk": 79,
     "fields": {
       "template_key": "PLEASE_CLOSE_INPROGRESS_COUPON",
-      "template": "Other coupon is already in progress, Please close it first.Thankyou",
+      "template": "Unique Coupon Number {coupon} is already in progress, Please close it first.Thankyou",
       "description": "Send message when other coupon are in progress"
     }
   },

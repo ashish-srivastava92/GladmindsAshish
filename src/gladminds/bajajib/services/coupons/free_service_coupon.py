@@ -21,7 +21,7 @@ from gladminds.sqs_tasks import send_service_detail, \
     send_coupon_detail_customer, send_coupon, send_invalid_keyword_message
 from nose.util import src
 import pytz
-
+import unicodedata
 
 LOG = logging.getLogger('gladminds')
 json = utils.import_json()
@@ -223,12 +223,13 @@ def validate_coupon(sms_dict, phone_number):
         except Exception as ax:
             LOG.error('Customer Phone Number is not stored in DB %s' % ax)
             
-        rider = models.FleetRider.objects.get(product=product_data_list, is_active=True)
+        rider = models.FleetRider.objects.filter(product=product_data_list, is_active=True)
         rider_message={'message':None}
         if rider:
-            rider_phone_number = rider.phone_number
+            rider_phone_number = rider[0].phone_number
         else:
             rider = None
+            
         if len(in_progress_coupon) > 0:
             update_inprogress_coupon(in_progress_coupon[0], service_advisor)
             LOG.info("Validate_coupon: Already in progress coupon")
@@ -236,6 +237,8 @@ def validate_coupon(sms_dict, phone_number):
                 dealer_message = templates.get_template('COUPON_ALREADY_INPROGRESS').format(
                                                     service_type=service_type,
                                                     customer_id=product_data_list.customer_id)
+                
+                
                 customer_message = templates.get_template('SEND_CUSTOMER_VALID_COUPON').format(customer_name=product_data_list.customer_name,
                                                     coupon=in_progress_coupon[0].unique_service_coupon,
                                                     service_type=in_progress_coupon[0].service_type)
@@ -275,10 +278,15 @@ def validate_coupon(sms_dict, phone_number):
             customer_message = dealer_message
             rider_message = dealer_message
             
-        if rider and rider_message:
-            sms_log(settings.BRAND, receiver=rider_phone_number, action=AUDIT_ACTION, message=rider_message)
-            send_job_to_queue(send_coupon, {"phone_number":rider_phone_number, "message": rider_message,
-                                                "sms_client":settings.SMS_CLIENT})
+        
+        try:
+            val =unicodedata.normalize('NFKD', rider_message).encode('ascii','ignore')
+            if rider and val != None:
+                sms_log(settings.BRAND, receiver=rider_phone_number, action=AUDIT_ACTION, message=rider_message)
+                send_job_to_queue(send_coupon, {"phone_number":rider_phone_number, "message": rider_message,
+                                                        "sms_client":settings.SMS_CLIENT})
+        except Exception as ex:
+            LOG.info('[Rider_message]:Exception : '.format(ex))
         sms_log(settings.BRAND, receiver=customer_phone_number, action=AUDIT_ACTION, message=customer_message)
         send_job_to_queue(send_coupon_detail_customer, {"phone_number":utils.get_phone_number_format(customer_phone_number), "message":customer_message, "sms_client":settings.SMS_CLIENT},
                           delay_seconds=customer_message_countdown)
