@@ -355,24 +355,24 @@ class ExportCTSFeed(BaseExportFeed):
         total_failed = total_failed_on_feed
         export_status = False
         for item in items:
-            logger.error("[ExportCTSFeed]: sending CTS:{0}".format(item['Transaction_Id']))
+            logger.error("[ExportCTSFeed]: sending CTS:{0}".format(item['TRANSID']))
             try:
                 result = client.service.SI_CTS_Sync(
                     DT_CTS_Item={'Item':[item]}, DT_STAMP={'Item_STAMP':item_batch})
                 logger.info("[ExportCTSFeed]: Response from SAP: {0}".format(result))                
                 if result[0]['STATUS'] == 'SUCCESS':
                     try:
-                        cts = get_model('ContainerLR', brand).objects.get(transaction_id=item['Transaction_Id'])
+                        cts = get_model('ContainerLR', brand).objects.get(transaction_id=item['TRANSID'])
                         cts.sent_to_sap = True
                         cts.save(using=brand)
                         export_status = True
                     except Exception as ex:
-                        logger.error("[ExportCTSFeed]: Error in sending CTS:{0}::{1}".format(item['Transaction_Id'], ex))
+                        logger.error("[ExportCTSFeed]: Error in sending CTS:{0}::{1}".format(item['TRANSID'], ex))
                 else:
                     total_failed = total_failed + 1
-                    logger.error("[ExportCTSFeed]: {0}:: Not received success from sap".format(item['Transaction_Id']))
+                    logger.error("[ExportCTSFeed]: {0}:: Not received success from sap".format(item['TRANSID']))
             except Exception as ex:
-                logger.error("[ExportCTSFeed]: Error in sending CTS :{0}::{1}".format(item['Transaction_Id'], ex))
+                logger.error("[ExportCTSFeed]: Error in sending CTS :{0}::{1}".format(item['TRANSID'], ex))
         
         feed_log(brand, feed_type=self.feed_type,
                  total_data_count=len(items)+ total_failed_on_feed, 
