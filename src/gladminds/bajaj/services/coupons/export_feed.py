@@ -332,14 +332,16 @@ class ExportCTSFeed(BaseExportFeed):
                 
         for cts_obj in cts_objs:
             try:
+                
                 item = {
-                    "Indent_Num": cts_obj.zib_indent_num.indent_num,
-                    "Consigment_Id": cts_obj.consignment_id,
-                    "Truck_No": cts_obj.truck_no,
-                    "Transporter_Id": cts_obj.transporter.transporter_id,
-                    "Transaction_Id": cts_obj.transaction_id,
-                    "Container_No": cts_obj.container_no,
-                    "Seal_No": cts_obj.seal_no,            
+                    "ZIB_INDENT_NUM": cts_obj.zib_indent_num.indent_num,
+                    "COSIGNMENT_ID": cts_obj.consignment_id,
+                    "TRUCK_NO": cts_obj.truck_no,
+                    "CONTAINER_NO": cts_obj.container_no,
+                    "SEAL_NUMBER": cts_obj.seal_no,   
+                    "TRANSPORTER_ID": cts_obj.transporter.transporter_id,
+                    "TRANSID": cts_obj.transaction_id,
+                             
                 }
                 items.append(item)
             except Exception as ex:
