@@ -351,6 +351,8 @@ class ExportCTSFeed(BaseExportFeed):
         return items, item_batch, total_failed
 
     def export(self, brand=None, items=None, item_batch=None, total_failed_on_feed=0):
+        logger.info("Export {2}: Items:{0} and Item_batch: {1}"\
+                    .format(items, item_batch, self.feed_type))
         client = self.get_client()
         total_failed = total_failed_on_feed
         export_status = False
@@ -358,7 +360,7 @@ class ExportCTSFeed(BaseExportFeed):
             logger.error("[ExportCTSFeed]: sending CTS:{0}".format(item['TRANSID']))
             try:
                 result = client.service.SI_CTS_Sync(
-                    DT_CTS_Item={'Item':[item]}, DT_STAMP={'Item_STAMP':item_batch})
+                    Item_CTS={'Item':[item]})
                 logger.info("[ExportCTSFeed]: Response from SAP: {0}".format(result))                
                 if result[0]['STATUS'] == 'SUCCESS':
                     try:
