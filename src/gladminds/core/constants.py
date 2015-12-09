@@ -331,3 +331,13 @@ WORKFLOW_STATUS = (
         ('Open', 'Open'),
         ('Completed', 'Completed')
     )
+
+#################### ADDED FOR RETAILER STATUS TAKEN FROM SFA#################################
+STATUS = {'REJECTED': 0, 'WAITING_FOR_APPROVAL': 1, 'APPROVED': 2}
+RETAILER_SEQUENCE_INCREMENT = 1
+RETAILER_SEQUENCE =  600001
+
+APPROVE_RETAILER_SUBJECT = "retailer is approved"
+
+APPROVE_RETAILER_MESSAGE = "your retailer membership is approved.\
+                           you can login with your registered username and password"

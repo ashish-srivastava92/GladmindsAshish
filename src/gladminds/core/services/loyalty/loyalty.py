@@ -361,7 +361,7 @@ class CoreLoyaltyService(Services):
         return transactions
 
     def update_points(self, mechanic, accumulate=0, redeem=0, refund_flag=False):
-        '''Update the loyalty points of the user'''
+        '''Update the loyalty points of the Mechanic'''
         total_points = mechanic.total_points + accumulate - redeem
         mechanic.total_points = total_points
         if accumulate>0 and not refund_flag:
@@ -374,6 +374,25 @@ class CoreLoyaltyService(Services):
             mechanic.last_transaction_date=datetime.now()
         mechanic.save(using=settings.BRAND)
         return total_points
+    
+##################### UPDATE POINTS FOR RETAILER ###################
+
+    def update_points_retailer(self, retailer, accumulate=0, redeem=0, refund_flag=False):
+        '''Update the loyalty points of the Mechanic'''
+        total_points = retailer.total_points + accumulate - redeem
+        retailer.total_points = total_points
+        if accumulate>0 and not refund_flag:
+            retailer.total_accumulation_req=retailer.total_accumulation_req+1
+            retailer.total_accumulation_points=retailer.total_accumulation_points+accumulate
+            retailer.last_transaction_date=datetime.now() 
+        elif redeem>0 and not refund_flag:
+            retailer.total_redemption_req=retailer.total_redemption_req+1
+            retailer.total_redemption_points=retailer.total_redemption_points+redeem
+            retailer.last_transaction_date=datetime.now()
+        retailer.save(using=settings.BRAND)
+        return total_points
+
+######################### END ######################################
 
     def check_point_balance(self, sms_dict, phone_number):
         '''send balance point of the user'''
@@ -423,6 +442,12 @@ class CoreLoyaltyService(Services):
                 message=get_template('MAX_ALLOWED_UPC').format(
                                         max_limit=constants.MAX_UPC_ALLOWED)
                 raise ValueError('Maximum allowed upc exceeded')
+            
+            retailer = get_model('Retailer').objects.using(settings.BRAND).filter(mobile=utils.mobile_format(phone_number))
+            if retailer:
+                message = self.accumulate_point_retailer(retailer, phone_number, unique_product_codes)
+                return  {'status': True, 'message': message}
+                
             mechanic = get_model('Member').objects.using(settings.BRAND).filter(phone_number=utils.mobile_format(phone_number))
             if not mechanic:
                 message=get_template('UNREGISTERED_USER')
@@ -501,7 +526,108 @@ class CoreLoyaltyService(Services):
             sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=message)
             self.queue_service(send_point, {'phone_number': phone_number,
                     'message': message, "sms_client": settings.SMS_CLIENT})
+        
         return {'status': True, 'message': message}
+    
+    
+############################# ADDED FOR RETAILER ACCUMULATION REQUEST ############################################
+    def accumulate_point_retailer(self, retailer, phone_number, unique_product_codes):
+        '''accumulate points with given upc for retailer'''
+        unique_product_codes = unique_product_codes
+        valid_upc=[]
+        valid_product_number=[]
+        invalid_upcs_message=''
+        try:
+            if not retailer:
+                message=get_template('UNREGISTERED_USER')
+                raise ValueError('Unregistered user')
+            elif retailer and  retailer[0].form_status=='Incomplete':
+                message=get_template('INCOMPLETE_FORM')
+                raise ValueError('Incomplete user details')
+            retailer_state_name = retailer[0].user.state
+            state_list = get_model('State').objects.filter(state_name = retailer_state_name)
+            state_code = state_list[0].territory
+            spares = get_model('SparePartUPC').objects.filter(unique_part_code__in=unique_product_codes,is_used_by_retailer=False)
+            added_points=0
+            spare_upc_part_map={}
+            total_points=retailer[0].total_points
+            if spares:
+                for spare in spares:
+                    valid_product_number.append(spare.part_number)
+                    if not spare_upc_part_map.has_key(spare.part_number):
+                        spare_upc_part_map[spare.part_number]=[]
+                    spare_upc_part_map[spare.part_number].append(spare.unique_part_code.upper())
+                spare_points = get_model('SparePartPoint').objects.get_part_number(valid_product_number, state_code)
+                if spare_points:
+                    retailer_accumulation_log=get_model('AccumulationRequestRetailer')(retailer=retailer[0],
+                                                            points=0,total_points=0)
+                    retailer_accumulation_log.save(using=settings.BRAND)
+                   
+                    for spare_point in spare_points:
+                        if spare_point.valid_from and spare_point.valid_till:
+                            if self.check_date_validity(spare_point.valid_from,spare_point.valid_till):
+                                added_points=added_points+(len(spare_upc_part_map[spare_point.part_number]) * spare_point.points)
+                                valid_upc.extend(spare_upc_part_map[spare_point.part_number])
+                        else: 
+                            added_points=added_points+(len(spare_upc_part_map[spare_point.part_number]) * spare_point.points)
+                            valid_upc.extend(spare_upc_part_map[spare_point.part_number])
+                            
+                    total_points=self.update_points_retailer(retailer[0],
+                                    accumulate=added_points)
+                    valid_spares =  get_model('SparePartUPC').objects.filter(unique_part_code__in=valid_upc,is_used_by_retailer=False)
+                    
+                    for spare in valid_spares:
+                        retailer_accumulation_log.upcs.add(spare)
+                    retailer_accumulation_log.points=added_points
+                    retailer_accumulation_log.total_points=total_points
+                    retailer_accumulation_log.save(using=settings.BRAND)
+                    valid_spares.using(settings.BRAND).update(is_used_by_retailer=True)
+            invalid_upcs = list(set(unique_product_codes).difference(valid_upc))
+            if invalid_upcs:
+                invalid_upcs_message=' Invalid Entry... {0} does not exist in our records.'.format(
+                                              (', '.join(invalid_upcs)))
+                used_upcs = get_model('SparePartUPC').objects.filter(unique_part_code__in=valid_upc,is_used_by_retailer=True)
+                
+#                 if used_upcs:
+#                     accumulation_requests = get_model('AccumulationRequest').objects.using(settings.BRAND).filter(upcs__in=used_upcs).prefetch_related('upcs').select_related('upcs')
+#                     accumulation_dict = {}
+#                     try:
+#                         for accumulation_request in accumulation_requests:
+#                             for upcs in  accumulation_request.upcs.values():
+#                                 accumulation_dict[upcs['unique_part_code']] = accumulation_request    
+#                         for used_upc in used_upcs:
+#                             discrepant_accumulation_log = get_model('DiscrepantAccumulation')(new_member=mechanic[0], upc = used_upc,
+#                                                                          accumulation_request=accumulation_dict[used_upc])
+#                             discrepant_accumulation_log.save(using=settings.BRAND)
+#                     except Exception as ex:
+#                         LOG.error('[accumulate_point]:{0}:: {1}'.format(phone_number, ex))
+
+            
+#             message=get_template('SEND_ACCUMULATED_POINT_RETAILER').format(
+#                                 retailer_name=retailer[0].retailer_name,
+#                                 added_points=added_points,
+#                                 total_points=total_points,
+#                                 invalid_upcs=invalid_upcs_message)
+            
+            if len(unique_product_codes)==1 and invalid_upcs:
+                message=get_template('SEND_INVALID_UPC')
+            else:
+                message=get_template('SEND_ACCUMULATED_POINT_RETAILER').format(
+                                retailer_name=retailer[0].retailer_name,
+                                added_points=added_points,
+                                total_points=total_points,
+                                invalid_upcs=invalid_upcs_message)
+
+        except Exception as ex:
+            LOG.error('[accumulate_point]:{0}:: {1}'.format(phone_number, ex))
+        finally:
+            phone_number = utils.get_phone_number_format(phone_number)
+            sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=message)
+            self.queue_service(send_point, {'phone_number': phone_number,
+                    'message': message, "sms_client": settings.SMS_CLIENT})
+        return message
+    
+############################# END###############################################################
 
     def redeem_point(self, sms_dict, phone_number):
         '''redeem points with given upc'''

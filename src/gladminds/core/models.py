@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from gladminds.core import base_models, constants
+
+from gladminds.core.core_utils.utils import generate_retailer_id
  
 _APP_NAME ='core'
  
@@ -457,11 +459,58 @@ class DistributorSalesRep(base_models.DistributorSalesRep):
     class Meta(base_models.DistributorSalesRep.Meta):
         app_label = _APP_NAME
 
+
+
+###################### FROM HERE NEW RETAILER IS ADDED TAKEN FROM SFA##########################
+# class Retailer(base_models.Retailer):
+#     '''details of retailer'''
+# 
+#     class Meta(base_models.Retailer.Meta):
+#         app_label = _APP_NAME
+
 class Retailer(base_models.Retailer):
     '''details of retailer'''
-
+    
+    retailer_id = models.CharField(max_length=50, unique=True, default=generate_retailer_id)
+    retailer_permanent_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    
+    user = models.ForeignKey(UserProfile)
+    billing_code = models.CharField(max_length=15)
+    distributor = models.ForeignKey(Distributor)
+    approved = models.PositiveSmallIntegerField(default=constants.STATUS['WAITING_FOR_APPROVAL'])
+    territory = models.CharField(max_length=15)
+    email = models.EmailField(max_length=50, null=True, blank=True)
+    mobile = models.CharField(max_length=15)
+    profile = models.CharField(max_length=15, null=True, blank=True)
+    latitude = models.DecimalField(max_digits = 10, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits = 11, decimal_places=6, null=True, blank=True)
+    language = models.CharField(max_length=10, null=True, blank=True)
+    rejected_reason = models.CharField(max_length=300, null=True, blank=True)
+    
+    form_status = models.CharField(max_length=15, choices=constants.FORM_STATUS_CHOICES,
+                               default='Incomplete')
+    total_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    
+    last_transaction_date = models.DateTimeField(null=True, blank=True)
+    total_accumulation_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    total_redemption_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    total_accumulation_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    total_redemption_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    
+    address_line_2 = models.CharField(max_length=40)
+    address_line_3 = models.CharField(max_length=40)
+    address_line_4 = models.CharField(max_length=40 )
+    district = models.CharField(max_length=50)
+    
     class Meta(base_models.Retailer.Meta):
         app_label = _APP_NAME
+
+    def __unicode__(self):
+        return self.retailer_code + ' ' + self.retailer_name
+        
+#############END OF RETAILER#########################################################################
+
+        
 
 class DSRWrokAllocation(base_models.DSRWrokAllocation):
     '''details of DSR work allocation'''
@@ -513,6 +562,18 @@ class AccumulationRequest(base_models.AccumulationRequest):
 
     class Meta(base_models.AccumulationRequest.Meta):
         app_label = _APP_NAME
+        
+        
+################# ADDED FOR RETAILER ##########
+class AccumulationRequestRetailer(base_models.AccumulationRequestRetailer):
+    '''details of Accumulation request for retailer'''
+    retailer = models.ForeignKey(Retailer)
+    upcs = models.ManyToManyField(SparePartUPC)
+    asm = models.ForeignKey(AreaSparesManager, null=True, blank=True)
+
+    class Meta(base_models.AccumulationRequestRetailer.Meta):
+        app_label = _APP_NAME
+#####################END#######################
 
 class Partner(base_models.Partner):
     '''details of RPs and LPs'''

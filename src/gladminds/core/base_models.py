@@ -1138,12 +1138,30 @@ class DistributorSalesRep(BaseModel):
 
     def __unicode__(self):
         return self.distributor_sales_id
-    
+
+
+##################### RETAILER IS MODIFIED #####################################
+# class Retailer(BaseModel):
+#     '''details of Retailer'''
+#     retailer_name = models.CharField(max_length=50)
+#     retailer_town = models.CharField(max_length=50, null=True, blank=True)
+#     approved = models.BooleanField(default=False)
+#     is_active = models.BooleanField(default=True)
+# 
+#     class Meta:
+#         abstract = True
+#         db_table = "gm_retailer"
+#         verbose_name_plural = "Retailers"
+# 
+#     def __unicode__(self):
+#         return self.retailer_name
+
 class Retailer(BaseModel):
     '''details of Retailer'''
+    retailer_code = models.CharField(max_length=50)
     retailer_name = models.CharField(max_length=50)
     retailer_town = models.CharField(max_length=50, null=True, blank=True)
-    approved = models.BooleanField(default=False)
+    #approved = models.BooleanField(default=False)# we have to uncomment it after SFA API-Test
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -1153,6 +1171,8 @@ class Retailer(BaseModel):
 
     def __unicode__(self):
         return self.retailer_name
+
+##################### END OF RETAILER ####################################################
  
 class DSRWrokAllocation(BaseModel):
     '''details of DSRWrokAllocation'''
@@ -1270,6 +1290,7 @@ class SparePartUPC(BaseModel):
     '''details of Spare Part UPC'''
     unique_part_code = models.CharField(max_length=50, unique=True)
     is_used = models.BooleanField(default=False)
+    is_used_by_retailer = models.BooleanField(default=False)  # added for retailer
     
     objects = user_manager.SparePartUPCManager()
 
@@ -1315,6 +1336,24 @@ class AccumulationRequest(BaseModel):
 
     def __unicode__(self):
         return str(self.transaction_id)
+    
+################# ACCUMULATION ADDED FOR RETAILER ##################
+class AccumulationRequestRetailer(BaseModel):
+    '''details of Accumulation request'''
+    transaction_id = models.AutoField(primary_key=True)
+    points = models.IntegerField(max_length=50)
+    total_points = models.IntegerField(max_length=50)
+    sent_to_sap = models.BooleanField(default=False)
+    is_transferred = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_accumulationrequestretailer"
+        verbose_name_plural = "Accumulation Requests Retailer"
+
+    def __unicode__(self):
+        return str(self.transaction_id)
+################# END #################################
 
 class Partner(BaseModel):
     '''details of RPs and LPs'''
