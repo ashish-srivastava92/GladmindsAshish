@@ -90,7 +90,10 @@ SUIT_CONFIG = {
                     {'model': 'authorizedservicecenter',
                      'label': 'Authorized Service Center'},
                     {'model': 'serviceadvisor',
-                     'label': 'Service Advisor'},)},
+                     'label': 'Service Advisor'},
+                    )},
+             
+                    
         {'app': 'bajaj', 'label': 'Products', 'icon': ' icon-folder-open',
          'models':({'model': 'brandproductcategory',
                      'label': 'Brand Product Category'},
@@ -131,7 +134,11 @@ SUIT_CONFIG = {
                    {'model': 'sparepartpoint',
                      'label': 'Spare Part Point'},
                    {'model': 'accumulationrequest',
-                     'label': 'Accumulation Request'},
+                     'label': 'Accumulation Request Member'},
+                   
+                   {'model': 'accumulationrequestretailer',
+                     'label': 'Accumulation Request Retailer'},
+                   
                    {'model': 'partner',
                      'label': 'Partner'},
                    {'model': 'productcatalog',
@@ -141,7 +148,12 @@ SUIT_CONFIG = {
                    {'model': 'welcomekit',
                      'label': 'Welcome Kit'},
                    {'model': 'loyaltysla',
-                     'label': 'Loyalty Sla'},)},
+                     'label': 'Loyalty Sla'},
+                   
+                   {'model': 'retailer',
+                     'label': 'Retailer'},
+                   
+                   )},
         {'app': 'bajaj', 'label': 'CTS', 'icon': ' icon-folder-open',
          'models':(
                     {'model': 'transporter',
