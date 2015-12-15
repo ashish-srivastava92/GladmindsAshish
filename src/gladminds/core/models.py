@@ -476,7 +476,7 @@ class Retailer(base_models.Retailer):
     
     user = models.ForeignKey(UserProfile)
     billing_code = models.CharField(max_length=15)
-    distributor = models.ForeignKey(Distributor)
+    #distributor = models.ForeignKey(Distributor)
     approved = models.PositiveSmallIntegerField(default=constants.STATUS['WAITING_FOR_APPROVAL'])
     territory = models.CharField(max_length=15)
     email = models.EmailField(max_length=50, null=True, blank=True)
