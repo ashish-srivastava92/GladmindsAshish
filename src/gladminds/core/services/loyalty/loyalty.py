@@ -44,6 +44,23 @@ class CoreLoyaltyService(Services):
                                               redemption=redemption)
         comment_thread.save(using=settings.BRAND)
         return comment_thread
+    
+    
+    def save_comment_retailer(self, comment_type, message, transaction_id, user):
+        '''Saves comment for welcome kit and redemption request for retailer'''
+        redemption=welcome_kit=None
+        if comment_type=='redemption':
+            redemption = transaction_id
+        elif comment_type=='welcome_kit':
+            welcome_kit = transaction_id
+        comment_thread = get_model('CommentThreadRetailer')(user=user,
+                                              message=message,
+                                              welcome_kit=welcome_kit, 
+                                              redemption=redemption)
+        comment_thread.save(using=settings.BRAND)
+        return comment_thread
+    
+    
 
     def get_mechanics_detail(self, request, choice, model_name):
         '''Fetches the details of the mechanics based on args'''
@@ -337,6 +354,44 @@ class CoreLoyaltyService(Services):
                     'message': message, "sms_client": settings.SMS_CLIENT})
         LOG.error('[send_request_status_sms]:{0}:: {1}'.format(
                                     phone_number, message))
+        
+    
+    def send_request_status_sms_retailer(self, redemption_request):
+        '''Send redemption request sms to retailer'''
+        retailer = redemption_request.retailer
+        phone_number=utils.get_phone_number_format(retailer.mobile)
+        message=get_template('REDEMPTION_PRODUCT_STATUS_RETAILER').format(
+                        retailer_name=retailer.retailer_name,
+                        transaction_id=redemption_request.transaction_id,
+                        product_name=redemption_request.product.description,
+                        status=redemption_request.status.lower())
+        sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=message)
+        self.queue_service(send_loyalty_sms, {'phone_number': phone_number,
+                    'message': message, "sms_client": settings.SMS_CLIENT})
+        LOG.error('[send_request_status_sms]:{0}:: {1}'.format(
+                                    phone_number, message))
+    
+    def send_mail_to_partner_for_retailer(self, redemption_obj):
+        '''Send mail to GP and LP when redemption
+           request is assigned to them for Retailer'''
+        data = get_email_template('ASSIGNEE_REDEMPTION_MAIL_DETAIL_RETAILER', settings.BRAND)
+        data['newsubject'] = data['subject'].format(id = redemption_obj.transaction_id)
+        url_link='http://bajaj.gladminds.co'
+        data['content'] = data['body'].format(id=redemption_obj.transaction_id,
+                              created_date = redemption_obj.created_date,
+                              retailer_id = redemption_obj.retailer.retailer_id,
+                              retailer_name = redemption_obj.retailer.retailer_name,
+                              retailer_city = redemption_obj.retailer.district,
+                              retailer_state = redemption_obj.retailer.user.state,
+                              product_id =  redemption_obj.product.product_id,
+                              product_name =  redemption_obj.product.description,
+                        delivery_address = redemption_obj.delivery_address,
+                        url_link=url_link)
+        partner_email_id=redemption_obj.partner.user.user.email
+        send_email_to_redemption_request_partner(data, partner_email_id)
+        LOG.error('[send_mail_to_partner]:{0}:: Redemption request email sent'.format(
+                                    partner_email_id))
+    
 
 
     def register_redemption_request(self, mechanic, products):
@@ -378,7 +433,7 @@ class CoreLoyaltyService(Services):
 ##################### UPDATE POINTS FOR RETAILER ###################
 
     def update_points_retailer(self, retailer, accumulate=0, redeem=0, refund_flag=False):
-        '''Update the loyalty points of the Mechanic'''
+        '''Update the loyalty points of the Retailer'''
         total_points = retailer.total_points + accumulate - redeem
         retailer.total_points = total_points
         if accumulate>0 and not refund_flag:

@@ -382,5 +382,19 @@
             "body": "There are some discrepancy in the manufacturing data received for following vehicle",
             "description":"Mail to manager group if there discrepancy in the manufacturing data received"
         }
+    },
+    
+    {
+        "model": "gladminds.emailtemplate",
+        "pk": 33,
+        "fields": {
+            "template_key": "ASSIGNEE_REDEMPTION_MAIL_DETAIL_RETAILER",
+            "sender": "feed-report@gladminds.co",
+            "receiver": "farhat.jahan@gladminds.co",
+            "subject": "Loyalty Redemption request {id}",
+            "body": "Retailer {retailer_name} with ID  {retailer_id} has submitted a redemption request for product '{product_name}', ID-{product_id}. Retailer Address is: {delivery_address}, {retailer_city}, {retailer_state}. You can access the  request at :{url_link}",
+            "description":"Redemption request Detail mail to assignee"
+        }
     }
+    
 ]

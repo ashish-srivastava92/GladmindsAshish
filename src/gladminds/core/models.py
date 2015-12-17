@@ -476,7 +476,7 @@ class Retailer(base_models.Retailer):
     
     user = models.ForeignKey(UserProfile)
     billing_code = models.CharField(max_length=15)
-    #distributor = models.ForeignKey(Distributor)
+    distributor = models.ForeignKey(Distributor)
     approved = models.PositiveSmallIntegerField(default=constants.STATUS['WAITING_FOR_APPROVAL'])
     territory = models.CharField(max_length=15)
     email = models.EmailField(max_length=50, null=True, blank=True)
@@ -501,6 +501,7 @@ class Retailer(base_models.Retailer):
     address_line_3 = models.CharField(max_length=40)
     address_line_4 = models.CharField(max_length=40 )
     district = models.CharField(max_length=50)
+    status = models.CharField(max_length=20, default='Not Approved.')
     
     class Meta(base_models.Retailer.Meta):
         app_label = _APP_NAME
@@ -590,13 +591,25 @@ class ProductCatalog(base_models.ProductCatalog):
         app_label = _APP_NAME
 
 class RedemptionRequest(base_models.RedemptionRequest):
-    '''details of Redemption Request'''
+    '''details of Redemption Request for Member'''
     product = models.ForeignKey(ProductCatalog)
     member = models.ForeignKey(Member)
     partner = models.ForeignKey(Partner, null=True, blank=True)
 
     class Meta(base_models.RedemptionRequest.Meta):
         app_label = _APP_NAME
+        
+        
+################### add retailer redemption##############
+class RedemptionRequestRetailer(base_models.RedemptionRequestRetailer):
+    '''details of Redemption Request for Retailer'''
+    product = models.ForeignKey(ProductCatalog)
+    retailer = models.ForeignKey(Retailer)
+    partner = models.ForeignKey(Partner, null=True, blank=True)
+
+    class Meta(base_models.RedemptionRequestRetailer.Meta):
+        app_label = _APP_NAME
+###################### end add retailer redemption########
 
 class WelcomeKit(base_models.WelcomeKit):
     '''details of welcome kit'''
@@ -605,6 +618,16 @@ class WelcomeKit(base_models.WelcomeKit):
 
     class Meta(base_models.WelcomeKit.Meta):
         app_label = _APP_NAME
+        
+################# welcome kit is added for retailer ##################
+class WelcomeKitRetailer(base_models.WelcomeKitRetailer):
+    '''details of welcome kit'''
+    retailer = models.ForeignKey(Retailer)
+    partner = models.ForeignKey(Partner, null=True, blank=True)
+
+    class Meta(base_models.WelcomeKitRetailer.Meta):
+        app_label = _APP_NAME
+################# end welcome kit is added for retailer ##################
 
 class CommentThread(base_models.CommentThread):
     '''details of activities done by service-desk user'''
@@ -614,6 +637,17 @@ class CommentThread(base_models.CommentThread):
 
     class Meta(base_models.CommentThread.Meta):
         app_label = _APP_NAME
+
+################# comment is added for retailer ##################
+class CommentThreadRetailer(base_models.CommentThreadRetailer):
+    '''details of activities done by service-desk user'''
+    welcome_kit = models.ForeignKey(WelcomeKitRetailer, null=True, blank=True)
+    redemption = models.ForeignKey(RedemptionRequestRetailer, null=True, blank=True)
+    user = models.ForeignKey(User, related_name="core_comments_user_retailer")
+
+    class Meta(base_models.CommentThreadRetailer.Meta):
+        app_label = _APP_NAME
+######################### retailer comment end####################
         
 class LoyaltySLA(base_models.LoyaltySLA):
 

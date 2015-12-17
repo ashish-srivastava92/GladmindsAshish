@@ -1400,7 +1400,7 @@ class ProductCatalog(BaseModel):
         return str(self.product_id)
 
 class RedemptionRequest(BaseModel):
-    '''details of Redemption Request'''
+    '''details of Redemption Request For Member'''
     delivery_address = models.CharField(max_length=50, null=True, blank=True)
     transaction_id = models.AutoField(primary_key=True)
     expected_delivery_date =  models.DateTimeField(null=True, blank= True)
@@ -1446,6 +1446,56 @@ class RedemptionRequest(BaseModel):
     def __unicode__(self):
         return str(self.transaction_id)
     
+    
+################### add retailer redemption##############
+class RedemptionRequestRetailer(BaseModel):
+    '''details of Redemption Request For Retailer'''
+    delivery_address = models.CharField(max_length=50, null=True, blank=True)
+    transaction_id = models.AutoField(primary_key=True)
+    expected_delivery_date =  models.DateTimeField(null=True, blank= True)
+    status = models.CharField(max_length=12, choices=constants.REDEMPTION_STATUS, default='Open')
+    packed_by = models.CharField(max_length=50, null=True, blank=True)
+    tracking_id = models.CharField(max_length=50, null=True, blank=True)
+    is_approved = models.BooleanField(default=False)
+    refunded_points = models.BooleanField(default=False)
+    due_date =  models.DateTimeField(null=True, blank= True)
+    resolution_flag = models.BooleanField(default=False)
+    approved_date =  models.DateTimeField(null=True, blank= True)
+    shipped_date =  models.DateTimeField(null=True, blank= True)
+    delivery_date =  models.DateTimeField(null=True, blank= True)
+    pod_number = models.CharField(max_length=50, null=True, blank=True)
+    image_url = models.FileField(upload_to=set_redemption_pod_path,
+                              max_length=255, null=True, blank=True,
+                              validators=[validate_image])
+    sent_to_sap = models.BooleanField(default=False)
+    points = models.IntegerField(max_length=50)
+
+    
+    def image_tag(self):
+        return u'<img src="{0}/{1}" width="200px;"/>'.format(settings.S3_BASE_URL, self.image_url)
+    image_tag.short_description = 'Proof of Delivery'
+    image_tag.allow_tags = True
+    
+    def clean(self, *args, **kwargs):
+        if self.status=='Approved' and self.refunded_points:
+            if self.retailer.total_points<self.product.points:
+                raise ValidationError("Retailer now does not not have sufficient points to approve the request")
+#         if self.status=='Packed' and (not self.partner or self.partner.partner_type not in ['Redemption','Logistics']):
+#             raise ValidationError("Please assign a partner")
+#         elif self.status=='Approved' and (not self.partner or self.partner.partner_type!='Redemption'):
+#             raise ValidationError("Please assign a redemption partner")
+        
+        super(RedemptionRequestRetailer, self).clean(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_redemptionrequestretailer"
+        verbose_name_plural = "Redemption Request Retailer"
+        
+    def __unicode__(self):
+        return str(self.transaction_id)
+###################### end add retailer redemption########
+    
 class WelcomeKit(BaseModel):
     '''details of welcome kit'''
     delivery_address = models.CharField(max_length=50, null=True, blank=True)
@@ -1482,6 +1532,43 @@ class WelcomeKit(BaseModel):
     def __unicode__(self):
         return str(self.transaction_id)
     
+class WelcomeKitRetailer(BaseModel):
+    '''details of welcome kit for Retailer'''
+    delivery_address = models.CharField(max_length=50, null=True, blank=True)
+    transaction_id = models.AutoField(primary_key=True)
+    expected_delivery_date =  models.DateTimeField(null=True, blank= True)
+    due_date =  models.DateTimeField(null=True, blank= True)
+    status = models.CharField(max_length=12, choices=constants.WELCOME_KIT_STATUS, default='Open')
+    packed_by = models.CharField(max_length=50, null=True, blank=True)
+    tracking_id = models.CharField(max_length=50, null=True, blank=True)
+    resolution_flag = models.BooleanField(default=False)
+    shipped_date =  models.DateTimeField(null=True, blank= True)
+    delivery_date =  models.DateTimeField(null=True, blank= True)
+    pod_number = models.CharField(max_length=50, null=True, blank=True)
+    image_url = models.FileField(upload_to=set_welcome_kit_pod_path,
+                              max_length=255, null=True, blank=True,
+                              validators=[validate_image])
+
+    def image_tag(self):
+        return u'<img src="{0}/{1}" width="200px;"/>'.format(settings.S3_BASE_URL, self.image_url)
+    image_tag.short_description = 'Proof of Delivery'
+    image_tag.allow_tags = True
+
+    def clean(self, *args, **kwargs):
+        if self.status!='Open' and not self.partner:
+            raise ValidationError("Please assign a partner")
+        else:
+            super(WelcomeKit, self).clean(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_welcomekitretailer"
+        verbose_name_plural = "Welcome Kit Request Retailer"
+    
+    def __unicode__(self):
+        return str(self.transaction_id)
+################# end welcome kit is added for retailer ##################
+    
 class CommentThread(BaseModel):
     '''details of activities done by service-desk user'''
     id = models.AutoField(primary_key=True)
@@ -1495,6 +1582,23 @@ class CommentThread(BaseModel):
     
     def __unicode__(self):
         return str(self.id)
+
+
+################# comment is added for retailer ##################
+class CommentThreadRetailer(BaseModel):
+    '''details of activities done by service-desk user for Retailer'''
+    id = models.AutoField(primary_key=True)
+    message = models.TextField(null=True, blank=True)
+    is_edited = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_commentthreadretailer"
+        verbose_name_plural = "Comment Thread Retailer"
+    
+    def __unicode__(self):
+        return str(self.id)
+######################### retailer comment end####################
 
 class DiscrepantAccumulation(BaseModel):
     ''' details of accumulation request with discrepancy'''

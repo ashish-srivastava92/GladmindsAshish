@@ -144,11 +144,16 @@ SUIT_CONFIG = {
                    {'model': 'productcatalog',
                      'label': 'Product Catalog'},
                    {'model': 'redemptionrequest',
-                     'label': 'Redemption Request'},
+                     'label': 'Redemption Request Mechanic'},
                    {'model': 'welcomekit',
                      'label': 'Welcome Kit'},
                    {'model': 'loyaltysla',
                      'label': 'Loyalty Sla'},
+                   
+                   
+                   
+                   {'model': 'redemptionrequestretailer',
+                     'label': 'Redemption Request Retailer'},
                    
                    {'model': 'retailer',
                      'label': 'Retailer'},
