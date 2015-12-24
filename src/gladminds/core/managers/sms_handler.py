@@ -18,7 +18,7 @@ ANGULAR_FORMAT = lambda x: x.replace('{', '<').replace('}', '>')
 AUDIT_ACTION = 'SEND TO QUEUE'
 
 class SMSResources(Resource):
-
+    
     class Meta:
         resource_name = 'messages'
 

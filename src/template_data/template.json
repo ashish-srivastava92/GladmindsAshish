@@ -735,6 +735,36 @@
       "template": "Dear {retailer_name}, Ref Req ID - {transaction_id}. Your gift {product_name} has been {status}.",
       "description": "Send this message when retailer-ID redemption request changes"
     }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 82,
+    "fields": {
+      "template_key": "INVALID_RETAILER_ID",
+      "template": "Dear {retailer_name}, Invalid Retailer ID. Please refer Retailer card for your ID.",
+      "description": "Send this message when retailer-ID does not match our records."
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 83,
+    "fields": {
+      "template_key": "SEND_INSUFFICIENT_POINT_SINGLE_RETAILER",
+      "template": "Dear {retailer_name}, Sorry, you need {shortage_points} more points for this product. You have {total_points} accumulated points.",
+      "description": "Send this message when retailer does not have enough points to redeem a single product."
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 84,
+    "fields": {
+      "template_key": "SEND_INSUFFICIENT_POINT_MULTIPLE_RETAILER",
+      "template": "Dear {retailer_name}, Sorry, you need {shortage_points} more points for these products. Please check catalog and submit new request.
+      "description": "Send this message when retailer does not have enough points to redeem a single product."
+    }
   }
   
 ]

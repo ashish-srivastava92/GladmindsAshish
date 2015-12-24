@@ -281,6 +281,26 @@ class CoreLoyaltyService(Services):
         LOG.info('[send_welcome_kit_mail_to_partner]:{0}:: welcome kit request email sent'.format(
                                     partner_email_id))
         
+###################Send welcome kit mail to aprtner for retailer#####################################################
+    def send_welcome_kit_mail_to_partner_retailer(self, welcome_kit_obj):
+        '''Send mail to GP and LP when welcome Kit is assigned to them'''
+        data = get_email_template('ASSIGNEE_WELCOME_KIT_MAIL_RETAILER', settings.BRAND)
+        data['newsubject'] = data['subject'].format(id = welcome_kit_obj.transaction_id)
+        url_link='http://bajaj.gladminds.co'
+        data['content'] = data['body'].format(id=welcome_kit_obj.transaction_id,
+                              created_date = welcome_kit_obj.created_date,
+                              retailer_id = welcome_kit_obj.retailer.retailer_id,
+                              retailer_name = welcome_kit_obj.retailer.retailer_name,
+                              retailer_city = welcome_kit_obj.retailer.district,
+                              retailer_state = welcome_kit_obj.retailer.user.state,
+                        delivery_address = welcome_kit_obj.delivery_address,
+                        url_link=url_link)
+        partner_email_id=welcome_kit_obj.partner.user.user.email
+        send_email_to_redemption_request_partner(data, partner_email_id)
+        LOG.info('[send_welcome_kit_mail_to_partner]:{0}:: welcome kit request email sent'.format(
+                                    partner_email_id))
+#######################End Send welcome kit mail to aprtner for retailer#################################################
+        
     def send_welcome_kit_delivery(self, redemption_request):
         '''Send redemption request sms to mechanics'''
         member = redemption_request.member
@@ -292,6 +312,20 @@ class CoreLoyaltyService(Services):
                     'message': message, "sms_client": settings.SMS_CLIENT})
         LOG.error('[send_request_status_sms]:{0}:: {1}'.format(
                                     phone_number, message))
+        
+#################send Welcome Kit to Retailer######################################################################################
+    def send_welcome_kit_delivery_retailer(self, redemption_request):
+        '''Send redemption request sms to retailer'''
+        retailer = redemption_request.retailer
+        phone_number=utils.get_phone_number_format(retailer.mobile)
+        message=get_template('WELCOME_KIT_DELIVERY_RETAILER').format(
+                        retailer_name=retailer.retailer_name)
+        sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=message)
+        self.queue_service(send_loyalty_sms, {'phone_number': phone_number,
+                    'message': message, "sms_client": settings.SMS_CLIENT})
+        LOG.error('[send_request_status_sms]:{0}:: {1}'.format(
+                                    phone_number, message))
+#######################End send Welcome Kit to Retailer################################################################################
         
     def initiate_welcome_kit(self, mechanic_obj):
         '''Saves the welcome kit request for processing'''
@@ -414,6 +448,29 @@ class CoreLoyaltyService(Services):
             transaction_ids.append(str(redemption_request.transaction_id))
         transactions = (', '.join(transaction_ids))
         return transactions
+    
+####################Registered Redemption Request for Retailer#####################################################
+    def register_redemption_request_retailer(self, retailer, products):
+        '''Saves the redemption request for processing for retailer'''
+        transaction_ids=[]
+        retailer = retailer[0]
+        delivery_address = ', '.join(filter(None, (retailer.shop_number,
+                                                   retailer.shop_name,
+                                                   retailer.shop_address)))
+        for product in products:
+            date = self.set_date('Redemption', 'Open')
+            redemption_request=get_model('RedemptionRequestRetailer')(retailer=retailer,
+                                        product=product,
+                                        delivery_address=delivery_address,
+                                        expected_delivery_date=date['expected_delivery_date'],
+                                        due_date=date['due_date'],
+                                        points=product.points)
+            
+            redemption_request.save(using=settings.BRAND)
+            transaction_ids.append(str(redemption_request.transaction_id))
+        transactions = (', '.join(transaction_ids))
+        return transactions
+######################End Registered Redemption Request for Retailer###################################################
 
     def update_points(self, mechanic, accumulate=0, redeem=0, refund_flag=False):
         '''Update the loyalty points of the Mechanic'''
@@ -599,6 +656,11 @@ class CoreLoyaltyService(Services):
         valid_product_number=[]
         invalid_upcs_message=''
         try:
+            if len(unique_product_codes)>constants.MAX_UPC_ALLOWED:
+                message=get_template('MAX_ALLOWED_UPC').format(
+                                        max_limit=constants.MAX_UPC_ALLOWED)
+                raise ValueError('Maximum allowed upc exceeded')
+            
             if not retailer:
                 message=get_template('UNREGISTERED_USER')
                 raise ValueError('Unregistered user')
@@ -608,7 +670,7 @@ class CoreLoyaltyService(Services):
             
             retailer_state_name = retailer[0].user.state
             state_list = get_model('State').objects.filter(state_name = retailer_state_name)
-            state_code = state_list[0].territory
+            state_code = state_list[0].state_code
             spares = get_model('SparePartUPC').objects.filter(unique_part_code__in=unique_product_codes,is_used_by_retailer=False)
             
             if not spares:
@@ -670,11 +732,6 @@ class CoreLoyaltyService(Services):
 #                         LOG.error('[accumulate_point]:{0}:: {1}'.format(phone_number, ex))
 
             
-#             message=get_template('SEND_ACCUMULATED_POINT_RETAILER').format(
-#                                 retailer_name=retailer[0].retailer_name,
-#                                 added_points=added_points,
-#                                 total_points=total_points,
-#                                 invalid_upcs=invalid_upcs_message)
             
             if len(unique_product_codes)==1 and invalid_upcs:
                 message=get_template('SEND_INVALID_UPC')
@@ -697,9 +754,15 @@ class CoreLoyaltyService(Services):
 ############################# END###############################################################
 
     def redeem_point(self, sms_dict, phone_number):
-        '''redeem points with given upc'''
+        '''redeem points with given upc for Member'''
         product_codes = sms_dict['product_id'].upper().split()
         try:
+            
+            retailer = get_model('Retailer').objects.using(settings.BRAND).filter(mobile=utils.mobile_format(phone_number))
+            if retailer:
+                message = self.redeem_point_retailer(product_codes, phone_number, sms_dict,retailer)
+                return {'status': True, 'message': message}
+            
             mechanic = get_model('Member').objects.using(settings.BRAND).filter(phone_number=utils.mobile_format(phone_number))
             if not mechanic:
                 message=get_template('UNREGISTERED_USER')
@@ -745,6 +808,58 @@ class CoreLoyaltyService(Services):
             self.queue_service(send_point, {'phone_number': phone_number,
                   'message': message, "sms_client": settings.SMS_CLIENT})
         return {'status': True, 'message': message}
+    
+######################Redeem Request For Retailer##############################
+    def redeem_point_retailer(self, product_codes, phone_number, sms_dict,retailer ):
+        '''redeem points with given upc for retailer'''
+        product_codes = product_codes
+        try:
+            if not retailer:
+                message=get_template('UNREGISTERED_USER')
+                raise ValueError('Unregistered user')
+            elif retailer and  retailer[0].form_status=='Incomplete':
+                message=get_template('INCOMPLETE_FORM')
+                raise ValueError('Incomplete user details')
+            
+            elif retailer and (retailer[0].retailer_id!=sms_dict['member_id'] and retailer[0].retailer_permanent_id!=sms_dict['member_id']):
+                message=get_template('INVALID_RETAILER_ID').format(retailer_name=retailer[0].retailer_name)
+                raise ValueError('Invalid user-ID')
+            products=get_model('ProductCatalog').objects.using(settings.BRAND).filter(product_id__in=product_codes)
+            redeem_points=0
+            if len(products)==len(product_codes):
+                for product in products:
+                    redeem_points=redeem_points+product.points
+                left_points=retailer[0].total_points-redeem_points
+                if left_points>=0:
+                    total_points=self.update_points_retailer(retailer[0],
+                                            redeem=redeem_points)
+                    transaction_ids = self.register_redemption_request_retailer(retailer,
+                                                            products)
+                    message=get_template('SEND_REDEEM_POINT').format(
+                                    mechanic_name=retailer[0].retailer_name,
+                                    transaction_id=transaction_ids,
+                                    total_points=total_points)
+                else:
+                    if len(products)==1:
+                        message=get_template('SEND_INSUFFICIENT_POINT_SINGLE_RETAILER').format(
+                                        retailer_name=retailer[0].retailer_name,
+                                        total_points=retailer[0].total_points,
+                                        shortage_points=abs(left_points))
+                    else:
+                        message=get_template('SEND_INSUFFICIENT_POINT_MULTIPLE_RETAILER').format(
+                                        retailer_name=retailer[0].retailer_name,
+                                        shortage_points=abs(left_points))
+            else:
+                message=get_template('INVALID_PRODUCT_ID')
+        except Exception as ex:
+            LOG.error('[redeem_point]:{0}:: {1}'.format(phone_number, ex))
+        finally:
+            phone_number = utils.get_phone_number_format(phone_number)
+            sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=message)
+            self.queue_service(send_point, {'phone_number': phone_number,
+                  'message': message, "sms_client": settings.SMS_CLIENT})
+        return  message
+##################End Of Redeem Request For Retailer##################################
 
     def set_date(self,action,status):
         '''Sets date of SLA based on action and status'''

@@ -461,7 +461,7 @@ class DistributorSalesRep(base_models.DistributorSalesRep):
 
 
 
-###################### FROM HERE NEW RETAILER IS ADDED TAKEN FROM SFA##########################
+###################### FROM HERE NEW RETAILER IS ADDED, as it is in SFA##########################
 # class Retailer(base_models.Retailer):
 #     '''details of retailer'''
 # 
@@ -478,9 +478,9 @@ class Retailer(base_models.Retailer):
     billing_code = models.CharField(max_length=15)
     distributor = models.ForeignKey(Distributor)
     approved = models.PositiveSmallIntegerField(default=constants.STATUS['WAITING_FOR_APPROVAL'])
-    territory = models.CharField(max_length=15)
+    territory = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(max_length=50, null=True, blank=True)
-    mobile = models.CharField(max_length=15)
+    mobile = models.CharField(max_length=15, unique=True)
     profile = models.CharField(max_length=15, null=True, blank=True)
     latitude = models.DecimalField(max_digits = 10, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits = 11, decimal_places=6, null=True, blank=True)
@@ -501,17 +501,18 @@ class Retailer(base_models.Retailer):
     address_line_3 = models.CharField(max_length=40)
     address_line_4 = models.CharField(max_length=40 )
     district = models.CharField(max_length=50)
-    status = models.CharField(max_length=20, default='Not Approved.')
+    status = models.CharField(max_length=20, default=False)
+    
+    shop_number = models.CharField(max_length=50, null=True, blank=True)
+    shop_name = models.CharField(max_length=50, null=True)
+    shop_address = models.CharField(max_length=50, null=True)
     
     class Meta(base_models.Retailer.Meta):
         app_label = _APP_NAME
 
     def __unicode__(self):
         return self.retailer_code + ' ' + self.retailer_name
-        
-#############END OF RETAILER#########################################################################
 
-        
 
 class DSRWrokAllocation(base_models.DSRWrokAllocation):
     '''details of DSR work allocation'''
@@ -564,8 +565,6 @@ class AccumulationRequest(base_models.AccumulationRequest):
     class Meta(base_models.AccumulationRequest.Meta):
         app_label = _APP_NAME
         
-        
-################# ADDED FOR RETAILER ##########
 class AccumulationRequestRetailer(base_models.AccumulationRequestRetailer):
     '''details of Accumulation request for retailer'''
     retailer = models.ForeignKey(Retailer)
@@ -574,7 +573,7 @@ class AccumulationRequestRetailer(base_models.AccumulationRequestRetailer):
 
     class Meta(base_models.AccumulationRequestRetailer.Meta):
         app_label = _APP_NAME
-#####################END#######################
+
 
 class Partner(base_models.Partner):
     '''details of RPs and LPs'''
@@ -599,8 +598,6 @@ class RedemptionRequest(base_models.RedemptionRequest):
     class Meta(base_models.RedemptionRequest.Meta):
         app_label = _APP_NAME
         
-        
-################### add retailer redemption##############
 class RedemptionRequestRetailer(base_models.RedemptionRequestRetailer):
     '''details of Redemption Request for Retailer'''
     product = models.ForeignKey(ProductCatalog)
@@ -609,28 +606,28 @@ class RedemptionRequestRetailer(base_models.RedemptionRequestRetailer):
 
     class Meta(base_models.RedemptionRequestRetailer.Meta):
         app_label = _APP_NAME
-###################### end add retailer redemption########
+
 
 class WelcomeKit(base_models.WelcomeKit):
-    '''details of welcome kit'''
+    '''details of welcome kit for Mechanic'''
     member = models.ForeignKey(Member)
     partner = models.ForeignKey(Partner, null=True, blank=True)
 
     class Meta(base_models.WelcomeKit.Meta):
         app_label = _APP_NAME
         
-################# welcome kit is added for retailer ##################
+
 class WelcomeKitRetailer(base_models.WelcomeKitRetailer):
-    '''details of welcome kit'''
+    '''details of welcome kit for Retailer'''
     retailer = models.ForeignKey(Retailer)
     partner = models.ForeignKey(Partner, null=True, blank=True)
 
     class Meta(base_models.WelcomeKitRetailer.Meta):
         app_label = _APP_NAME
-################# end welcome kit is added for retailer ##################
+
 
 class CommentThread(base_models.CommentThread):
-    '''details of activities done by service-desk user'''
+    '''details of activities done by service-desk user for Mechanic'''
     welcome_kit = models.ForeignKey(WelcomeKit, null=True, blank=True)
     redemption = models.ForeignKey(RedemptionRequest, null=True, blank=True)
     user = models.ForeignKey(User, related_name="core_comments_user")
@@ -638,16 +635,16 @@ class CommentThread(base_models.CommentThread):
     class Meta(base_models.CommentThread.Meta):
         app_label = _APP_NAME
 
-################# comment is added for retailer ##################
+
 class CommentThreadRetailer(base_models.CommentThreadRetailer):
-    '''details of activities done by service-desk user'''
+    '''details of activities done by service-desk user for Retailer'''
     welcome_kit = models.ForeignKey(WelcomeKitRetailer, null=True, blank=True)
     redemption = models.ForeignKey(RedemptionRequestRetailer, null=True, blank=True)
     user = models.ForeignKey(User, related_name="core_comments_user_retailer")
 
     class Meta(base_models.CommentThreadRetailer.Meta):
         app_label = _APP_NAME
-######################### retailer comment end####################
+
         
 class LoyaltySLA(base_models.LoyaltySLA):
 
@@ -741,4 +738,5 @@ class ManufacturingData(base_models.ManufacturingData):
     '''Manufacturing data of a product'''
     class Meta(base_models.ManufacturingData.Meta):
         app_label = _APP_NAME
+        
 

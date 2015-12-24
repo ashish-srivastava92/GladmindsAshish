@@ -146,17 +146,16 @@ SUIT_CONFIG = {
                    {'model': 'redemptionrequest',
                      'label': 'Redemption Request Mechanic'},
                    {'model': 'welcomekit',
-                     'label': 'Welcome Kit'},
+                     'label': 'Welcome Kit Member'},
                    {'model': 'loyaltysla',
                      'label': 'Loyalty Sla'},
                    
-                   
-                   
                    {'model': 'redemptionrequestretailer',
                      'label': 'Redemption Request Retailer'},
-                   
                    {'model': 'retailer',
                      'label': 'Retailer'},
+                   {'model': 'welcomekitretailer',
+                     'label': 'Welcome Kit Retailer'},
                    
                    )},
         {'app': 'bajaj', 'label': 'CTS', 'icon': ' icon-folder-open',
@@ -775,3 +774,4 @@ HOME_URLS = {
 LOGIN_URL='/login'
 BATCH_SIZE = 100
 LOGAN_ACTIVE = False
+

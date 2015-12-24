@@ -1172,7 +1172,6 @@ class Retailer(BaseModel):
     def __unicode__(self):
         return self.retailer_name
 
-##################### END OF RETAILER ####################################################
  
 class DSRWrokAllocation(BaseModel):
     '''details of DSRWrokAllocation'''
@@ -1558,7 +1557,7 @@ class WelcomeKitRetailer(BaseModel):
         if self.status!='Open' and not self.partner:
             raise ValidationError("Please assign a partner")
         else:
-            super(WelcomeKit, self).clean(*args, **kwargs)
+            super(WelcomeKitRetailer, self).clean(*args, **kwargs)
 
     class Meta:
         abstract = True
