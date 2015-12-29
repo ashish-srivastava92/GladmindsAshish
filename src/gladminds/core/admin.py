@@ -451,10 +451,10 @@ class SparePartMasterAdmin(GmModelAdmin):
 class SparePartUPCAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS]
     search_fields = ('part_number__part_number', 'unique_part_code', 'part_number__description')
-    list_display = ('unique_part_code', 'part_number', 'get_part_description','is_used')
+    list_display = ('unique_part_code', 'part_number', 'get_part_description','is_used','is_used_by_retailer')
 
     def get_form(self, request, obj=None, **kwargs):
-        self.exclude = ('is_used',)
+        #self.exclude = ('is_used','is_used_by_retailer')
         form = super(SparePartUPCAdmin, self).get_form(request, obj, **kwargs)
         return form
 
