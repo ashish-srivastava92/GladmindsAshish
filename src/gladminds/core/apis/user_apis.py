@@ -426,7 +426,6 @@ class UserProfileResource(CustomBaseModelResource):
             http_host = request.META.get('HTTP_HOST', 'localhost')
             user_auth = authenticate(username=str(user_obj.username),
                                 password=password)
-    
             if user_auth is not None:
                 access_token = create_access_token(user_auth, http_host)
                 user_groups = []

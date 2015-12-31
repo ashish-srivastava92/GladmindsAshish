@@ -104,6 +104,7 @@ def validate_file(fieldfile_obj):
 
 
 def create_upload_path(folder, instance, filename):
+    
     brand_path =  getattr(instance, '_state').__dict__['db']
     return u'{0}/{1}/{2}/{3}'.format(settings.ENV,brand_path, folder, filename)
 

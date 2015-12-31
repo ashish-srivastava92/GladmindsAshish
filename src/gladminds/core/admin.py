@@ -727,7 +727,7 @@ class RedemptionRequestAdmin(GmModelAdmin):
                 partner=None
                 packed_by=None
                 partner_list = get_model("Partner").objects.all()
-                if len(partner_list)==1:
+                if partner_list:
                     partner=partner_list[0]
                     packed_by=partner.user.user.username
                 obj.partner=partner
