@@ -709,11 +709,62 @@
   
   {
     "model": "gladminds.messagetemplate",
-    "pk": 85,
+    "pk": 79,
     "fields": {
       "template_key": "SEND_ACCUMULATED_POINT_RETAILER",
       "template": "Dear {retailer_name}, {added_points} points updated. Total points: {total_points}.{invalid_upcs} To Redeem, Send SMS with Code RD<SPACE><MEMBER ID><SPACE><PRODUCT CODE> to 7757057457",
-      "description": "Send this message when owner phone number is updated"
+      "description": "Send this message when retailer got some points for given upc"
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 80,
+    "fields": {
+      "template_key": "SEND_UPC_IS_USED",
+      "template": "This UPC is already used.",
+      "description": "Send this message when UPC is already used by some other retailer"
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 81,
+    "fields": {
+      "template_key": "REDEMPTION_PRODUCT_STATUS_RETAILER",
+      "template": "Dear {retailer_name}, Ref Req ID - {transaction_id}. Your gift {product_name} has been {status}.",
+      "description": "Send this message when retailer-ID redemption request changes"
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 82,
+    "fields": {
+      "template_key": "INVALID_RETAILER_ID",
+      "template": "Dear {retailer_name}, Invalid Retailer ID. Please refer Retailer card for your ID.",
+      "description": "Send this message when retailer-ID does not match our records."
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 83,
+    "fields": {
+      "template_key": "SEND_INSUFFICIENT_POINT_SINGLE_RETAILER",
+      "template": "Dear {retailer_name}, Sorry, you need {shortage_points} more points for this product. You have {total_points} accumulated points.",
+      "description": "Send this message when retailer does not have enough points to redeem a single product."
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 84,
+    "fields": {
+      "template_key": "SEND_INSUFFICIENT_POINT_MULTIPLE_RETAILER",
+      "template": "Dear {retailer_name}, Sorry, you need {shortage_points} more points for these products. Please check catalog and submit new request.
+      "description": "Send this message when retailer does not have enough points to redeem a single product."
     }
   }
+  
 ]

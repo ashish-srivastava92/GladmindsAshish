@@ -358,7 +358,7 @@ class AccumulationResource(CustomBaseModelResource):
 
     def csv_member_download(self,rows1):
         file_name='accumulation_download' + datetime.now().strftime('%d_%m_%y')
-        headers = ['Mechanic ID','Permanent Id', 'Mechanic Name','District','Mobile No','State','Distributor Code','Unique Code Detail','Point SMSed','Date of SMSed']
+        headers = ['Mechanic ID','Permanent ID', 'Mechanic Name','District','Mobile No','State','Distributor Code','Unique Code Detail','Point SMSed','Date of SMSed']
         csvfile = StringIO.StringIO()
         csvwriter = csv.writer(csvfile)  
         csvwriter.writerow(headers)   

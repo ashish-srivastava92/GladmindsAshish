@@ -111,8 +111,10 @@ alter table gm_dealer add column area varchar(250);
 alter table gm_dealer add column last_transaction_date datetime null;
 alter table gm_dealer add column regional_office varchar(250);
 ---------------------------------------------------------------------------------------------
-
-ALTER TABLE gm_bomvisualization ADD is_published tinyint(1)  NOT NULL DEFAULT 0;
-ALTER TABLE gm_bomvisualization ADD is_approved tinyint(1)  NOT NULL DEFAULT 0;
+for bajajcv add this in retailer
+alter table gm_retailer add column shop_number varchar(50) null;
+alter table gm_retailer add column shop_name varchar(50) null;
+alter table gm_retailer add column shop_address varchar(50) null;
+----------------------------------------------------------------------------------------------
 
 

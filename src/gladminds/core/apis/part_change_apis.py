@@ -125,6 +125,64 @@ class VisualisationUploadHistoryResource(CustomBaseModelResource):
                      }
         
         
+    def prepend_urls(self):
+        return [
+                 url(r"^(?P<resource_name>%s)/approved-history%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('visualisation_approved_history'), name="visualisation_approved_history"),
+                ]
+    
+     
+     
+    def visualisation_approved_history(self, request, **kwargs):
+        '''
+           Returns all the plates and their images
+           associated with a sku-code and bom number
+           whose visualisation upload history status is Approved.
+           params:
+               sku_code: SKU code of the product
+               bom_number: bom number of the sku
+        '''
+        self.is_authenticated(request)
+        sku_code = request.GET.get('sku_code')
+        bom_number = request.GET.get('bom_number')
+        
+        try:
+            uploaded_visualization_bom_part = get_model('VisualisationUploadHistory', settings.BRAND).objects.\
+            filter(sku_code=sku_code,bom_number=bom_number,status='approved')
+            
+            plate_id_dict ={}
+            for plate_history in uploaded_visualization_bom_part:
+                plate_id = plate_history.plate_id
+                history_id = plate_history.id
+                plate_id_dict[plate_id]= history_id
+            
+            if uploaded_visualization_bom_part:
+                approved_bom_plate_part = get_model('BOMPlatePart', settings.BRAND).objects.\
+                select_related('plate').filter(bom__sku_code=uploaded_visualization_bom_part[0].sku_code,\
+                                              bom__bom_number=uploaded_visualization_bom_part[0].bom_number,\
+                                              plate__plate_id__in=plate_id_dict.keys())
+                
+            plate_details_dict = {}
+            for data in approved_bom_plate_part:
+                plate = {}
+                plate['history_id'] = plate_id_dict.get(str(data.plate.plate_id))
+                plate['plate_image'] = "{0}/{1}".format(settings.S3_BASE_URL, data.plate.plate_image)
+                if not data.plate.plate_image:
+                    plate['plate_image'] = ""
+                plate['plate_name'] = data.plate.plate_txt
+                plate_list = plate_details_dict.get(data.plate.plate_id)
+                if plate_list:
+                    plate_list.append(plate.copy())
+                    plate_details_dict[data.plate.plate_id] = plate_list
+                else:
+                    plate_details_dict[data.plate.plate_id] = [plate.copy()]
+            return HttpResponse(json.dumps(plate_details_dict), content_type="application/json",)
+            
+        except Exception as ex:
+            LOG.error('Exception while fetching plate images : {0}'.format(ex))
+            return HttpResponseBadRequest()
+        
+        
         
 class BOMPlatePartResource(CustomBaseModelResource):
     '''
@@ -236,13 +294,11 @@ class BOMPlatePartResource(CustomBaseModelResource):
             post_data=request.POST
             model = post_data.get('model')
             sku_code = post_data.get('skuCode') 
-            bom_number = post_data.get('bomNumber') 
+            bom_number = post_data.get('bomNumber')
             plate_id = post_data.get('plateId') 
             plate_name= post_data.get('plateName')
             eco_number = post_data.get('ecoNumber')
-            plate_image=request.FILES['plateImage'] 
             plate_map=request.FILES['plateMap'] 
-            dashboard_image=request.FILES['dashboardImage'] 
             sbom_part_mapping=[]
             upload_history_data = get_model('VisualisationUploadHistory')(sku_code=sku_code, bom_number=bom_number, plate_id=plate_id, eco_number=eco_number)
             upload_history_data.save()
@@ -259,18 +315,14 @@ class BOMPlatePartResource(CustomBaseModelResource):
                 visual_bom = filter(lambda visual_bom: visual_bom.bom == bom, visual_queryset)
                 if not visual_bom:
                     insert_visual_bom.append(get_model('BOMVisualization')(bom=bom))
-            
-            new_visual_queryset=get_model('BOMVisualization').objects.bulk_create(insert_visual_bom)
+            new_visual_queryset = get_model('BOMVisualization').objects.bulk_create(insert_visual_bom)
          
             for query in itertools.chain(visual_queryset, new_visual_queryset):
                 temp={}
                 temp['part_number']=query.bom.part.part_number
                 temp['bomvisualization_object']=query
                 sbom_part_mapping.append(temp)
-
             plate_obj=bom_queryset[0].plate
-            plate_obj.plate_image.save(plate_image.name, dashboard_image)
-            plate_obj.plate_image_with_part.save(plate_image.name, plate_image)
             plate_obj.plate_txt = plate_name
             plate_obj.save(using=settings.BRAND)
             data={'plate_id':plate_id, 'sku_code':sku_code,
@@ -282,12 +334,14 @@ class BOMPlatePartResource(CustomBaseModelResource):
             for part_entry in csv_data:
                 try:
                     bom_visual = filter(lambda bom_visual: bom_visual['part_number'] == part_entry['part_number'], sbom_part_mapping)
-                    visual_obj=bom_visual[0]['bomvisualization_object']
+                    visual_obj = None
+                    if (len(bom_visual) > 0):
+                        visual_obj=bom_visual[0]['bomvisualization_object']
                     bompartplate_obj = visual_obj.bom
                     part_data=bompartplate_obj.part
                     part_data.description=part_entry['desc']
                     part_data.save(using=settings.BRAND)
-                    if part_entry['x-axis'] and part_entry['y-axis'] and part_entry['z-axis']:
+                    if part_entry['x-axis'] and part_entry['y-axis'] and part_entry['z-axis'] and visual_obj:
                         visual_obj.x_coordinate=part_entry['x-axis']
                         visual_obj.y_coordinate=part_entry['y-axis']
                         visual_obj.z_coordinate=part_entry['z-axis']
@@ -301,7 +355,7 @@ class BOMPlatePartResource(CustomBaseModelResource):
                 except Exception as ex:
                     LOG.info('[save_plate_part]: {0} :: {1}'.format(part_entry['part_number'], ex))
                     part_entry['status']='ERROR'
-                data['part'].append(part_entry)
+                data['part'].append(part_entry) 
             for part in sbom_part_mapping:
                 active = filter(lambda active: active['part_number'] == part['part_number'], data['part'])
                 if not active:
@@ -485,6 +539,7 @@ class BOMVisualizationResource(CustomBaseModelResource):
                plate_id: the plate_id of the bom
                eco_number: the eco-release number
         '''
+        
         self.is_authenticated(request)
         if request.method != 'GET':
             return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
@@ -492,10 +547,16 @@ class BOMVisualizationResource(CustomBaseModelResource):
         history_id=kwargs['history_id']
         try:
             visualisation_data = get_model('VisualisationUploadHistory').objects.filter(id=history_id)
+            comments_data_from_visualisation_table = None
+            if not visualisation_data:
+                return HttpResponse(json.dumps({}),content_type="application/json")
             comments_data_from_visualisation_table = visualisation_data[0]
+                
             (sku_code,bom_number,plate_id,eco_number) = visualisation_data.values_list('sku_code','bom_number','plate_id','eco_number')[0]
             plate_data = get_model('BOMPlate').objects.get(plate_id=plate_id)
-            plate_image = plate_data.plate_image
+            plate_image = str(plate_data.plate_image)
+            s3_baseurl = settings.S3_BASE_URL
+            plate_image_path = s3_baseurl+"/"+plate_image
             try:
                 eco_i = get_model('ECOImplementation').objects.get(eco_number=eco_number)
                 validation_date = eco_i.change_date
@@ -506,6 +567,7 @@ class BOMVisualizationResource(CustomBaseModelResource):
                                                                     bom__bom_number=bom_number,
                                                                     plate__plate_id=plate_id,valid_from__lte=validation_date,
                                                                     valid_to__gt=validation_date)
+            
             bom_visualisation =get_model('BOMVisualization').objects.filter(bom__in=bom_queryset) 
             plate_part_details =[]
             
@@ -513,6 +575,7 @@ class BOMVisualizationResource(CustomBaseModelResource):
                 part_details = model_to_dict(data ,exclude=['id','bom'])
                 part_details["quantity"] = model_to_dict(data.bom ,fields=['quantity']).values()[0]
                 part_details["part_number"] = model_to_dict(data.bom.part ,fields=['part_number']).values()[0]
+                part_details["description"] = model_to_dict(data.bom.part ,fields=['description']).values()[0]
                 plate_part_details.append(part_details)
             
             if not plate_image:
@@ -520,8 +583,8 @@ class BOMVisualizationResource(CustomBaseModelResource):
                 
             comment_list=[]
             comments ={ comment_list.append((comments.comment,str(comments.created_date))) for comments in comments_data_from_visualisation_table.comments.all()}
-            output_data = {"plate_image":plate_image,'plate_part_details': plate_part_details,'comments':comment_list}
-            return HttpResponse(json.dumps(output_data), content_type="application/json")            
+            output_data = {"plate_image":plate_image_path,'plate_part_details': plate_part_details,'comments':comment_list}
+            return HttpResponse(json.dumps(output_data), content_type="application/json",)            
         except Exception as ex:
             LOG.info('[preview_sbom_details]: {0}'.format(ex))
             return HttpResponse(json.dumps({"message" : 'Exception while fetching plate images : {0}'.format(ex)}),content_type="application/json", status=400)

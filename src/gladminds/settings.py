@@ -144,14 +144,18 @@ SUIT_CONFIG = {
                    {'model': 'productcatalog',
                      'label': 'Product Catalog'},
                    {'model': 'redemptionrequest',
-                     'label': 'Redemption Request'},
+                     'label': 'Redemption Request Mechanic'},
                    {'model': 'welcomekit',
-                     'label': 'Welcome Kit'},
+                     'label': 'Welcome Kit Member'},
                    {'model': 'loyaltysla',
                      'label': 'Loyalty Sla'},
                    
+                   {'model': 'redemptionrequestretailer',
+                     'label': 'Redemption Request Retailer'},
                    {'model': 'retailer',
                      'label': 'Retailer'},
+                   {'model': 'welcomekitretailer',
+                     'label': 'Welcome Kit Retailer'},
                    
                    )},
         {'app': 'bajaj', 'label': 'CTS', 'icon': ' icon-folder-open',
@@ -186,6 +190,7 @@ DB_USER = os.environ.get('DB_USER', 'root')
 DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 DB_PORT = os.environ.get('DB_PORT', '3306')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
+
 
 class GmApps():
     AFTERBUY = 'afterbuy'
@@ -770,3 +775,4 @@ HOME_URLS = {
 LOGIN_URL='/login'
 BATCH_SIZE = 100
 LOGAN_ACTIVE = False
+
