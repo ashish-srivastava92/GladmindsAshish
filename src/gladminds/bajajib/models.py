@@ -44,7 +44,9 @@ class MainCountryDealer(base_models.MainCountryDealer):
     user = models.OneToOneField(UserProfile, primary_key=True,
                                 related_name='bajajib_registered_country_dealer')
     country = models.ForeignKey(Country)
-     
+    # nex line is added after asking from Naveen that relation is mandatory B/W users.
+    country_distributor = models.ForeignKey(CountryDistributor, null=True, blank=True)
+    
     class Meta(base_models.MainCountryDealer.Meta):
         app_label = _APP_NAME
         verbose_name_plural = "Main Country Dealer"
@@ -53,6 +55,8 @@ class Dealer(base_models.Dealer):
     user = models.OneToOneField(UserProfile, primary_key=True,
                                 related_name='bajajib_registered_dealer')
     country = models.ForeignKey(Country)
+    # nex line is added after asking from Naveen that relation is mandatory B/W users
+    main_country_dealer = models.ForeignKey(MainCountryDealer, null=True, blank=True)
  
     class Meta(base_models.Dealer.Meta):
         app_label = _APP_NAME

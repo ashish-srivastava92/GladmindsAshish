@@ -252,7 +252,7 @@
     "pk": 28,
     "fields": {
       "template_key": "COUPON_ALREADY_CLOSED",
-      "template": "The FSC is already tagged in the system",
+      "template": "Service type is already tagged in the system.",
       "description": "Send coupon is closed message to an initiator if it has been closed by some other SA"
     }
   },
@@ -702,7 +702,7 @@
     "pk": 78,
     "fields": {
       "template_key": "INVALID_VEH_REG_NO",
-      "template": "Vehicle number you entered does not exit, Please try again.",
+      "template": "Vehicle number you does not exit, Please reach customer support {support_number}",
       "description": "Send this message when vehicle number does not exist."
     }
   },
@@ -757,7 +757,7 @@
     "pk": 84,
     "fields": {
       "template_key": "INVALID_SERVICE_DIFFERENCE",
-      "template": "This service will be available after 15 days of 1st service is availed.",
+      "template": "Next free service request will be available after 15 days of previous service.",
       "description": "Send this message when diffrence between two service is < 15"
 
     }

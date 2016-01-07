@@ -189,8 +189,15 @@ def validate_coupon(sms_dict, phone_number):
         return {'status': False, 'message': templates.get_template('INVALID_ST')}
     try:
         product_data_list = get_product(sms_dict)
+        customer_support = models.Constant.objects.get(constant_name='customer_support_number_uganda').constant_value
         if not product_data_list:
-                    return {'status': False, 'message': templates.get_template('INVALID_VEH_REG_NO')}
+                   
+                    # This new line is added 
+                    message = templates.get_template('INVALID_VEH_REG_NO').format(
+                                                    support_number=customer_support)
+                    return {'status': False, 'message': message}
+            
+                   # return {'status': False, 'message': templates.get_template('INVALID_VEH_REG_NO')}
         LOG.info("Associated product %s" % product_data_list.product_id)
 #         update_exceed_limit_coupon(actual_kms, product, service_advisor)
         valid_coupon = models.CouponData.objects.filter( (Q(status=1) | Q(status=4) | Q(status=5))  & Q(product=product_data_list.id)
