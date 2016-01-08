@@ -52,6 +52,7 @@ def register_owner(sms_dict, phone_number):
     registration_number = sms_dict['registration_number']
     owner_phone_number = sms_dict['phone_number']
     customer_name = sms_dict['customer_name']
+    customer_district = sms_dict['district']
     customer_support = models.Constant.objects.get(constant_name='customer_support_number_uganda').constant_value
     try:
         purchase_date_format = models.Constant.objects.get(constant_name='purchase_date_format',
@@ -73,6 +74,7 @@ def register_owner(sms_dict, phone_number):
             product.customer_phone_number = owner_phone_number
             product.purchase_date = purchase_date
             product.customer_id = customer_id
+            product.customer_district = customer_district
             update_coupon_expiry(product, purchase_date)
             product.save()
 

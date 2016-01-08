@@ -87,6 +87,8 @@ class ProductData(base_models.ProductData):
     dealer = models.ForeignKey(Dealer, null=True, blank=True)
     country_sku_code = models.CharField(max_length=20, null=True, blank=True)
     registration_number = models.CharField(max_length=10, null=True, blank=True)
+    # Added after new requirment to add customer district
+    customer_district = models.CharField(max_length=25, null=True, blank=True)
  
     class Meta(base_models.ProductData.Meta):
         app_label = _APP_NAME

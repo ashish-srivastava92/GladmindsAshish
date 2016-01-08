@@ -107,6 +107,7 @@ alter table gm_maincountrydealer add foreign key(country_distributor_id)referenc
 alter table gm_dealer add column main_country_dealer_id integer null;
 alter table gm_dealer add foreign key(main_country_dealer_id) references gm_maincountrydealer(user_id);
 
+alter table gm_productdata add column customer_district varchar(25) null;
 ---------------------------------------------------------------------------------------------
 
 
