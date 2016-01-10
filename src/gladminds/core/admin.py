@@ -454,7 +454,7 @@ class SparePartUPCAdmin(GmModelAdmin):
     list_display = ('unique_part_code', 'part_number', 'get_part_description','is_used','is_used_by_retailer')
 
     def get_form(self, request, obj=None, **kwargs):
-        #self.exclude = ('is_used','is_used_by_retailer')
+        self.exclude = ('is_used','is_used_by_retailer') #After Testing need to comment this line
         form = super(SparePartUPCAdmin, self).get_form(request, obj, **kwargs)
         return form
 
