@@ -1,6 +1,8 @@
 from datetime import datetime
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 from composite_field.base import CompositeField
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -21,6 +23,8 @@ from gladminds.core.managers.mail import sent_password_reset_link,\
     send_email_activation
 from gladminds.core.constants import SBOM_STATUS
 from gladminds.core.managers.email_token_manager import EmailTokenManager
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 try:
     from django.utils.timezone import now as datetime_now
@@ -609,10 +613,12 @@ class EmailToken(models.Model):
                     'site': site,
                     'base_url':settings.DOMAIN_BASE_URL}
         if trigger_mail == 'forgot-password':
+            print('============================sent passwordddddd==================================')
             ctx_dict = {'activation_key': self.activation_key,
                     'link': settings.FORGOT_PASSWORD_LINK[settings.BRAND],
                     'base_url': settings.COUPON_URL}
             sent_password_reset_link(reciever_email, ctx_dict)
+            print("==============================ctx dict===============================")
         else:
             send_email_activation(reciever_email, ctx_dict)
 
@@ -1972,5 +1978,149 @@ class FleetRider(BaseModel):
 
     def __unicode__(self):
         return self.phone_number
+
+#######################################SFAREPORTS############################
+
+
+
+class SfaReportNames(models.Model):
+    #Add validator for custom report name
+    name = models.CharField(max_length=50,blank=True,null=True)
+
+    class Meta:
+        abstract=True
+        db_table = "gm_sfareportnames"
+        verbose_name = "Reports"
+
+    def __unicode__(self):
+        return self.name
+
+
+class SfaHighlights(models.Model):
+    #Add validator for custom report name
+    name = models.CharField(max_length=50,blank=True,null=True)
+
+    class Meta:
+        abstract=True
+        db_table = "gm_sfahighlights"
+        verbose_name = "Highlights"
+
+    def __unicode__(self):
+        return self.name
+
+class NsmTarget(models.Model):
+   
+    month = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(12)], null=True)
+    year =  models.IntegerField(validators=[MinValueValidator(2014)], null=True)
+    target = models.DecimalField(max_digits=65, decimal_places=0, null=True)
+    active = models.BooleanField(default=True)
     
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_nsm_target"
+        verbose_name = "National Spares Manager Target"
+
+
+class AsmTarget(models.Model):
+
+    month = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(12)], null=True)
+    year =  models.IntegerField(validators=[MinValueValidator(2014)], null=True)
+    target = models.DecimalField(max_digits=65, decimal_places=0, null=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_asm_target"
+        verbose_name = "Area Spares Manager Target"
+
+
+class DistributorTarget(models.Model):
+
+    month = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(12)], null=True)
+    year =  models.IntegerField(validators=[MinValueValidator(2014)], null=True)
+    target = models.DecimalField(max_digits=65, decimal_places=0, null=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_distributor_target"
+        verbose_name = "Distributor Target"
+
+
+class RetailerTarget(models.Model):
+
+    month = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(12)], null=True)
+    year =  models.IntegerField(validators=[MinValueValidator(2014)], null=True)
+    target = models.DecimalField(max_digits=65, decimal_places=0, null=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_retailer_target"
+        verbose_name = "Retailer Target"
+
+
+class NsmHighlights(models.Model):
+
+    month = models.DateTimeField(null=True,blank=True)
+    year = models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_nsm_highlights"
+        verbose_name = "National Spares Manager Highlight"
+
+
+class AsmHighlights(models.Model):
+
+    month = models.DateTimeField(null=True,blank=True)
+    year = models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_asm_highlights"
+        verbose_name = "Area Spares Manager Highlight"
+
+
+
+class DistributorHighlights(models.Model):
+
+    month = models.DateTimeField(null=True,blank=True)
+    year = models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_distributor_highlights"
+        verbose_name = "Distributor Highlight"
+
+
+
+class RetailerHighlights(models.Model):
+
+    
+    month = models.DateTimeField(null=True,blank=True)
+    year = models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_retailer_highlights"
+        verbose_name = "Retailer Highlight"
+
+
+
+def generate_asm_reports(request):
+    #Get the asm targets
+    asm_target=models.AsmTarget.objects.filter(asm_id=id,month=month)
+    '''
+    check for asm_target exception condition
+    '''
+    #if asm_target.count > 1:
+    #   LOG.error("".format(ex))
+    #   message 
+    target=asm_target.get(target)
+    #Get the number of unique parts which are created for this month
+    #upc=SparePartUPC.unique_part_code.get() && 
+    #month=SparePartUPC.created_date.get().get_month()
+    #if (part_id == upc && month == month):
+    models.SparePartUPC
     
