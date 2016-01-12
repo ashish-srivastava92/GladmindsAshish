@@ -347,12 +347,12 @@ class ExportCTSFeed(BaseExportFeed):
             except Exception as ex:
                 logger.error("[ExportCTSFeed]: error fetching from db {0}".format(ex))
                 total_failed = total_failed + 1
+
         return items, item_batch, total_failed
 
     def export(self, brand=None, items=None, item_batch=None, total_failed_on_feed=0):
-        logger.info(
-            "Export {2}: Items:{0} and Item_batch: {1}"\
-            .format(items, item_batch, self.feed_type))     
+        logger.info("Export {2}: Items:{0} and Item_batch: {1}"\
+                    .format(items, item_batch, self.feed_type))
         client = self.get_client()
         total_failed = total_failed_on_feed
         export_status = False

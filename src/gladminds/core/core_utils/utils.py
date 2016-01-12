@@ -35,6 +35,21 @@ def generate_mech_id():
     mechanic_id=generate_temp_id('TME')
     return mechanic_id
 
+################ ADDED FOR RETAILER ##################
+def generate_retailer_temp_id(prefix_value):
+    for x in range(5):
+        key = base64.b64encode(hashlib.sha256(str(datetime.datetime.now())).digest())
+        key = re.sub("[a-z/=+]", "", key)
+        if len(key) < 6:
+            continue
+        return "%s%s" % (prefix_value, key[:6])
+
+def generate_retailer_id():
+    retailer_tem_id = generate_retailer_temp_id('TRE')
+    return retailer_tem_id
+################ END #################################
+
+
 def generate_partner_id():
     partner_id=generate_temp_id('PRT')
     return partner_id

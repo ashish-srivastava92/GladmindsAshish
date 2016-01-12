@@ -90,7 +90,10 @@ SUIT_CONFIG = {
                     {'model': 'authorizedservicecenter',
                      'label': 'Authorized Service Center'},
                     {'model': 'serviceadvisor',
-                     'label': 'Service Advisor'},)},
+                     'label': 'Service Advisor'},
+                    )},
+             
+                    
         {'app': 'bajaj', 'label': 'Products', 'icon': ' icon-folder-open',
          'models':({'model': 'brandproductcategory',
                      'label': 'Brand Product Category'},
@@ -131,17 +134,30 @@ SUIT_CONFIG = {
                    {'model': 'sparepartpoint',
                      'label': 'Spare Part Point'},
                    {'model': 'accumulationrequest',
-                     'label': 'Accumulation Request'},
+                     'label': 'Accumulation Request Member'},
+                   
+                   {'model': 'accumulationrequestretailer',
+                     'label': 'Accumulation Request Retailer'},
+                   
                    {'model': 'partner',
                      'label': 'Partner'},
                    {'model': 'productcatalog',
                      'label': 'Product Catalog'},
                    {'model': 'redemptionrequest',
-                     'label': 'Redemption Request'},
+                     'label': 'Redemption Request Mechanic'},
                    {'model': 'welcomekit',
-                     'label': 'Welcome Kit'},
+                     'label': 'Welcome Kit Member'},
                    {'model': 'loyaltysla',
-                     'label': 'Loyalty Sla'},)},
+                     'label': 'Loyalty Sla'},
+                   
+                   {'model': 'redemptionrequestretailer',
+                     'label': 'Redemption Request Retailer'},
+                   {'model': 'retailer',
+                     'label': 'Retailer'},
+                   {'model': 'welcomekitretailer',
+                     'label': 'Welcome Kit Retailer'},
+                   
+                   )},
         {'app': 'bajaj', 'label': 'CTS', 'icon': ' icon-folder-open',
          'models':(
                     {'model': 'transporter',
@@ -174,6 +190,7 @@ DB_USER = os.environ.get('DB_USER', 'root')
 DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 DB_PORT = os.environ.get('DB_PORT', '3306')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
+
 
 class GmApps():
     AFTERBUY = 'afterbuy'
@@ -758,3 +775,4 @@ HOME_URLS = {
 LOGIN_URL='/login'
 BATCH_SIZE = 100
 LOGAN_ACTIVE = False
+

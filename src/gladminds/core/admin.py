@@ -19,6 +19,16 @@ from django.conf import settings
 from gladminds.core.auth_helper import Roles
 from gladminds.core import constants
 
+from gladminds.core.models import Retailer,AreaSparesManager
+from django.utils.html import mark_safe
+from django.forms.widgets import TextInput
+import logging, os
+
+from django.contrib import messages
+from tastypie.validation import FormValidation
+
+logger = logging.getLogger('gladminds')
+
 class CoreAdminSite(AdminSite):
     pass
 
@@ -441,10 +451,10 @@ class SparePartMasterAdmin(GmModelAdmin):
 class SparePartUPCAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS]
     search_fields = ('part_number__part_number', 'unique_part_code', 'part_number__description')
-    list_display = ('unique_part_code', 'part_number', 'get_part_description','is_used')
+    list_display = ('unique_part_code', 'part_number', 'get_part_description','is_used','is_used_by_retailer')
 
     def get_form(self, request, obj=None, **kwargs):
-        self.exclude = ('is_used',)
+        #self.exclude = ('is_used','is_used_by_retailer')
         form = super(SparePartUPCAdmin, self).get_form(request, obj, **kwargs)
         return form
 
@@ -526,6 +536,57 @@ class AccumulationRequestAdmin(GmModelAdmin):
         extra_context = {'created_date_search': True
                         }
         return super(AccumulationRequestAdmin, self).changelist_view(request, extra_context=extra_context)
+    
+    
+class AccumulationRequestRetailerAdmin(GmModelAdmin):
+    groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS, Roles.LOYALTYADMINS, Roles.LOYALTYSUPERADMINS]
+    search_fields = ('retailer__retailer_id','retailer__retailer_permanent_id','upcs__unique_part_code','retailer__mobile','retailer__user__state')
+    list_display = ( 'get_retailer_id',  'retailer_user_name', 'get_retailer_state',
+                     'get_upcs', 'points', 'total_points', 'created_date')
+    
+    def get_retailer_id(self,obj):
+        if obj.retailer.retailer_permanent_id:
+            return obj.retailer.retailer_permanent_id
+        return obj.retailer.retailer_id
+    get_retailer_id.short_description = 'Retailer ID'
+    
+    def retailer_user_name(self, obj):
+        return obj.retailer.retailer_name
+    retailer_user_name.short_description = 'Retailer Name'
+    
+    def get_retailer_state(self, obj):
+        return obj.retailer.user.state
+    get_retailer_state.short_description = 'Retailer State'
+    
+    def get_upcs(self, obj):
+        upcs = obj.upcs.all()
+        if upcs:
+            return ' | '.join([str(upc.unique_part_code) for upc in upcs])
+        else:
+            return None
+
+    get_upcs.short_description = 'UPC'
+
+    def queryset(self, request):
+        """
+        Returns a QuerySet of all model instances that can be edited by the
+        admin site. This is used by changelist_view.
+        """
+        query_set = self.model._default_manager.get_query_set()
+        if request.user.groups.filter(name=Roles.AREASPARESMANAGERS).exists():
+            asm_state_list=get_model("AreaSparesManager").objects.get(user__user=request.user).state.all()
+            state_list = []
+            for state in asm_state_list:
+                state_list.append(state.state_name)
+            query_set=query_set.filter(retailer__user__state__in = state_list)
+            
+        return query_set
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {'created_date_search': True
+                        }
+        return super(AccumulationRequestRetailerAdmin, self).changelist_view(request, extra_context=extra_context)
+
 
 class MemberForm(forms.ModelForm):
     class Meta:
@@ -620,7 +681,7 @@ class RedemptionRequestAdmin(GmModelAdmin):
             'tracking_id', 'due_date', 'approved_date', 'shipped_date',
             'delivery_date', 'pod_number', 'product', 'member',
             'partner', 'image_url', 'image_tag',
-            'extra_field')
+            'extra_field','points')
         }),
         )   
     
@@ -638,12 +699,173 @@ class RedemptionRequestAdmin(GmModelAdmin):
         elif request.user.groups.filter(name=Roles.AREASPARESMANAGERS).exists():
             asm_state_list=get_model("AreaSparesManager").objects.get(user__user=request.user).state.all()
             query_set=query_set.filter(member__state=asm_state_list)
-
+        
         return query_set
 
     def get_form(self, request, obj=None, **kwargs):
         self.exclude = ('is_approved', 'packed_by', 'refunded_points', 'resolution_flag')
         form = super(RedemptionRequestAdmin, self).get_form(request, obj, **kwargs)
+        form = copy.deepcopy(form)
+        if request.user.groups.filter(name=Roles.RPS).exists():
+            form.base_fields['status'].choices = constants.GP_REDEMPTION_STATUS
+        elif request.user.groups.filter(name=Roles.LPS).exists():
+            form.base_fields['status'].choices = constants.LP_REDEMPTION_STATUS
+        else:
+            form.base_fields['status'].choices = constants.REDEMPTION_STATUS
+        form.current_user=request.user
+        return form
+
+    def save_model(self, request, obj, form, change):
+        if 'status' in form.changed_data and obj.status!='Rejected':
+            date = loyalty.set_date("Redemption", obj.status)
+            obj.due_date = date['due_date']
+            obj.expected_delivery_date = date['expected_delivery_date']
+            obj.resolution_flag = False
+        if 'status' in form.changed_data:
+            if obj.status=='Approved':
+                obj.is_approved=True
+                partner=None
+                packed_by=None
+                partner_list = get_model("Partner").objects.all()
+                if partner_list:
+                    partner=partner_list[0]
+                    packed_by=partner.user.user.username
+                obj.partner=partner
+                obj.packed_by=packed_by
+                obj.approved_date=datetime.datetime.now()
+            elif obj.status in ['Rejected', 'Open'] :
+                obj.is_approved=False
+                obj.packed_by=None
+            elif obj.status=='Shipped':
+                obj.shipped_date=datetime.datetime.now()
+            elif obj.status=='Delivered':
+                obj.delivery_date=datetime.datetime.now()
+        if 'status' in form.changed_data:
+            if obj.status=='Approved' and obj.refunded_points:
+                loyalty.update_points(obj.member, redeem=obj.product.points, refund_flag=True)
+                obj.refunded_points = False
+            elif obj.status=='Rejected' and not obj.refunded_points:
+                loyalty.update_points(obj.member, accumulate=obj.product.points, refund_flag=True)
+                obj.refunded_points = True
+        super(RedemptionRequestAdmin, self).save_model(request, obj, form, change)
+        if 'status' in form.changed_data and obj.status in constants.STATUS_TO_NOTIFY:
+            loyalty.send_request_status_sms(obj)
+        if 'partner' in form.changed_data and obj.partner:
+            loyalty.send_mail_to_partner(obj)
+
+    def suit_row_attributes(self, obj):
+        class_map = {
+            'Rejected': 'error',
+            'Approved': 'success',
+            'Delivered': 'warning',
+            'Packed': 'info',
+            'Shipped': 'info',
+        }
+        css_class = class_map.get(str(obj.status))
+        if css_class:
+            return {'class': css_class}
+        
+        
+class CommentThreadRetailerInline(TabularInline):
+    model = get_model("CommentThreadRetailer")
+    fields = ('created_date', 'user', 'message')
+    extra = 0
+    max_num = 0
+    readonly_fields = ('created_date', 'user', 'message')
+
+class RedemptionCommentRetailerForm(forms.ModelForm):
+    extra_field = forms.CharField(label='comment', required=False, widget=forms.Textarea(attrs={'style':'resize: none;'}))
+
+    def save(self, commit=True):
+        extra_field = self.cleaned_data.get('extra_field', None)
+        transaction_id = self.instance
+        if extra_field:
+            loyalty.save_comment_retailer('redemption', extra_field, transaction_id, self.current_user)
+        return super(RedemptionCommentRetailerForm, self).save(commit=commit)
+    
+    class Meta:
+        model = get_model("RedemptionRequestRetailer")
+
+    
+class RedemptionRequestRetailerAdmin(GmModelAdmin):
+    readonly_fields = ('image_tag', 'transaction_id',)
+    form = RedemptionCommentRetailerForm
+    inlines = (CommentThreadRetailerInline,)
+    list_filter = (
+        ('created_date', DateFieldListFilter),
+    )
+    search_fields = ('product__product_id', 'partner__partner_id','retailer__user__state','retailer__retailer_id','retailer__retailer_permanent_id')
+
+    list_display = ('get_retailer_id','get_retailer_name','delivery_address',
+                    'get_retailer_pincode','get_retailer_district','get_retailer_state',
+                    'get_product_id','created_date','due_date','expected_delivery_date',
+                    'status', 'get_partner'
+                     )
+    
+    fieldsets = (
+        (None, {
+            'fields': (
+            'transaction_id', 'delivery_address', 'expected_delivery_date', 'status',
+            'tracking_id', 'due_date', 'approved_date', 'shipped_date',
+            'delivery_date', 'pod_number', 'product', 'retailer',
+            'partner', 'image_url', 'image_tag',
+            'extra_field', 'points')
+        }),
+        )   
+    
+    def get_retailer_id(self, obj):
+        if obj.retailer.retailer_permanent_id:
+            return obj.retailer.retailer_permanent_id
+        return obj.retailer.retailer_id
+    get_retailer_id.short_description = 'Retailer ID'
+    
+    def get_retailer_name(self, obj):
+        return obj.retailer.retailer_name
+    get_retailer_name.short_description = 'Retailer Name'
+    
+    def get_retailer_pincode(self, obj):
+        return obj.retailer.user.pincode
+    get_retailer_pincode.short_description = 'Pincode'
+     
+    def get_retailer_district(self, obj):
+        return obj.retailer.district
+    get_retailer_district.short_description = 'District'
+     
+    def get_retailer_state(self, obj):
+        return obj.retailer.user.state
+    get_retailer_state.short_description = 'State'
+    
+    def get_product_id(self, obj):
+        return obj.product.product_id
+    get_product_id.short_description = 'Product'
+    
+    def get_partner(self, obj):
+        return obj.partner
+    get_partner.short_description = 'Partner'
+    
+
+    def queryset(self, request):
+        """
+        Returns a QuerySet of all model instances that can be edited by the
+        admin site. This is used by changelist_view.
+        """
+        query_set = self.model._default_manager.get_query_set()
+        if request.user.groups.filter(name=Roles.RPS).exists():
+            query_set=query_set.filter(is_approved=True, packed_by=request.user.username)
+        elif request.user.groups.filter(name=Roles.LPS).exists():
+            query_set=query_set.filter(status__in=constants.LP_REDEMPTION_STATUS, partner__user=request.user)
+        elif request.user.groups.filter(name=Roles.AREASPARESMANAGERS).exists():
+            asm_state_list=get_model("AreaSparesManager").objects.get(user__user=request.user).state.all()
+            state_list = []
+            for state in asm_state_list:
+                state_list.append(state.state_name)
+            query_set=query_set.filter(retailer__user__state__in = state_list)
+
+        return query_set
+
+    def get_form(self, request, obj=None, **kwargs):
+        self.exclude = ('is_approved', 'packed_by', 'refunded_points', 'resolution_flag')
+        form = super(RedemptionRequestRetailerAdmin, self).get_form(request, obj, **kwargs)
         form = copy.deepcopy(form)
         if request.user.groups.filter(name=Roles.RPS).exists():
             form.base_fields['status'].choices = constants.GP_REDEMPTION_STATUS
@@ -681,16 +903,17 @@ class RedemptionRequestAdmin(GmModelAdmin):
                 obj.delivery_date=datetime.datetime.now()
         if 'status' in form.changed_data:
             if obj.status=='Approved' and obj.refunded_points:
-                loyalty.update_points(obj.member, redeem=obj.product.points, refund_flag=True)
+                loyalty.update_points_retailer(obj.retailer, redeem=obj.product.points, refund_flag=True)
                 obj.refunded_points = False
             elif obj.status=='Rejected' and not obj.refunded_points:
-                loyalty.update_points(obj.member, accumulate=obj.product.points, refund_flag=True)
+                loyalty.update_points_retailer(obj.retailer, accumulate=obj.product.points, refund_flag=True)
                 obj.refunded_points = True
-        super(RedemptionRequestAdmin, self).save_model(request, obj, form, change)
+        super(RedemptionRequestRetailerAdmin, self).save_model(request, obj, form, change)
         if 'status' in form.changed_data and obj.status in constants.STATUS_TO_NOTIFY:
-            loyalty.send_request_status_sms(obj)
+            loyalty.send_request_status_sms_retailer(obj)
+        #### need to check the mail not sending #########
         if 'partner' in form.changed_data and obj.partner:
-            loyalty.send_mail_to_partner(obj)
+            loyalty.send_mail_to_partner_for_retailer(obj)
 
     def suit_row_attributes(self, obj):
         class_map = {
@@ -703,6 +926,7 @@ class RedemptionRequestAdmin(GmModelAdmin):
         css_class = class_map.get(str(obj.status))
         if css_class:
             return {'class': css_class}
+
 
 class WelcomeKitCommentForm(forms.ModelForm):
     extra_field = forms.CharField(label='comment', required=False, widget=forms.Textarea(attrs={'style':'resize: none;'}))
@@ -789,6 +1013,121 @@ class WelcomeKitAdmin(GmModelAdmin):
             query_set=query_set.filter(member__state=asm_state_list)
 
         return query_set
+    
+    
+class WelcomeKitCommentRetailerForm(forms.ModelForm):
+    extra_field = forms.CharField(label='comment', required=False, widget=forms.Textarea(attrs={'style':'resize: none;'}))
+
+    def save(self, commit=True):
+        extra_field = self.cleaned_data.get('extra_field', None)
+        transaction_id = self.instance
+        if extra_field:
+            loyalty.save_comment_retailer('welcome_kit', extra_field, transaction_id, self.current_user)
+        return super(WelcomeKitCommentRetailerForm, self).save(commit=commit)
+    
+    class Meta:
+        model = get_model("WelcomeKitRetailer")
+       
+class WelcomeKitRetailerAdmin(GmModelAdmin):
+    list_filter = ('status',)
+    form = WelcomeKitCommentRetailerForm
+    inlines = (CommentThreadRetailerInline,)
+    search_fields = ('retailer__retailer_id','retailer__retailer_permanent_id','partner__partner_id', 'transaction_id')
+    list_display = ('get_retailer_retailer_id',  'get_retailer_name',
+                     'delivery_address', 'get_retailer_pincode',
+                    'get_retailer_district', 'get_retailer_state',
+                    'created_date','due_date', 'expected_delivery_date', 'status', 'partner')
+    readonly_fields = ('image_tag', 'transaction_id')
+    fieldsets = (
+    (None, {
+        'fields': (
+        'transaction_id', 'delivery_address',
+        'expected_delivery_date', 'status',
+        'tracking_id', 'due_date', 'shipped_date',
+        'delivery_date', 'pod_number', 'retailer',
+        'partner', 'image_url', 'image_tag',
+        'extra_field')
+    }),
+    ) 
+    
+    def get_retailer_retailer_id(self,obj):
+        if obj.retailer.retailer_permanent_id:
+            return obj.retailer.retailer_permanent_id
+        return obj.retailer.retailer_id
+    get_retailer_retailer_id.short_description ="Retailer ID"
+    
+    def get_retailer_name(self,obj):
+        return obj.retailer.retailer_name
+    get_retailer_name.short_description ="Retailer Name"
+    
+    def get_retailer_pincode(self,obj):
+        return obj.retailer.user.pincode
+    get_retailer_pincode.short_description ="Pincode"
+    
+    def get_retailer_district(self,obj):
+        return obj.retailer.district
+    get_retailer_district.short_description ="District"
+    
+    def get_retailer_state(self,obj):
+        return obj.retailer.user.state
+    get_retailer_state.short_description ="State"
+
+    
+    def save_model(self, request, obj, form, change):
+        if 'partner' in form.changed_data and obj.partner and obj.status in ['Accepted', 'Open']:
+                obj.packed_by=obj.partner.user.user.username
+        if 'status' in form.changed_data:
+            if obj.status=='Shipped':
+                obj.shipped_date=datetime.datetime.now()
+            elif obj.status=='Delivered':
+                obj.delivery_date=datetime.datetime.now()
+        date = loyalty.set_date("Welcome Kit", obj.status)
+        obj.due_date = date['due_date']
+        obj.expected_delivery_date = date['expected_delivery_date']
+        obj.resolution_flag = False
+        super(WelcomeKitRetailerAdmin, self).save_model(request, obj, form, change)
+        if 'status' in form.changed_data and obj.status=="Shipped":
+            loyalty.send_welcome_kit_delivery_retailer(obj)
+        ####### NEED TO CHECK WHY MAIL NOT GOING########################################
+        if 'partner' in form.changed_data and obj.partner:
+            loyalty.send_welcome_kit_mail_to_partner_retailer(obj)
+
+    def get_form(self, request, obj=None, **kwargs):
+        self.exclude = ('resolution_flag','packed_by')
+        form = super(WelcomeKitRetailerAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user=request.user
+        return form
+
+    def suit_row_attributes(self, obj):
+        class_map = {
+            'Accepted': 'success',
+            'Packed': 'info',
+            'Shipped': 'info',
+            'Delivered': 'warning'
+        }
+        css_class = class_map.get(str(obj.status))
+        if css_class:
+            return {'class': css_class}
+        
+    def queryset(self, request):
+        """
+        Returns a QuerySet of all model instances that can be edited by the
+        admin site. This is used by changelist_view.
+        """
+        query_set = self.model._default_manager.get_query_set()
+        if request.user.groups.filter(name=Roles.RPS).exists():
+            query_set=query_set.filter(packed_by=request.user.username)
+        elif request.user.groups.filter(name=Roles.LPS).exists():
+            query_set=query_set.filter(status__in=constants.LP_REDEMPTION_STATUS, partner__user=request.user)
+        elif request.user.groups.filter(name=Roles.AREASPARESMANAGERS).exists():
+            asm_state_list=get_model("AreaSparesManager").objects.get(user__user=request.user).state.all()
+            state_list = []
+            for state in asm_state_list:
+                state_list.append(state.state_name)
+            query_set=query_set.filter(retailer__user__state__in = state_list)
+
+        return query_set
+#######################End of Welcome Kit added for Retailer#########################################################
 
 class LoyaltySlaAdmin(GmModelAdmin):
     fieldsets = (
@@ -814,6 +1153,183 @@ class LoyaltySlaAdmin(GmModelAdmin):
 class ConstantAdmin(GmModelAdmin):
     search_fields = ('constant_name',  'constant_value')
     list_display = ('constant_name',  'constant_value',)
+    
+    
+class RetailerForm(forms.ModelForm):
+    
+    class Meta:
+        model = get_model('Retailer')
+        exclude = ['approved', 'rejected_reason',  'retailer_code', 'retailer_permanent_id','retailer_id','form_status']
+
+    def clean(self):
+        
+        self.cleaned_data = super(RetailerForm, self).clean()
+        if 'mobile' in self.cleaned_data:
+            mechanic = get_model('Member').objects.filter(phone_number=self.cleaned_data['mobile'])
+            if mechanic:
+                if mechanic[0].phone_number[-10:] == self.cleaned_data['mobile'][-10:]:
+                    raise forms.ValidationError("Mobile number already exist.")
+        elif 'mobile' not in self.cleaned_data:
+            pass
+        return self.cleaned_data
+        
+        
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(RetailerForm, self).__init__(*args, **kwargs)
+        self.fields['profile'].widget = TextInput(attrs={'placeholder': 'Retailer'})
+
+class RetailerAdmin(GmModelAdmin):
+    groups_update_not_allowed = [Roles.NATIONALSPARESMANAGERS,Roles.AREASPARESMANAGERS]
+    form = RetailerForm
+    search_fields = ('retailer_name', 'retailer_town', 'billing_code','territory','mobile')
+    list_display = ('retailer_code', 'retailer_billing_code', 'retailer_user_name',
+                    'user_territory', 'town', 'pincode', 'user_mobile',
+                    'user_email', 'distributor_name', 'Status')
+    exclude = []
+    
+    def suit_cell_attributes(self, obj, column):
+        if column == 'status':
+            return {'width': '500px'}
+    
+    def get_form(self, request, obj=None, **kwargs):
+        ModelForm = super(RetailerAdmin, self).get_form(request, obj, **kwargs)
+        class ModelFormMetaClass(ModelForm):
+            def __new__(cls, *args, **kwargs):
+                kwargs['request'] = request
+                return ModelForm(*args, **kwargs)
+        return ModelFormMetaClass
+    
+    def get_actions(self, request):
+        #in case of administrator only, grant him the approve retailer option
+        if self.param.groups.filter(name__in =['SuperAdmins', 'Admins', 'SFAAdmins', 'AreaSparesManagers']).exists():
+            self.actions.append('approve')
+        actions = super(RetailerAdmin, self).get_actions(request)
+        return actions
+    
+    def queryset(self, request):
+        query_set = self.model._default_manager.get_query_set()
+        if request.user.groups.filter(name=Roles.AREASPARESMANAGERS).exists():
+            asm_state_list=AreaSparesManager.objects.get(user__user__username=request.user).state.all()
+            state_list = []
+            for state in asm_state_list:
+                state_list.append(state.state_name)
+            query_set=query_set.filter(user__state__in = state_list)
+        return query_set
+
+    def changelist_view(self, request, extra_context=None):
+        self.param = request.user
+        return super(RetailerAdmin, self).changelist_view(request)
+    
+#      def approve(self, request, queryset):
+#         queryset.update(approved=constants.STATUS['APPROVED'])
+#         for retailer in queryset:
+#             try:
+#                 send_email(sender = constants.FROM_EMAIL_ADMIN, receiver = retailer.email, 
+#                        subject = constants.APPROVE_RETAILER_SUBJECT, body = '',
+#                        message = constants.APPROVE_RETAILER_MESSAGE)
+#             except Exception as e:
+#                 logger.error('Mail is not sent. Exception occurred ',e)
+#     approve.short_description = 'Approve Selected Retailers'
+
+    def Status(self, obj):
+        return obj.status
+    Status.short_description = 'Status'
+    
+    def retailer_billing_code(self, obj):
+        return obj.billing_code
+    retailer_billing_code.short_description = 'Retailer billing code'
+    
+    def retailer_user_name(self, obj):
+        return obj.retailer_name
+    retailer_user_name.short_description = 'retailer name'
+    
+    def user_territory(self, obj):
+        return obj.territory
+    user_territory.short_description = 'territory'
+    
+    def town(self,obj):
+        return obj.retailer_town
+    town.short_description = 'Town/ City'
+    
+    def pincode(self, obj):
+        return obj.user.pincode
+    
+    def city(self, obj):
+        return obj.retailer_town
+    
+    def phone(self, obj):
+        return obj.user.phone_number
+    
+    def user_mobile(self, obj):
+        return obj.mobile
+    user_mobile.short_description = 'mobile'
+
+    def user_email(self, obj):
+        return obj.email
+    user_email.short_description = 'email'
+
+    def distributor_code(self, obj):
+        return obj.distributor.distributor_id
+    distributor_code.short_description = 'Distributor Code'
+    
+    def distributor_name(self, obj):
+        return obj.distributor.name
+    distributor_name.short_description = 'Distributor Name'
+    
+    def save_model(self, request, obj, form, change):
+        form_status=True
+        form_data = form.cleaned_data
+        
+        for field in form_data:
+            if field in constants.MANDATORY_RETAILER_FIELDS and not form_data.get(field):
+                form_status = False
+                
+        if form_status == False:
+            obj.form_status='Incomplete'
+            obj.save()
+        else:
+            obj.form_status='Complete'
+            obj.save()
+        
+        if request.user.groups.filter(name__in=[Roles.DISTRIBUTORS,Roles.DISTRIBUTORSALESREP,Roles.SUPERADMINS]).exists():
+            obj.approved = constants.STATUS['WAITING_FOR_APPROVAL']
+            try:
+                retailer = Retailer.objects.filter().order_by("-id")[0]
+                obj.retailer_code = str(int(retailer.retailer_code) + \
+                                        constants.RETAILER_SEQUENCE_INCREMENT)
+            except:
+                obj.retailer_code = str(constants.RETAILER_SEQUENCE)
+                
+                
+            super(RetailerAdmin, self).save_model(request, obj, form, change)
+            
+#     def status(self, obj):
+#         #Added retailer by distributor/distributorstaff must be approved by the ASM/admin
+#         #he can also be rejected on some conditions
+#         if obj.approved == constants.STATUS['APPROVED']:
+#             return 'Approved'
+#         elif obj.approved == constants.STATUS['WAITING_FOR_APPROVAL'] :
+#             if self.param.groups.filter(name__in = \
+#                                     ['SuperAdmins', 'Admins','SFAAdmins', 'AreaSparesManagers']).exists():
+# 
+#                 
+# #                 <a href="" class="btn btn-info" data-toggle="modal" data-target="#downloadModal">Download welcome kit details</a>
+#                 #reject_button = "<a  class='btn btn-success' data-toggle='modal'  href=\"/admin/retailer/approve_retailer/retailer_id/"+str(obj.id)+"\">Approve</a>&nbsp;<input type=\"button\"  class='btn btn-danger' data-toggle='modal'  id=\"button_reject\" value=\"Reject\" onclick=\"popup_reject(\'"+str(obj.id)+"\',\'"+obj.retailer_name+"\',\'"+obj.email+"\',\'"+obj.distributor.name+"\'); return false;\">"
+#                 reject_button = "<a  class='btn btn-success' data-toggle='modal'  href=\"/admin/retailer/approve_retailer/retailer_id/"+str(obj.id)+"\">Approve</a>&nbsp;<input type=\"button\"  class='btn btn-danger' data-toggle='modal'  id=\"button_reject\" value=\"Reject\" onclick=\"popup_reject(\'"+str(obj.id)+"\',\'"+obj.retailer_name+"\',\'"+obj.email+"\'); return false;\">"
+#                 #reject_button = "<input type=\"button\" id=\"button_reject\" value=\"Reject\" onclick=\"popup_reject(); return false;\">"
+#                 return mark_safe(reject_button)
+#             else:
+#                 return 'Waiting for approval'
+#         elif obj.approved == constants.STATUS['REJECTED'] :
+#             if self.param.groups.filter(name__in =['SuperAdmins', 'Admins', 'AreaSparesManagers']).exists():
+#                 return 'Rejected'
+#             else:
+#                 if self.param.groups.filter(name__in =['Distributors', 'DistributorStaffs']).exists():
+#                     rejected_reason = "<input type=\"button\" value=\"Rejected Reason\" onclick=\"popup_rejected_reason(\'"+str(obj.id)+"\',\'"+obj.retailer_name+"\',\'"+obj.rejected_reason+"\'); return false;\">"
+#                     return mark_safe(rejected_reason)
+#     status.allow_tags = True
+##################### ENDRETAILER###########################
 
 def get_admin_site_custom(brand):
     brand_admin = CoreAdminSite(name=brand)
@@ -869,6 +1385,12 @@ def get_admin_site_custom(brand):
     brand_admin.register(get_model("Territory", brand))
     brand_admin.register(get_model("BrandDepartment", brand))
     brand_admin.register(get_model("DepartmentSubCategories", brand))
+    
+    brand_admin.register(get_model("Retailer", brand), RetailerAdmin)
+    brand_admin.register(get_model("AccumulationRequestRetailer", brand), AccumulationRequestRetailerAdmin)
+    brand_admin.register(get_model("RedemptionRequestRetailer", brand), RedemptionRequestRetailerAdmin)
+    brand_admin.register(get_model("WelcomeKitRetailer", brand), WelcomeKitRetailerAdmin)
+    
     
     return brand_admin
 
