@@ -111,10 +111,41 @@ alter table gm_dealer add column area varchar(250);
 alter table gm_dealer add column last_transaction_date datetime null;
 alter table gm_dealer add column regional_office varchar(250);
 ---------------------------------------------------------------------------------------------
-for bajajcv add this in retailer
+for bajajcv add this in gm_retailer
 alter table gm_retailer add column shop_number varchar(50) null;
 alter table gm_retailer add column shop_name varchar(50) null;
 alter table gm_retailer add column shop_address varchar(50) null;
+----------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
+for bajajcv add this in gm_retailer
+alter table gm_retailer add column address_line_5 varchar(50) null;
+alter table gm_retailer add column address_line_6 varchar(50) null;
+alter table gm_retailer add column form_number integer(50) null; 
+alter table gm_retailer add column locality varchar(50) null;
+alter table gm_retailer add column tehsil varchar(50) null;
+
+alter table gm_retailer add column shop_wall_length integer(50) null; 
+alter table gm_retailer add column shop_wall_width integer(50) null; 
+alter table gm_retailer add column serviced_4S integer(50) null; 
+alter table gm_retailer add column serviced_2S integer(50) null; 
+alter table gm_retailer add column serviced_CNG_LPG integer(50) null; 
+alter table gm_retailer add column serviced_diesel integer(50) null; 
+alter table gm_retailer add column spare_per_month integer(50) null; 
+alter table gm_retailer add column genuine_parts_used integer(50) null; sent_to_sap
+alter table gm_retailer add column sent_to_sap boolean default false;
+
+
+alter table gm_retailer add column nearest_dealer_name varchar(50) null; 
+alter table gm_retailer add column total_countersale_3wheeler_parts varchar(50) null; 
+alter table gm_retailer add column total_sale_bajaj_3wheeler varchar(50) null; 
+alter table gm_retailer add column identification_no varchar(50) null; 
+alter table gm_retailer add column brand_movement_from_counter varchar(50) null; 
+alter table gm_retailer add column category varchar(50) null; 
+alter table gm_retailer add column top_2selling_parts_from_counter varchar(50) null;
+alter table gm_retailer add column description varchar(50) null; 
+alter table gm_retailer add column top_2competitor_brands varchar(50) null; 
+
+
 ----------------------------------------------------------------------------------------------
 
 
