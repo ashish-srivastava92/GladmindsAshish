@@ -539,6 +539,8 @@ class Retailer(base_models.Retailer):
                                   max_length=255, null=True, blank=True,
                                   validators=[validate_image])
     
+    state = models.ForeignKey(State)
+    
     
     class Meta(base_models.Retailer.Meta):
         app_label = _APP_NAME

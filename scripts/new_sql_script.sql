@@ -145,12 +145,12 @@ alter table gm_retailer add column top_2selling_parts_from_counter varchar(50) n
 alter table gm_retailer add column description varchar(50) null; 
 alter table gm_retailer add column top_2competitor_brands varchar(50) null; 
 
-
 ----------------------------------------------------------------------------------------------
 Add this for bajajcv
 alter table gm_member add column is_active  boolean default true;
 alter table gm_member add column is_inactive  boolean default false;
-
+alter table gm_retailer add column state_id integer
+alter table gm_retailer add foreign key(state_id) references gm_state(id);
 ----------------------------------------------------------------------------------------------
 
 
