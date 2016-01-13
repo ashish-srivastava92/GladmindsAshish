@@ -1231,6 +1231,8 @@ class Member(BaseModel):
     total_redemption_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     total_accumulation_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     total_redemption_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    is_active = models.BooleanField(default=True)
+    is_inactive = models.BooleanField(default=False)
 
     def image_tag(self):
         return u'<img src="{0}/{1}" width="200px;"/>'.format(settings.S3_BASE_URL, self.image_url)
