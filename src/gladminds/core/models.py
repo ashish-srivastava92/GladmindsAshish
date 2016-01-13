@@ -534,9 +534,9 @@ class Retailer(base_models.Retailer):
     top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
     description = models.CharField(max_length=50,blank=True, null=True)
     top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
-#     shop_image_url =  models.FileField(upload_to=set_mechanic_image_path,
-#                                   max_length=255, null=True, blank=True,
-#                                   validators=[validate_image])
+    shop_image_url =  models.FileField(upload_to=set_retailer_image_path,
+                                  max_length=255, null=True, blank=True,
+                                  validators=[validate_image])
     
     
     class Meta(base_models.Retailer.Meta):
