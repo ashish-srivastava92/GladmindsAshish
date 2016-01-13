@@ -298,6 +298,7 @@ class BOMPlatePartResource(CustomBaseModelResource):
             plate_id = post_data.get('plateId') 
             plate_name= post_data.get('plateName')
             eco_number = post_data.get('ecoNumber')
+            plate_image=request.FILES['plateImage']
             plate_map=request.FILES['plateMap'] 
             sbom_part_mapping=[]
             upload_history_data = get_model('VisualisationUploadHistory')(sku_code=sku_code, bom_number=bom_number, plate_id=plate_id, eco_number=eco_number)
@@ -323,6 +324,7 @@ class BOMPlatePartResource(CustomBaseModelResource):
                 temp['bomvisualization_object']=query
                 sbom_part_mapping.append(temp)
             plate_obj=bom_queryset[0].plate
+            plate_obj.plate_image_with_part.save(plate_image.name, plate_image)
             plate_obj.plate_txt = plate_name
             plate_obj.save(using=settings.BRAND)
             data={'plate_id':plate_id, 'sku_code':sku_code,
@@ -547,6 +549,7 @@ class BOMVisualizationResource(CustomBaseModelResource):
         history_id=kwargs['history_id']
         try:
             visualisation_data = get_model('VisualisationUploadHistory').objects.filter(id=history_id)
+            
             comments_data_from_visualisation_table = None
             if not visualisation_data:
                 return HttpResponse(json.dumps({}),content_type="application/json")
@@ -568,9 +571,9 @@ class BOMVisualizationResource(CustomBaseModelResource):
                                                                     plate__plate_id=plate_id,valid_from__lte=validation_date,
                                                                     valid_to__gt=validation_date)
             
-            bom_visualisation =get_model('BOMVisualization').objects.filter(bom__in=bom_queryset) 
+            bom_visualisation =get_model('BOMVisualization').objects.filter(bom__in=bom_queryset)
+             
             plate_part_details =[]
-            
             for data in bom_visualisation:
                 part_details = model_to_dict(data ,exclude=['id','bom'])
                 part_details["quantity"] = model_to_dict(data.bom ,fields=['quantity']).values()[0]

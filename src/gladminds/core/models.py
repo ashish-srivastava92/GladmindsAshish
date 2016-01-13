@@ -497,15 +497,47 @@ class Retailer(base_models.Retailer):
     total_accumulation_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     total_redemption_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     
-    address_line_2 = models.CharField(max_length=40)
-    address_line_3 = models.CharField(max_length=40)
-    address_line_4 = models.CharField(max_length=40 )
+    address_line_2 = models.CharField(max_length=40, null=True)
+    address_line_3 = models.CharField(max_length=40, null=True)
+    address_line_4 = models.CharField(max_length=40, null=True )
+    
+    address_line_5 = models.CharField(max_length=40,null=True, blank=True )
+    address_line_6 = models.CharField(max_length=40, null=True, blank=True )
+    form_number = models.IntegerField(max_length=50, null=True, blank=True)
+    locality = models.CharField(max_length=50, null=True, blank=True)
+    tehsil = models.CharField(max_length=50, null=True, blank=True)
+    shop_wall_length = models.IntegerField(max_length=50, null=True, blank=True)
+    shop_wall_width = models.IntegerField(max_length=50, null=True, blank=True)
+    serviced_4S = models.IntegerField(max_length=50, null=True, blank=True)
+    serviced_2S = models.IntegerField(max_length=50, null=True, blank=True)
+    serviced_CNG_LPG = models.IntegerField(max_length=50, null=True, blank=True)
+    serviced_diesel = models.IntegerField(max_length=50, null=True, blank=True)
+    spare_per_month = models.IntegerField(max_length=50, null=True, blank=True)
+    genuine_parts_used = models.IntegerField(max_length=50, null=True, blank=True)
+    sent_to_sap = models.BooleanField(default=False)
+    
+    
     district = models.CharField(max_length=50)
     status = models.CharField(max_length=20, default=False)
     
     shop_number = models.CharField(max_length=50, null=True, blank=True)
     shop_name = models.CharField(max_length=50, null=True)
     shop_address = models.CharField(max_length=50, null=True)
+    
+    # new column area added for retailer
+    nearest_dealer_name = models.CharField(max_length=50, null=True)
+    total_countersale_3wheeler_parts = models.CharField(max_length=50, blank=False, null=True)
+    total_sale_bajaj_3wheeler = models.CharField(max_length=50, blank=False, null=True)
+    identification_no = models.CharField(max_length=50, null=True)
+    brand_movement_from_counter = models.CharField(max_length=50, null=True)
+    category = models.CharField(max_length=50, blank=True, null=True)
+    top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
+    description = models.CharField(max_length=50,blank=True, null=True)
+    top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
+#     shop_image_url =  models.FileField(upload_to=set_mechanic_image_path,
+#                                   max_length=255, null=True, blank=True,
+#                                   validators=[validate_image])
+    
     
     class Meta(base_models.Retailer.Meta):
         app_label = _APP_NAME

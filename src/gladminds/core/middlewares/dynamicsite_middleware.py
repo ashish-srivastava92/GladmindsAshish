@@ -48,7 +48,7 @@ class DynamicSitesMiddleware(object):
     #Note: its a hack which is implemented for tata motors
         if BRAND.value == 'tatamotors':
             BRAND.value = 'daimler'
-#             
+             
         if BRAND.value == 'admin':
             request.urlconf = 'gladminds.urls'
             return
