@@ -147,5 +147,10 @@ alter table gm_retailer add column top_2competitor_brands varchar(50) null;
 
 
 ----------------------------------------------------------------------------------------------
+Add this for bajajcv
+alter table gm_member add column is_active  boolean default true;
+alter table gm_member add column is_inactive  boolean default false;
+
+----------------------------------------------------------------------------------------------
 
 
