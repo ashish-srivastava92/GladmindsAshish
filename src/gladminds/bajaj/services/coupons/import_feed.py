@@ -17,6 +17,7 @@ from gladminds.core.managers.audit_manager import feed_log, sms_log
 from gladminds.core.cron_jobs.queue_utils import send_job_to_queue
 from gladminds.core.auth_helper import Roles
 from gladminds.core.services.feed_resources import BaseFeed, BaseExportFeed
+from django.db import transaction
 logger = logging.getLogger("gladminds")
 
 USER_GROUP = {'dealer': Roles.DEALERS,
@@ -549,7 +550,7 @@ class ASCAndServiceAdvisorFeed(BaseFeed):
             return True
         return False
 
-    
+@transaction.commit_manually
 class ContainerTrackerFeed(BaseFeed):
     def import_data(self):
         for tracker_obj in self.data_source:
@@ -582,12 +583,11 @@ class ContainerTrackerFeed(BaseFeed):
                                          
                 except ObjectDoesNotExist as done:  
                         container_lr_obj = models.ContainerLR.objects.filter(zib_indent_num=container_indent_obj, lr_number="")
-                        if len(container_lr_obj) > 0:   # if null lrs were present 
-                            for each in container_lr_obj:
+                        for each in container_lr_obj:
                                 lr_junk_row = models.ContainerLR_junk(lr_number=each.lr_number, lr_date= each.lr_date,
                                           zib_indent_num = container_indent_obj, transporter = transporter_data)
                                 lr_junk_row.save(using = settings.BRAND)
-                                container_lr_obj.delete()                               
+                                container_lr_obj.delete()                             
                         container_lr_obj = models.ContainerLR(zib_indent_num=container_indent_obj, 
                                         consignment_id=tracker_obj['consignment_id'],
                                         lr_number=tracker_obj['lr_number'],
@@ -636,7 +636,7 @@ class ContainerTrackerFeed(BaseFeed):
                 ex="[Exception: ]: ContainerTrackerFeed {0}".format(ex)
                 logger.error(ex)
                 self.feed_remark.fail_remarks(ex)
-        
+        transaction.commit()
         return self.feed_remark
 
 
