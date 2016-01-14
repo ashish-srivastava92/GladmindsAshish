@@ -428,6 +428,16 @@ class ContainerLR(base_models.ContainerLR):
 
     class Meta(base_models.ContainerLR.Meta):
         app_label = _APP_NAME
+                
+class ContainerLR_junk(base_models.ContainerLR_junk):
+    ''' details of Container LR'''
+    zib_indent_num = models.ForeignKey(ContainerIndent)
+    transporter = models.ForeignKey(Transporter)
+
+    class Meta(base_models.ContainerLR_junk.Meta):
+        app_label = _APP_NAME
+
+
 
 class ContainerTracker(base_models.ContainerTracker):
     ''' details of Container Tracker'''

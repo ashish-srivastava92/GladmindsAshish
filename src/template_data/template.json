@@ -762,7 +762,7 @@
     "pk": 84,
     "fields": {
       "template_key": "SEND_INSUFFICIENT_POINT_MULTIPLE_RETAILER",
-      "template": "Dear {retailer_name}, Sorry, you need {shortage_points} more points for these products. Please check catalog and submit new request.
+      "template": "Dear {retailer_name}, Sorry, you need {shortage_points} more points for these products. Please check catalog and submit new request.",
       "description": "Send this message when retailer does not have enough points to redeem a single product."
     }
   }

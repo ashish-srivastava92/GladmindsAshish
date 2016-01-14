@@ -33,7 +33,6 @@ ADMINS = (
 API_FLAG = False
 COUPON_VALID_DAYS = 30
 # BRAND_BASE_URL = 'local.bajaj.gladminds.co'
-COUPON_URL = 'local.bajaj.gladminds.co'
 TOTP_SECRET_KEY = '93424'
 OTP_VALIDITY = 120
 HARCODED_OTPS = ['000000']
@@ -45,8 +44,6 @@ DOMAIN_BASE_URL = '/afterbuy/v1/consumers/activate-email/'
 OAUTH_DELETE_EXPIRED = True
 JOBCARD_DIR = '{0}/jobcards/prod/'
 JOBCARD_BUCKET = 'gladminds'
-
-
 
 ENV = 'prod'
 
@@ -211,10 +208,6 @@ SUIT_CONFIG = {
         {'app': 'bajaj', 'label': 'Templates', 'icon': ' icon-folder-open',
          'models':(
                     'messagetemplate', 'emailtemplate',)},)
-               
-               
-               
-               
 }
 
 
@@ -224,13 +217,8 @@ DATABASE_ROUTERS = ['gladminds.router.DatabaseAppsRouter']
 DB_USER = os.environ.get('DB_USER', 'root')
 DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 DB_PORT = os.environ.get('DB_PORT', '3306')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'root')
-'''
-DB_USER = "gladminds"
-DB_HOST = "gladminds-qa-2.chnnvvffqwop.us-east-1.rds.amazonaws.com"
-DB_PORT = "3306"
-DB_PASSWORD = "gladmindsqa2"
-'''
+DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
+
 class GmApps():
     AFTERBUY = 'afterbuy'
     BAJAJ = 'bajaj'

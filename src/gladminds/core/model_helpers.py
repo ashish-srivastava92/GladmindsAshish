@@ -115,6 +115,9 @@ def set_service_training_material_path(instance,filename):
 def set_mechanic_image_path(instance,filename):
     return create_upload_path('mechanics', instance, filename)
 
+def set_retailer_image_path(instance,filename):
+    return create_upload_path('retailer', instance, filename)
+
 def set_product_catalog_image_path(instance,filename):
     return create_upload_path('redeem_product', instance, filename)
 
