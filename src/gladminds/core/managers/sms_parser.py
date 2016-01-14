@@ -97,3 +97,7 @@ def render_sms_template(keyword=None, status=None, template=None, *args, **kwarg
         message_template = template_obj[status]
         message = message_template.format(*args, **kwargs)
     return message
+
+
+
+
