@@ -100,7 +100,11 @@ def mobile_format(phone_number):
         And when airtel pull message from customer
         or service advisor we will check that number in +91 format
     '''
+    
+    if brand == 'bajajib':
+        return '+256' + phone_number
     return '+91' + phone_number[-10:]
+    #return '+256' + phone_number
 
 
 def format_message(message):
@@ -111,11 +115,35 @@ def format_message(message):
     return ' '.join([keyword for keyword in keywords if keyword])
 
 
+#FIXME: when phone number format will come for bajajib then we will not use hard code.
+#NOTE: when mobile number format will come, we will use this for bajajib
+# def get_phone_number_format_bajajib(phone_number):
+#     if settings.BRAND == 'bajajib':
+#         country_name = get_model('Country').objects.get(name = 'UGA')
+#         area_code = country_name.area_code
+#         try:
+#             phone_number_uganda = phone_number.split(area_code,1)[1]
+#             return   phone_number_uganda
+#         except Exception as ex:
+#             return phone_number[-10:]
+
+
 def get_phone_number_format(phone_number):
     '''
         This is used when we are sending message through sms client
     '''
-    return phone_number[-10:]
+    
+#TODO: when bajajib format will come change this and return only--> phone_number[-10:]
+    
+    if brand == 'bajajib':
+        country_name = get_model('Country').objects.get(name = 'UGA')
+        area_code = country_name.area_code
+    try:
+        phone_number_uganda = phone_number.split(area_code,1)[1]
+        return   phone_number_uganda
+    except Exception as ex:
+        return phone_number[-10:]
+
 
 def save_otp(user, token, email):
     models.OTPToken.objects.filter(user=user).delete()

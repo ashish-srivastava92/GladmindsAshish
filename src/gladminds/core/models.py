@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from gladminds.core import base_models, constants
 
 from gladminds.core.core_utils.utils import generate_retailer_id
+from gladminds.core.model_helpers import set_retailer_image_path, validate_image
  
 _APP_NAME ='core'
  
@@ -534,9 +535,11 @@ class Retailer(base_models.Retailer):
     top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
     description = models.CharField(max_length=50,blank=True, null=True)
     top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
-#     shop_image_url =  models.FileField(upload_to=set_mechanic_image_path,
-#                                   max_length=255, null=True, blank=True,
-#                                   validators=[validate_image])
+    shop_image_url =  models.FileField(upload_to=set_retailer_image_path,
+                                  max_length=255, null=True, blank=True,
+                                  validators=[validate_image])
+    
+    state = models.ForeignKey(State)
     
     
     class Meta(base_models.Retailer.Meta):
