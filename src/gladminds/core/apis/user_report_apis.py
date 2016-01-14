@@ -18,6 +18,7 @@ from tastypie.authorization import DjangoAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.exceptions import ImmediateHttpResponse
 
+from gladminds.core.apis.user_apis import UserResource
 from gladminds.core.apis.authentication import AccessTokenAuthentication
 from gladminds.core.apis.base_apis import CustomBaseModelResource
 from gladminds.core.auth.access_token_handler import create_access_token, \
@@ -70,6 +71,19 @@ class DistributorTargetResource(CustomBaseModelResource):
                 #authentication = AccessTokenAuthentication()
                 allowed_methods = ['get', 'post', 'put']
                 always_return_data = True
+
+class DsrTargetResource(CustomBaseModelResource):
+        '''
+            DistributorSalesRep Target Resource
+        '''
+        class Meta:
+                queryset = models.DsrTarget.objects.all()
+                resource_name = "dsr-target"
+                authorization = Authorization()
+                #authentication = AccessTokenAuthentication()
+                allowed_methods = ['get', 'post', 'put']
+                always_return_data = True
+                
 
 class RetailerTargetResource(CustomBaseModelResource):
         '''
@@ -131,3 +145,26 @@ class RetailerHighlightsResource(CustomBaseModelResource):
                 #authentication = AccessTokenAuthentication()
                 allowed_methods = ['get', 'post', 'put']
                 always_return_data = True
+
+
+
+
+class AsmProfileResource(CustomBaseModelResource):
+    '''Extended user profile resource'''
+    user = fields.ForeignKey(UserResource, 'user', null=True, blank=True, full=True)
+    class Meta:
+        queryset = models.AreaServiceManager.objects.all()
+        resource_name = 'gm-asm'
+        authorization = Authorization()
+#         authorization = MultiAuthorization(DjangoAuthorization())
+#         authentication = AccessTokenAuthentication()
+        allowed_methods = ['get', 'post', 'put']
+        filtering = {
+                     "user":  ALL_WITH_RELATIONS,
+                     #"phone_number": ALL,
+                     #"state": ALL,
+                     #"country": ALL,
+                     #"pincode": ALL
+                     }
+        always_return_data = True 
+#        ordering = ['user', 'phone_number']

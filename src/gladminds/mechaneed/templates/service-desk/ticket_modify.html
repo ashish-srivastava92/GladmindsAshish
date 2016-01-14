@@ -1,0 +1,311 @@
+{% extends "base_template.html" %}
+
+{% block style %}
+<link href="/static/css/portal.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<div class='well'>
+	<h3 class='text-center'>Update Information</h3>
+     <div class = 'container '>
+	 	<div class="row">
+	 		<form class="form-horizontal servicedesk" role="form" method="post">
+	 		<div class="col-md-2"></div>
+	 			<div class="col-md-8">
+	 				<div class="row">
+						<div class="col-sm-6"> 					
+	 						<div class="form-group">
+                    			<label class="col-sm-4 control-label" for="reporter">Ticket Id</label>
+                        		<div class="col-sm-8">
+                        			<input type="text" class="form-control" name = "ticketId"  value='{{feedback.id|default_if_none:""}}' readonly >
+                        		</div>
+							</div>
+						</div>
+						
+						<div class="col-sm-6">
+							<div class="form-group">
+                    			<label class="col-sm-4 control-label" for="type">Type</label>
+                        		<div class="col-sm-8">
+                            		<select id="type" class="form-control" name="type"  {% if group == CONSTANTS.SD_CONSTANTS.SD_OWNER or group == CONSTANTS.SD_CONSTANTS.DEALER or group == CONSTANTS.SD_CONSTANTS.FSCADMIN or group == CONSTANTS.SD_CONSTANTS.ASC %} onfocus="disableFunc('Other')"  readonly {% else %} onfocus="disableFunc('Manager')" {% endif %}  >
+                                		{% for type in FEEDBACK_TYPE %}
+                     	            		<option {% if type == feedback.type %} selected {% endif %} value="{{type}}">{{type}}</option>
+                                    	{% endfor %}
+                                 	</select>
+                            	</div>
+                   			</div>
+						</div>
+						
+	 				</div>
+	 				
+	 				<div class="row">
+	 					<div class="col-sm-6">
+	 						<div class="form-group">
+                    			<label class="col-sm-4 control-label" for="Priority">Priority</label>
+                        		<div class="col-sm-8">
+                            		<select id="priority" class="form-control" name="Priority"  {% if group == CONSTANTS.SD_CONSTANTS.SD_OWNER or group == CONSTANTS.SD_CONSTANTS.DEALER or group == CONSTANTS.SD_CONSTANTS.FSCADMIN or group == CONSTANTS.SD_CONSTANTS.ASC %} onfocus="disableFunc()" readonly {% endif %}>
+                                		{% for type in PRIORITY %}
+                      	            		<option {% if type == feedback.priority %} selected {% endif %} value="{{type}}">{{type}}</option>
+                                    	{% endfor %}
+                                 	</select>
+                           		</div>
+               				</div>
+	 					</div>
+	 					
+						<div class="col-sm-6">
+							<div class="form-group">
+                    			<label class="col-sm-4 control-label" for="Status">Status</label>
+                       			<div class="col-sm-8">
+	                    			<select id="status" class="form-control status" name="status" {% if group == CONSTANTS.SD_CONSTANTS.DEALER and feedback.status != 'Pending' and feedback.status != 'Resolved' %} onfocus="disableFunc()" readonly
+                                			{% endif %} onchange="rootCause(this.options[this.selectedIndex].value)" >
+                            			{% for type in FEEDBACK_STATUS %}
+                                			<option {% if type == feedback.status %} selected {% endif %}
+                                			{% if feedback.status == 'Pending' %}
+                                				{% if type == 'Open' or type == 'Closed' or type == 'Resolved' %} disabled {% endif %}
+                                			{% elif feedback.status == 'Resolved' %}
+                                				{% if not type == 'Closed' %} disabled {% endif %}  {% endif %} value="{{type}}">{{type}}</option>
+                                		{% endfor %}
+                             		</select>
+								</div>
+							</div>
+						</div>
+	 				</div>
+	 					
+	 				<div class="row">
+	 					<div class="col-sm-6">
+							<div class="form-group">
+                     			<label class="col-sm-4 control-label" for="reporter">Reporter</label>
+                        		<div class="col-sm-8">
+                        			<input type="text" class="form-control"  value='{{feedback.reporter.name|default_if_none:""}} ({{feedback.reporter.user_profile.phone_number|default_if_none:""}})' readonly >
+                        		</div>
+                    		</div>
+						</div>
+						
+						<div class="col-sm-6">
+							<div class="form-group">
+                    			<label class="col-sm-4 control-label" for="Assign To">Assignee</label>
+                        		<div class="col-sm-8">
+                        			<select id="assignee" class="form-control assignee" name="assign_to"   {% if group == CONSTANTS.SD_CONSTANTS.SD_OWNER or group == CONSTANTS.SD_CONSTANTS.DEALER or group == CONSTANTS.SD_CONSTANTS.FSCADMIN or group == CONSTANTS.SD_CONSTANTS.ASC %} onfocus="disableFunc()" readonly {% endif %} onchange="dueDateRequire(this.options[this.selectedIndex].value)" >
+                            			<option value=""></option>
+                            			<option value={{feedback.previous_assignee.user_profile.user.username}}>Previous assignee</option>
+                               			{% for type in servicedeskuser %}
+                      	          			<option {% if type == feedback.assignee %} selected {% endif %} value="{{type.user_profile.user.username}}">{{type.user_profile.user.username}}({{type.user_profile.phone_number}})</option>
+                                		{% endfor %}
+                                		<option {% if feedback.assign_to_reporter %} selected {%endif%} value ='Assign to reporter'>{% if group == CONSTANTS.SD_CONSTANTS.DEALER or group == CONSTANTS.SD_CONSTANTS.FSCADMIN or group == CONSTANTS.SD_CONSTANTS.ASC %} {{feedback.reporter.name}} {% else %} Assign to reporter {%endif%}</option>
+                            		</select>
+                      			</div>
+                    		</div>
+						</div>
+	 				</div>
+	 					
+	 				<div class="row">
+	 					<div class="col-sm-6">
+	 						<div class="form-group">
+    							<label class="col-sm-4 control-label" for="resolved_date">Resolved Date</label>
+    							<div class="col-sm-8">
+    								<input type="datetime" class="form-control" name="resolved_date" readonly value='{{feedback.resolved_date|default_if_none:""}}'>
+   								</div>
+  							</div>
+	            		</div>
+						<div class="col-sm-6">
+	 						<div class="form-group">
+  								<label class="col-sm-4 control-label" for="due_date">Due Date</label>
+    							<div class="col-sm-8">
+    								<input type="text" value="{{feedback.due_date|date:'Y-m-d h:m:s'}}" class="form-control due-date due-datetime-picker" name="due_date" 
+    								{% if group == CONSTANTS.SD_CONSTANTS.SD_OWNER or group == CONSTANTS.SD_CONSTANTS.DEALER or group == CONSTANTS.SD_CONSTANTS.FSCADMIN or group == CONSTANTS.SD_CONSTANTS.ASC %} readonly {% endif %} placeholder="yyyy-mm-dd hh:mm:ss" />
+   								</div>
+							</div>
+	 					</div>	
+					</div>	
+	 				
+	 				<div class="row">
+	 					<div class="col-sm-12">
+							<div class="form-group">
+	                    		<label class="col-sm-2 control-label" for="Summary">Subject</label>
+    	               	 		<div class="col-sm-10">
+        	            			<input type="textarea" class="form-control"  value='{{feedback.summary|default_if_none:""}}' readonly>
+            	        		</div>
+                	     	</div>	 				
+	 					</div>
+	 				</div>		
+	 				
+	 				<div class="row">
+	 					<div class="col-sm-12">
+	 						<div class="form-group">
+                    		<label class="col-sm-2 control-label" for="Description">Description</label>
+                        	<div class="col-sm-10">
+                        		<textarea rows="6" cols="100" class="form-control"  value='{{feedback.description|default_if_none:""}}' readonly>{{feedback.description}}</textarea>
+                       		</div>
+                 		</div>
+	 					</div>
+	 				</div>
+
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="form-group hide rootcause">
+								<label class="col-sm-2 control-label" for="rootcause" >Root cause</label>
+								<div class="col-sm-10">
+									<select class="form-control root-cause" name="rootcause" >
+										{% for type in ROOT_CAUSE %}
+											<option value="{{type}}">{{type}}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+						</div>	
+					</div>
+							
+	 				
+	 				<div class="row">
+	 					<div class="col-sm-12">
+							<div class="form-group hide resolution">
+       		            		<label class="col-sm-2 control-label" for="resolution" >Resolution</label>
+        	                	<div class="col-sm-10">
+            	           	 		<textarea class="form-control ticket-resolution" name="resolution" value = '{{feedback.resolution|default_if_none:""}}' /></textarea>
+                	   			</div>
+                    		</div>	 					
+	 					</div>
+	 				</div>
+	 				
+	 				<div class="row">
+	 					<div class="col-sm-12">
+							<div class="form-group" id="comments">
+    		           			<label class="col-sm-2 control-label" for="comments" >Comments</label>
+            	       			<div class="col-sm-10 ">
+                	  	   			<textarea class="form-control comments" name="comments" value = '{{feedback_comment.comments|default_if_none:""}}' /></textarea>
+                    			</div>
+                   			</div>	 					
+	 					</div>
+	 				</div>
+					
+					<div class="row">
+	 					<div class="col-sm-12">
+							<div class="form-group" id="sd-file">
+    		           			<label class="col-sm-2 control-label" for="sd-file" >Attachment</label>
+            	       			<div class="col-sm-10 ">
+            	       				{% if feedback.file_location %}
+										<a href={{feedback.file_location}} download>
+											<button type="button" class="btn btn-default sd-file">Click to download</button>
+										</a>
+									{% else %}
+						 			No Attachment
+									{% endif %}
+            	       			
+                    			</div>
+                   			</div>	 					
+	 					</div>
+	 				</div>
+						 				
+	 				<div class="row">
+	 					<div class="form-group">
+                   			<div class="col-sm-offset-4 col-sm-8">
+                   				<button type="submit" class="btn btn-primary pull-right {% if group == CONSTANTS.SD_CONSTANTS.SD_READONLY %} hide {% endif %}">Save</button>
+								{% if group == CONSTANTS.SD_CONSTANTS.DEALER or group == CONSTANTS.SD_CONSTANTS.FSCADMIN or group == CONSTANTS.SD_CONSTANTS.ASC %} 
+									<a class="logout" href="/aftersell/servicedesk/helpdesk"> 
+                 		    		<button type="button" class="btn btn-default">Cancel</button>
+		                		</a>
+		                		{% else %}
+		                		<a class="logout" href="/aftersell/servicedesk/"> 
+                 		    		<button type="button" class="btn btn-default pull-right">Cancel</button>
+		                		</a>
+								 {% endif %}                   				
+                   			</div>
+                  		</div>
+	 				</div>
+	 			</div>
+	 		</form>
+	 	</div>  
+	 	<div class="row">
+	 		<div class="col-md-4"></div>
+	 		<div class="col-md-8">
+	 		{% for comment in comments %}
+		 	<div class="row">
+		 		<div class="col-sm-8 comment">
+		 			<div> 
+		 				<span class="glyphicon glyphicon-user user-icon-color"> {{comment.user}} </span>
+		 				added a comment -
+		 				<span>{{comment.modified_date|date:'d/M/y h:m A'}}</span>
+		 				<a class="glyphicon glyphicon-pencil blue pull-right open-add-comment-dialog" data-id={{comment.id}} data-comment="{{comment.comment}}" data-user="{{comment.user}}" data-date="{{comment.modified_date}}" data-owner={{user}} data-toggle="modal" href="#addCommentDialog"></a>
+		 			</div>
+				<div>
+					<br/>
+		 			<p>{{comment.comment}}</p>
+		 			<br/>
+		 		</div>
+              </div>
+		 	</div>
+		 {% endfor %}
+	 	</div>
+	 </div>
+	</div>	
+</div>	
+<div class="modal fade" id="addCommentDialog" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModal">Edit Comment </h4>
+      </div>
+      <div class="modal-body">
+		<form class="comment-form" role="search">
+			<div class="hide row">
+                  <div class="col-md-4 form-group">
+                    <label class="control-label">Id</label>
+                  </div>
+                  <div class="col-md-8 form-group">
+                   <input type="text" class="form-control comment-id" name="commentId" value="" readonly>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4 form-group">
+                    <label class="control-label">Author</label>
+                  </div>
+                  <div class="col-md-8 form-group">
+                  <input type="text" class="form-control comment-user" name="commentUser" value="" readonly>
+                   </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-4 form-group">
+                    <label class="control-label">Edited on:</label>
+                  </div>
+                  <div class="col-md-8 form-group">
+                  <input type="text" class="form-control comment-date " name="commentDate" value="" readonly>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-4 form-group">
+                    <label class="control-label">Comment:</label>
+                  </div>
+                  <div class="col-md-8 form-group">
+                    <input type="text" class="form-control comment-description" name="commentDescription" value="">
+                  </div>
+                </div> 
+                
+                <div class="row">
+                  <div class="col-md-12 form-group">
+                    <button type="submit" value="Submit" class="btn btn-primary pull-right">
+                    Submit
+                    </button>
+                  </div>
+                </div>               
+                
+         </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "portal/modal.html" %}
+{% include "portal/waiting_modal.html" %}
+{% endblock %}
+
+{% block dependency%}
+<script src="/static/js/portal/utils.js"></script>
+<script src="/static/js/portal/main.js"></script>
+
+
+{% endblock dependency %}
+
+

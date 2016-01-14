@@ -49,13 +49,14 @@ api_v1.register(user_apis.SupervisorResource())
 api_v1.register(user_report_apis.NsmTargetResource())
 api_v1.register(user_report_apis.AsmTargetResource())
 api_v1.register(user_report_apis.DistributorTargetResource())
+api_v1.register(user_report_apis.DsrTargetResource())
 api_v1.register(user_report_apis.RetailerTargetResource())
 api_v1.register(user_report_apis.AsmHighlightsResource())
 api_v1.register(user_report_apis.NsmHighlightsResource())
 api_v1.register(user_report_apis.DistributorHighlightsResource())
 api_v1.register(user_report_apis.RetailerHighlightsResource())
-
-
+api_v1.register(user_report_apis.AsmProfileResource())
+###########################USER REPORT APIS######################################
 
 
 api_v1.register(product_apis.ProductTypeResource())

@@ -16,6 +16,7 @@ class GmApps():
     DAIMLER = 'daimler'
     PROBIKING = 'probiking'
     BAJAJIB = 'bajajib'
+    MECHANEED = 'mechaneed'
 
 ALL_BRANDS = [getattr(GmApps, x) for x in dir(GmApps) if (not x.startswith("__") and getattr(GmApps, x)
                                                           not in [GmApps.AFTERBUY, GmApps.GM])]

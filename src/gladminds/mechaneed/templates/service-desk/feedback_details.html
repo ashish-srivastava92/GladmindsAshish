@@ -1,0 +1,284 @@
+{% extends "base_template.html" %}
+
+{% block style %}
+<link href="/static/css/portal.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="well">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3">
+				{% if training_material%}
+					<a href={{S3_URL}}/{{training_material}} target="_blank" download>
+						<button type="button" class="btn btn-primary pull-left add-feedback-btn sd-file">SOP</button>
+					</a>
+				{% endif %}
+		 	</div>
+			<div class="col-md-5">
+				<h3 align="center">Feedback Status</h3>
+			</div>
+			<div class="col-md-4">
+				<button class="btn btn-primary pull-right add-feedback-btn" data-toggle="modal" data-target="#myModal">
+			 		Add Ticket
+			 	</button>
+		 	</div>
+		 </div>
+	
+		<div class="row feedback-filters">
+			<div class="col-md-4 hide ">
+				<div class="row">
+	            	<div class="col-md-3 form-group">
+	                <label class="control-label pull-right feedback-filters-label">Priority: </label>
+	                </div>
+	                <div class="col-md-8 form-group">
+	                	<select class="form-control feedback-filters-options" name="priority" required>
+	                    	<option value="all">All</option>
+	                      	{% for priority in priorities %}
+	                     		 <option {% if filter_params.priority == priority %} selected {% endif%} value="{{priority}}">{{priority}}</option>
+	                      	{% endfor %}
+	                    </select>
+	                 </div>
+	            </div>
+			</div>
+			<div class="col-md-4 hide">
+				<div class="row">
+	            	<div class="col-md-3 form-group">
+	                <label class="control-label pull-right feedback-filters-label">Type: </label>
+	                </div>
+	                <div class="col-md-8 form-group">
+	                	<select class="form-control feedback-filters-options" name="type" required>
+	                    	<option value="all">All</option>
+	                      	{% for type in types %}
+	                     		 <option {% if filter_params.type == type %} selected {% endif%} value="{{type}}">{{type}}</option>
+	                      	{% endfor %}
+	                    </select>
+	                 </div>
+	            </div>
+			</div>
+			<div class="col-md-4">
+				<div class="row">
+	            	<div class="col-md-3 form-group">
+	                <label class="control-label pull-right feedback-filters-label">Status: </label>
+	                </div>
+	                <div class="col-md-8 form-group">
+	                	<select class="form-control feedback-filters-options" name="status" required>
+	                		<option {% if filter_params.status == 'active' %} selected {% endif%}  value="active">Default Filter</option>
+	                    	<option {% if filter_params.status == 'all' %} selected {% endif%} value="all">All</option>
+	                      	{% for status in status %}
+	                     		 <option {% if filter_params.status == status %} selected {% endif%} value="{{status}}">{{status}}</option>
+	                      	{% endfor %}
+	                    </select>
+	                 </div>
+	            </div>
+			</div>
+		</div>
+		
+		{% if not feedbacks %}
+		<h4 class='text-center'>
+		   {% if group == CONSTANTS.SD_CONSTANTS.DEALER or CONSTANTS.SD_CONSTANTS.ASC  %}
+			Hi {{request.user.username}} You dont have any feedback yet.
+			{% endif %}
+		</h4>
+		{% elif feedbacks.length != 0 %}
+		<table class="table table-striped table-bordered table-responsive	" >
+        <thead>
+				<tr>
+				    <th>Ticket</th>
+					<th>Reporter</th>
+					<th>Description</th>
+					<th>Status</th>
+					<th>Created</th>
+					<th>
+						<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+					</th>
+				</tr>
+			</thead>
+        <tbody>
+				{% for feedback in feedbacks %}
+				<tr> 
+				    <td nowrap>
+				       <a href="/aftersell/feedbackdetails/{{feedback.id}}/">
+							GM-{{feedback.id|default_if_none:""}}
+						</a>  
+					</td>
+					<td nowrap>{{feedback.reporter.name|default_if_none:""}}</td>
+					<td>
+					   <div>
+					       {% if feedback.description|length > 20 %}
+					         <span id="{{feedback.id}}" class="btn gladdesk-message ellips" 
+					            data-content="{{feedback.description|default_if_none:""}}" rel="popover" 
+					            data-placement="bottom" data-trigger="hover"  onmouseover="showMessage({{feedback.id}})">
+					              {{feedback.description}}
+					       {% else  %}
+                                  {{feedback.description}}
+                           {% endif %}
+                            </span>
+                       </div>
+                   </td>
+					<td>{{feedback.status|default_if_none:""}}</td>
+					<td>{{feedback.created_date|default_if_none:""}}</td>
+					<td>{% if feedback.file_location %}
+						Y
+						{% else %}
+						-
+						{% endif %}
+					</td>
+			</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<div class="row">
+			<div class="col-md-6">
+				Showing {{page_details.from}} to {{page_details.to}} of {{page_details.total_objects}} entries
+			</div>
+			<div class="col-md-6">
+				<div class="pegination-links">
+					{% if feedbacks.has_previous %}
+						<a href="javascript:void(0);" onclick="getUrl({{feedbacks.number}}, {{pagination_links}}, 'false')">Previous</a>
+			      	{% endif %}
+					
+					{% for page in feedbacks.paginator.page_range %}
+					  	{% if page == feedbacks.number %}
+					    	{{ page }}
+					  	{% endif %}
+					  	
+					  	{% if page > feedbacks.number and page < feedbacks.number|add:pagination_links %}
+					  			<a href="javascript:void(0);" onclick="getUrl({{page}}, {{pagination_links}}, 'true')">{{ page }}</a>
+					  	{% endif %}
+					  	
+					  	{% if page == feedbacks.number|add:pagination_links %}
+					  			<a href="javascript:void(0);" onclick="getUrl({{page}}, {{pagination_links}}, 'true')">Next</a>
+					  	{% endif %}
+					{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+		<div class="row {% if feedbacks.length != 0 %} hide {% endif %}">
+			<div class="col-md-6">
+				<div class="row">
+	            	<div class="col-md-2 showing-rocord-text">
+	                	<span>Showing: </span>
+	                </div>
+	                <div class="col-md-2">
+	                	<select class="form-control feedback-filters-options rocord-count" name="status" required>
+	                      	{% for record_showing_count in record_showing_counts %}
+	                     		 <option {% if filter_params.count == record_showing_count  %} selected {% endif%} value="{{record_showing_count}}">{{record_showing_count}}</option>
+	                      	{% endfor %}
+	                    </select>
+	                 </div>
+	                 <div class="col-md-2 entry-text showing-rocord-text">
+	                	<span>entries </span>
+	                </div>
+	            </div>
+			</div>
+			<div class="col-md-offset-3 col-md-3">
+				<div class="input-group">
+				  	<input type="text" value="{{filter_params.search|default:''}}" class="form-control feedback-search-text" placeholder="Type word">
+				  	<span class="btn input-group-addon">
+				  		<i class="glyphicon glyphicon-search feedback-free-text-search"></i>
+				  	</span>
+				</div>
+			</div>
+		</div>
+		
+		
+	</div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+   		<h4 class="modal-title" id="myModalLabel">Submit a Service Desk Ticket</h4>
+      </div>
+      <div class="modal-body">
+		<form class="help-desk-form" role="search">
+                <div class="row">
+                  <div class="col-md-3 form-group">
+                    <label class="control-label">Reporter*:</label>
+                  </div>
+                  <div class="col-md-9 form-group">
+                    <select class="form-control advisorMobile" name="advisorMobile" required>
+                      <option value="">Select mobile number</option>
+                      <option value="{{dealer_asc.user.username}}">{{dealer_asc.user.username}}</option>
+                      {% for phone in data %}
+                      <option value="{{phone.user.user.username}}">{{phone.service_advisor_id}} ({{phone.user.phone_number}})</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-3 form-group">
+                    <label class="control-label">Type*:</label>
+                  </div>
+                  <div class="col-md-9 form-group">
+                    <select class="form-control type" name="type" required>
+                      <option value="">Select Type</option>
+                      {% for type in types %}
+                      <option value="{{type}}">{{type}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-3 form-group">
+                    <label class="control-label">Subject*:</label>
+                  </div>
+                  <div class="col-md-9 form-group">
+                    <input type="text" class="form-control summary" name="summary" required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3 form-group">
+                    <label class="control-label">Description*:</label>
+                  </div>
+                  <div class="col-md-9 form-group">
+                    <textarea rows="8" cols="100" class="form-control description" name="description" required></textarea>
+                  </div>
+                </div> 
+                <div class="row">
+                  <div class="col-md-3 form-group">
+                    <label class="control-label">Upload File:</label>
+                    <label class="control-label"><small><i>allowed format png,jpg,pdf,ppt,doc,xls</i></small></label>
+                  </div>
+                  <div class="col-md-9 form-group">
+                    <input type="file" class='form-control sd_file' name="sd_file" >
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 form-group">
+                    <button type="submit" value="Submit" class="btn btn-primary pull-right">
+                    Submit
+                    </button>
+                  </div>
+                </div>               
+                
+         </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% include "portal/modal.html" %}
+{% include "portal/waiting_modal.html" %}
+{% endblock %}
+ 
+{% block dependency%}
+
+{% if active_menu == 'recover' %}
+  <script>
+  var jobCardFileData = null;
+  </script>
+{% endif %}
+
+<script src="/static/libs/table_data.js"></script>
+<script src="/static/libs/table_data_bootstrap.js"></script>
+<script src="/static/js/portal/utils.js"></script>
+<script src="/static/js/portal/main.js"></script>
+
+{% endblock dependency %}

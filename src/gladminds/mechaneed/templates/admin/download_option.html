@@ -1,0 +1,30 @@
+<div class="modal fade download-modal" id="downloadModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title" id="myModalLabel">Welcome kit download</h4>
+      </div>
+      <div class="modal-body ">
+        <form>
+        <div class="row-fluid">
+        <div class="span4 form-group">
+          <label class="control-label" style="line-height: 25px; font-weight: bold;">Select download option:</label>
+        </div>
+        <div class="span5 form-group">
+          <select class="form-control" name="advisorMobile" id="download-option">
+            <option name="new-register" value="new">&nbsp;New Registered Member
+            <option name="new-register" value="all">&nbsp;All Registered Member
+          </select>
+        </div>
+        </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button class="btn btn-success download-member-detail">Download</button>
+    </div>
+    </div>
+  </div>
+</div>
+<script src="/static/js/downloadLoyaltyDetails.js"></script>

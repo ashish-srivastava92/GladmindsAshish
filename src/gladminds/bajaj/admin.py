@@ -20,7 +20,7 @@ from gladminds.core.auth_helper import Roles
 from gladminds.core import constants
 
 class BajajAdminSite(AdminSite):
-    pass
+        pass
 
 
 class UserProfileAdmin(GmModelAdmin):
@@ -924,7 +924,13 @@ class DistributorTargetAdmin(GmModelAdmin):
                      'year','reportnames', 'active')
     list_display = ('distributor', 'reportnames', 'month',
                      'year','target', 'active')
-    
+
+class DsrTargetAdmin(GmModelAdmin):
+    search_fields = ('distributor', 'month',
+                     'year','reportnames', 'active')
+    list_display = ('distributor', 'reportnames', 'month',
+                     'year','target', 'active')
+        
 class RetailerTargetAdmin(GmModelAdmin):
     search_fields = ('retailer','reportnames', 'month',
                      'year',)
@@ -982,6 +988,7 @@ def get_admin_site_custom(brand):
     brand_admin.register(get_model("NsmTarget", brand), NsmTargetAdmin)
     brand_admin.register(get_model("AsmTarget", brand), AsmTargetAdmin)
     brand_admin.register(get_model("DistributorTarget", brand), DistributorTargetAdmin)
+    brand_admin.register(get_model("DsrTarget", brand), DsrTargetAdmin)
     brand_admin.register(get_model("RetailerTarget", brand), RetailerTargetAdmin)
 #    brand_admin.register(get_model("SfaHighlights", brand), SfaHighlightsAdmin)
 #    brand_admin.register(get_model("NsmHighlights", brand), ContainerLRAdmin)

@@ -1,7 +1,6 @@
 from datetime import datetime
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 from composite_field.base import CompositeField
 from django.conf import settings
@@ -1984,7 +1983,7 @@ class FleetRider(BaseModel):
 
 
 class SfaReportNames(models.Model):
-    #Add validator for custom report name
+
     name = models.CharField(max_length=50,blank=True,null=True)
 
     class Meta:
@@ -1996,20 +1995,8 @@ class SfaReportNames(models.Model):
         return self.name
 
 
-class SfaHighlights(models.Model):
-    #Add validator for custom report name
-    name = models.CharField(max_length=50,blank=True,null=True)
-
-    class Meta:
-        abstract=True
-        db_table = "gm_sfahighlights"
-        verbose_name = "Highlights"
-
-    def __unicode__(self):
-        return self.name
-
 class NsmTarget(models.Model):
-   
+  
     month = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(12)], null=True)
     year =  models.IntegerField(validators=[MinValueValidator(2014)], null=True)
     target = models.DecimalField(max_digits=65, decimal_places=0, null=True)
@@ -2035,6 +2022,19 @@ class AsmTarget(models.Model):
 
 
 class DistributorTarget(models.Model):
+ 
+    month = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(12)], null=True)
+    year =  models.IntegerField(validators=[MinValueValidator(2014)], null=True)
+    target = models.DecimalField(max_digits=65, decimal_places=0, null=True)
+    active = models.BooleanField(default=True)
+ 
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_distributor_target"
+        verbose_name = "Distributor Target"
+
+
+class DsrTarget(models.Model):
 
     month = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(12)], null=True)
     year =  models.IntegerField(validators=[MinValueValidator(2014)], null=True)
@@ -2043,9 +2043,8 @@ class DistributorTarget(models.Model):
 
     class Meta:
         abstract = True
-        db_table = "gm_sfa_distributor_target"
-        verbose_name = "Distributor Target"
-
+        db_table = "gm_sfa_dsr_target"
+        verbose_name = "DSR Target"
 
 class RetailerTarget(models.Model):
 
@@ -2058,6 +2057,19 @@ class RetailerTarget(models.Model):
         abstract = True
         db_table = "gm_sfa_retailer_target"
         verbose_name = "Retailer Target"
+
+################################SFA HIGHLIGHTS################################
+class SfaHighlights(models.Model):
+
+    name = models.CharField(max_length=50,blank=True,null=True)
+
+    class Meta:
+        abstract=True
+        db_table = "gm_sfahighlights"
+        verbose_name = "Highlights"
+
+    def __unicode__(self):
+        return self.name
 
 
 class NsmHighlights(models.Model):
@@ -2093,6 +2105,15 @@ class DistributorHighlights(models.Model):
         db_table = "gm_sfa_distributor_highlights"
         verbose_name = "Distributor Highlight"
 
+class DsrHighlights(models.Model):
+
+    month = models.DateTimeField(null=True,blank=True)
+    year = models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        abstract = True
+        db_table = "gm_sfa_dsr_highlights"
+        verbose_name = "DistributorSalesRep Highlight"
 
 
 class RetailerHighlights(models.Model):
@@ -2110,17 +2131,38 @@ class RetailerHighlights(models.Model):
 
 def generate_asm_reports(request):
     #Get the asm targets
-    asm_target=models.AsmTarget.objects.filter(asm_id=id,month=month)
-    '''
-    check for asm_target exception condition
-    '''
-    #if asm_target.count > 1:
-    #   LOG.error("".format(ex))
-    #   message 
-    target=asm_target.get(target)
-    #Get the number of unique parts which are created for this month
-    #upc=SparePartUPC.unique_part_code.get() && 
-    #month=SparePartUPC.created_date.get().get_month()
-    #if (part_id == upc && month == month):
-    models.SparePartUPC
+        pass
     
+################################MECHANEED MODELS###############   
+
+class Agency(BaseModel):
+    '''details of Agency'''
+    
+    class Meta:
+        abstract = True
+        db_table = "md_agency"
+
+
+class QualityCheck(BaseModel):
+    '''details of QualityCheck'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_qualitycheck"
+
+
+class FieldInterviewerSupervisor(BaseModel):
+    '''details of FieldInterviewerSupervisor'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_fieldinterviewersupervisor"
+
+
+class FieldInterviewer(BaseModel):
+    '''details of FieldInterviewer'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_fieldinterviewer"
+
