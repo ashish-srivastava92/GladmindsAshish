@@ -100,9 +100,8 @@ def mobile_format(phone_number):
         And when airtel pull message from customer
         or service advisor we will check that number in +91 format
     '''
-    
-    if brand == 'bajajib':
-        return '+256' + phone_number
+    if settings.BRAND == 'bajajib':
+        return '256' + phone_number
     return '+91' + phone_number[-10:]
     #return '+256' + phone_number
 
@@ -134,8 +133,7 @@ def get_phone_number_format(phone_number):
     '''
     
 #TODO: when bajajib format will come change this and return only--> phone_number[-10:]
-    
-    if brand == 'bajajib':
+    if settings.BRAND == 'bajajib':
         country_name = get_model('Country').objects.get(name = 'UGA')
         area_code = country_name.area_code
     try:

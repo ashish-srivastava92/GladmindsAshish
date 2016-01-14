@@ -252,7 +252,7 @@
     "pk": 28,
     "fields": {
       "template_key": "COUPON_ALREADY_CLOSED",
-      "template": "The FSC is already tagged in the system",
+      "template": "Service type is already tagged in the system.",
       "description": "Send coupon is closed message to an initiator if it has been closed by some other SA"
     }
   },

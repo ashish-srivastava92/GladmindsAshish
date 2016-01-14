@@ -177,19 +177,34 @@ SUIT_CONFIG = {
                      'label': 'SA registration'},
                     {'model': 'customertempregistration',
                      'label': ' Customer registration'},)},
+             
+        {'app': 'bajaj', 'label': 'servicedesk', 'icon': ' icon-folder-open',
+         'models':(
+                    {'model': 'servicedeskuser',
+                     'label': ' Service Desk Users'},
+                    {'model': 'servicetype',
+                     'label': ' Service type'},
+                    {'model': 'service',
+                     'label': 'Services'},)},
         {'app': 'bajaj', 'label': 'Templates', 'icon': ' icon-folder-open',
          'models':(
                     'messagetemplate', 'emailtemplate',)},)
+        
 }
 
 
 MANAGERS = ADMINS
 
 DATABASE_ROUTERS = ['gladminds.router.DatabaseAppsRouter']
-DB_USER = os.environ.get('DB_USER', 'root')
-DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
-DB_PORT = os.environ.get('DB_PORT', '3306')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
+# DB_USER = os.environ.get('DB_USER', 'root')
+# DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
+# DB_PORT = os.environ.get('DB_PORT', '3306')
+# DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
+
+DB_USER = "gladminds"
+DB_HOST = "gladminds-qa-2.chnnvvffqwop.us-east-1.rds.amazonaws.com"
+DB_PORT = "3306"
+DB_PASSWORD = "gladmindsqa2"
 
 class GmApps():
     AFTERBUY = 'afterbuy'
@@ -647,13 +662,13 @@ FEED_HEALTH_CHECK_INTERVAL = 8
 ################################################
 BRAND = None
 GM_BRAND = 'default'
-OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler']
+OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler','bajajib']
 
 BRANDS = OUTSIDE_BRANDS + ['afterbuy']
 ###############################################
 AIRTEL_IP = '54.84.243.77'
 SMS_CLIENT = "MOCK"
-BRAND_SMS_GATEWAY={'bajaj':'AIRTEL', 'daimler':'KAP', 'bajajcv': 'AIRTEL', 'afterbuy': 'KAP', 'bajajib': 'KAP'}
+BRAND_SMS_GATEWAY={'bajaj':'AIRTEL', 'daimler':'KAP', 'bajajcv': 'AIRTEL', 'afterbuy': 'KAP', 'bajajib': 'SMSMEDIA'}
 SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                               'pass':'bajaj',
                               'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
@@ -678,7 +693,13 @@ SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                           'working_key': 'A7c60ff0d857cae421a2ad3026629960c',
                           'sender_id': 'GLADMS',
                           'params': 'kap'},
-                  'MOCK': {}
+                  'MOCK': {},
+                 'SMSMEDIA' : {
+                         'login':'gladminds',
+                         'pass':'g8a1i9n@s',
+                         #'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
+                         'message_url': 'http://lambda.smsmedia.ug/api/capi/send.php'
+                              }
                   }
 
 ADMIN_DETAILS = {GmApps.BAJAJ: {'user': 'bajaj', 'password': 'bajaj'},

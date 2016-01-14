@@ -5,9 +5,9 @@ from gladminds.default import models
 
 
 _BAJAJ_SERVICES = [Services.AFTERBUY, Services.FREE_SERVICE_COUPON, Services.LOYALTY, Services.SERVICE_DESK]
+_BAJAJIB_SERVICES = [Services.AFTERBUY, Services.FREE_SERVICE_COUPON, Services.LOYALTY, Services.SERVICE_DESK]
 _DEMO_SERVICES = [Services.SERVICE_DESK]
 _DAIMLER_SERVICES = [Services.SERVICE_DESK]
-_BAJAJIB_SERVICES = [Services.AFTERBUY, Services.FREE_SERVICE_COUPON, Services.LOYALTY, Services.SERVICE_DESK]
 _INDUSTRIES = ['automobiles']
 _BRANDS = {'bajaj': [_INDUSTRIES[0]], 'demo': [_INDUSTRIES[0]], 'daimler': [_INDUSTRIES[0]], 'bajajib': [_INDUSTRIES[0]]}
 
