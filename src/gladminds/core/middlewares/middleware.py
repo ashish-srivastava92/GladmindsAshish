@@ -25,7 +25,7 @@ class GladmindsMessageMiddleware(object):
         source_client = request.GET.get('__gm_source', None)
 
         if settings.ENV in ['local', 'test', 'staging']:
-            SMS_CLIENT.value = None
+            SMS_CLIENT.value = "KAP"
             return
 
         if source_client == settings.SMS_CLIENT_DETAIL['KAP']['params']:
