@@ -765,6 +765,84 @@
       "template": "Dear {retailer_name}, Sorry, you need {shortage_points} more points for these products. Please check catalog and submit new request.",
       "description": "Send this message when retailer does not have enough points to redeem a single product."
     }
-  }
+  },
+  
+  
+  
+  
+  
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 85,
+    "fields": {
+      "template_key": "INVALID_VEH_REG_NO",
+      "template": "Vehicle number you does not exit, Please reach customer support {support_number}",
+      "description": "Send this message when vehicle number does not exist."
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 86,
+    "fields": {
+      "template_key": "PLEASE_CLOSE_INPROGRESS_COUPON",
+      "template": "Unique Coupon Number {coupon} is already in progress, Please close it first.Thankyou",
+      "description": "Send message when other coupon are in progress"
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 87,
+    "fields": {
+      "template_key": "INVALID_CUSTOMER_ID",
+      "template": "Customer number you entered is not valid, Please check it, Thankyou",
+      "description": "Send message when customer number in not valid."
+    }
+  },
+  
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 88,
+    "fields": {
+      "template_key": "INVALID_UCN",
+      "template": "UCN is not valid, Please check it.Thankyou.",
+      "description": "Send message when UCN is not valid."
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 89,
+    "fields": {
+      "template_key": "INVALID_ST",
+      "template": "Please enter a valid service type.",
+      "description": "Send this message when service type in not valid."
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 90,
+    "fields": {
+      "template_key": "OWNER_MOBILE_NUMBER_UPDATE",
+      "template": "Dear {customer_name}, your registered mobile number has been changed to {new_number}. If you notice any discrepancy please contact {phone_number}",
+      "description": "Send this message when owner phone number is updated"
+
+    }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 91,
+    "fields": {
+      "template_key": "INVALID_SERVICE_DIFFERENCE",
+      "template": "Next free service request will be available after 15 days of previous service.",
+      "description": "Send this message when diffrence between two service is < 15"
+
+    }
+  },
   
 ]
