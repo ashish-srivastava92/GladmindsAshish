@@ -19,7 +19,6 @@ from gladminds.core.stats import LOGGER
 from gladminds.settings import COUPON_VALID_DAYS
 from gladminds.sqs_tasks import send_service_detail, \
     send_coupon_detail_customer, send_coupon, send_invalid_keyword_message
-from nose.util import src
 import pytz
 import unicodedata
 
