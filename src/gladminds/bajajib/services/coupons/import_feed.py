@@ -127,10 +127,10 @@ class ProductDispatchFeed(BaseFeed):
                 logger.info(
                     '[Info: ProductDispatchFeed_product_data]: {0}'.format(done))
                 try:
-                    dealer_data = self.check_or_create_dealer(dealer_id=product['dealer_id'])
+                    dealer_data = self.check_or_create_country_distributor(dealer_id=product['dealer_id'])
                     product_data = models.ProductData(
                         product_id=product['vin'], invoice_date=product['invoice_date'], 
-                        dealer_id=dealer_data, sku_code=product['product_type'])
+                        country_distributor=dealer_data, sku_code=product['product_type'])
                     product_data.save()
                     logger.info('[Successful: ProductDispatchFeed_product_data_save]:VIN-{0} UCN-{1}'.format(product['vin'], product['unique_service_coupon']))
                 except Exception as ex:

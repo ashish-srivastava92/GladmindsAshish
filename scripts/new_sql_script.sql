@@ -96,13 +96,21 @@ rename table gm_constant to afterbuy_constant;
 --alter table gm_dealer add foreign key(sm_id) references gm_areasalesmanager(id);
 --alter table auth_user modify username varchar(250);
 --alter table gm_comment modify column comment varchar(512);
---------------------------------------------------------------------------------------------
+
 DROP INDEX constant_name ON gm_constant;
+
 
 alter table gm_bomvisualization drop column status;
 alter table gm_bomvisualization add column is_published boolean default False;
 alter table gm_bomvisualization add column is_approved boolean default False;
 
+---------------------------------------------------------------------------------------------
+These are added for UFSC
+alter table gm_maincountrydealer add column country_distributor_id integer null;
+alter table gm_maincountrydealer add foreign key(country_distributor_id)references gm_maincountrydealer(user_id);
+
+alter table gm_dealer add column main_country_dealer_id integer null;
+alter table gm_dealer add foreign key(main_country_dealer_id) references gm_maincountrydealer(user_id);
 
 --------------------------bajajcv------------------------------------------------------------
 alter table gm_dealer add column asm_id integer
@@ -110,6 +118,8 @@ alter table gm_dealer add foreign key(asm_id) references gm_areaservicemanager(i
 alter table gm_dealer add column area varchar(250);
 alter table gm_dealer add column last_transaction_date datetime null;
 alter table gm_dealer add column regional_office varchar(250);
+
+alter table gm_productdata add column customer_district varchar(25) null;
 ---------------------------------------------------------------------------------------------
 for bajajcv add this in gm_retailer
 alter table gm_retailer add column shop_number varchar(50) null;

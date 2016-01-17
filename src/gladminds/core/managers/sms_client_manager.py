@@ -4,7 +4,7 @@ import requests
 
 LOGGER = logging.getLogger("gladminds")
 
-__all__ = ['KapSmsClient', 'AirtelSmsClient', 'TwilioSmsClient']
+__all__ = ['KapSmsClient', 'AirtelSmsClient', 'TwilioSmsClient', 'SmsMediaSmsClient']
 
 
 def load_gateway(sms_client):
@@ -19,6 +19,8 @@ def load_gateway(sms_client):
         return TwilioSmsClient(**client)
     elif sms_client == 'KAP':
         return KapSmsClient(**client)
+    elif sms_client == 'SMSMEDIA':
+        return SmsMediaSmsClient(**client)
 
 class SmsClientExcetion(Exception):
 
@@ -218,3 +220,59 @@ class TwilioSmsClient(SmsClientBaseObject):
         response = requests.post(url = url,
                                  data=data,
                                  auth=(self.account_key, self.auth_key))
+ 
+ 
+class SmsMediaSmsClient(SmsClientBaseObject):
+    '''
+        This sms-media is for Uganda, bajajib 
+    ''' 
+    
+    def __init__(self, *args, **kwargs):
+        """Set username and password"""
+        self.login = kwargs['login']
+        self.password = kwargs['pass']
+        #self.authenticate_url = kwargs['authenticate_url']
+        self.message_url = kwargs['message_url']
+        
+    def authenticate(self):
+        pass
+    
+    def send_stateless(self, **kwargs):
+        phone_number = kwargs['phone_number']
+        message = kwargs['message']
+        #session_id = self._get_session_id()
+        LOGGER.info(
+            '[INFO]: sending message {0} to {1} through Sms-Media'.format(message, phone_number))
+        params = {'phone' : phone_number,
+                  'request' : message,
+                  'login' : self.login,
+                  'pass': self.password }
+        return self.send_request(url = self.message_url, params = params)
+    
+    def send_stateful(self, **kwargs):
+        phone_number = kwargs['phone_number']
+        message = kwargs['message']
+        LOGGER.info(
+            '[INFO]: sending message {0} to {1} through Sms-Media'.format(message, phone_number))
+        params = {'username': self.login,
+                  'pass': self.password,
+                  #'senderid': self.sender_id,
+                  'phone' : phone_number,
+                  'request' : message,
+                  'response' : 'Y',
+                  }
+        return self.send_request(url = self.message_url, params = params)
+    
+    def send_request(self, url, params):
+        LOGGER.info(
+            '[INFO]: sending message to USSD url {0}'.format(url))
+        try:
+            resp = requests.get(url = url, params = params)
+        except Exception as ex:
+            return "failed"
+        #resp = requests.get(url = url, params = params)
+        LOGGER.info(
+            '[INFO]: Response from USSD url {0} {1}'.format(resp.content, resp.status_code))
+        assert resp.status_code==200
+        return resp.status_code
+    
