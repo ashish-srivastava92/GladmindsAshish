@@ -25,6 +25,7 @@ class InvalidFormat(SmsException): {}
 def sms_parser(*args, **kwargs):
     message = kwargs['message']
     parse_message = parse(templates.RCV_MESSAGE_FORMAT, message)
+    
     #FIXME: Find a generic way to handle message
     if not parse_message:
         message = message + " message"
@@ -99,7 +100,3 @@ def render_sms_template(keyword=None, status=None, template=None, *args, **kwarg
         message_template = template_obj[status]
         message = message_template.format(*args, **kwargs)
     return message
-
-
-
-

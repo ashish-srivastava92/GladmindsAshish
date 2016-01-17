@@ -54,7 +54,6 @@ class SMSResources(Resource):
                 LOGGER.info('Message to send: ' + message)
         try:    
             to_be_serialized=sms_processing(phone_number, message, settings.BRAND)
-            
         except InvalidKeyWord as ink:
             LOGGER.info("The database failed to perform {0}:{1}".format(
                                             request.POST.get('action'), ink))

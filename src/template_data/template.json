@@ -767,11 +767,6 @@
     }
   },
   
-  
-  
-  
-  
-  
   {
     "model": "gladminds.messagetemplate",
     "pk": 85,
@@ -843,6 +838,6 @@
       "description": "Send this message when diffrence between two service is < 15"
 
     }
-  },
+  }
   
 ]
