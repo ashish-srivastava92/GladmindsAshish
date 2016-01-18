@@ -45,7 +45,7 @@ def register_owner(sms_dict, phone_number):
     '''
     dealer = models.Dealer.objects.active_dealer(phone_number)
     service_advisor = validate_sa_for_registration(phone_number)
-    if (dealer is None)  and (service_advisor is None) :
+    if not dealer  and (service_advisor is None) :
         message = templates.get_template('UNAUTHORISED_DEALER')
         return {'message' : message, 'status': False}
     registration_number = sms_dict['registration_number']
@@ -83,24 +83,29 @@ def register_owner(sms_dict, phone_number):
             send_job_to_queue(send_coupon, {"phone_number":product.customer_phone_number, "message": owner_message,
                                             "sms_client":settings.SMS_CLIENT})
 
+        elif(product.customer_phone_number != owner_phone_number):
+            update_history = models.CustomerUpdateHistory(updated_field='phone_number',
+                                                          old_value=product.customer_phone_number,
+                                                          new_value=owner_phone_number,
+                                                          product=product)
+            update_history.save()
+            old_number = product.customer_phone_number
+            product.customer_phone_number = owner_phone_number
+            product.save()
+            owner_message = templates.get_template('OWNER_MOBILE_NUMBER_UPDATE').format(customer_name=product.customer_name,
+                                                                            new_number=owner_phone_number, phone_number=customer_support)
+            
+            for phone_number in [old_number, owner_phone_number]:
+                sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=owner_message)
+                send_job_to_queue(send_coupon, {"phone_number":phone_number, "message": owner_message,
+                                        "sms_client":settings.SMS_CLIENT})
         else:
-            if product.customer_phone_number != owner_phone_number:
-                update_history = models.CustomerUpdateHistory(updated_field='phone_number',
-                                                              old_value=product.customer_phone_number,
-                                                              new_value=owner_phone_number,
-                                                              product=product)
-                update_history.save()
-                old_number = product.customer_phone_number
-                product.customer_phone_number = owner_phone_number
-                product.save()
-                owner_message = templates.get_template('OWNER_MOBILE_NUMBER_UPDATE').format(customer_name=product.customer_name,
-                                                                                new_number=owner_phone_number, phone_number=customer_support)
-                
-                for phone_number in [old_number, owner_phone_number]:
-                    sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=owner_message)
-                    send_job_to_queue(send_coupon, {"phone_number":phone_number, "message": owner_message,
-                                            "sms_client":settings.SMS_CLIENT})
-
+            if product.customer_phone_number == owner_phone_number:
+                sa_message_for_owner = templates.get_template('OWNER_MOBILE_NUMBER_EXIST')
+                send_job_to_queue(send_service_detail, {"phone_number": phone_number,
+                                                "message": sa_message_for_owner,
+                                                "sms_client": settings.SMS_CLIENT})
+            
         data = {'message' : owner_message, 'status': True}
     except Exception as ex:
         LOG.info('[register_owner]:Exception : '.format(ex))
@@ -120,7 +125,7 @@ def register_rider(sms_dict, phone_number):
     '''
     dealer = models.Dealer.objects.active_dealer(phone_number)
     service_advisor = validate_sa_for_registration(phone_number)
-    if dealer  is None and service_advisor is None:
+    if not dealer and service_advisor is None:
         message = templates.get_template('UNAUTHORISED_DEALER')
         return {'message' : message}
 
@@ -524,10 +529,6 @@ def get_requested_coupon_status(product, service_type):
     else:
         status = STATUS_CHOICES[requested_coupon[0].status - 1][1]
     return status
-
-
-
-
 
 
 def validate_sa_for_registration( phone_number):

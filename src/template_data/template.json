@@ -838,6 +838,17 @@
       "description": "Send this message when diffrence between two service is < 15"
 
     }
+  },
+  
+  {
+    "model": "gladminds.messagetemplate",
+    "pk": 91,
+    "fields": {
+      "template_key": "OWNER_MOBILE_NUMBER_EXIST",
+      "template": "User with this mobile number already exist.", 
+      "description": "Send this message when same mobile number used for owner registration"
+
+    }
   }
   
 ]
