@@ -337,7 +337,7 @@ def close_coupon(sms_dict, phone_number):
         return {'status': False, 'message': templates.get_template('UNAUTHORISED_SA')}
     
     sa_uinitiator_result, msg = is_sa_initiator(unique_service_coupon, service_advisor, phone_number)
-    if not is_sa_initiator(unique_service_coupon, service_advisor, phone_number):
+    if not sa_uinitiator_result:
         return {'status': False, 'message': msg}
     
     try:
@@ -346,6 +346,7 @@ def close_coupon(sms_dict, phone_number):
                     return {'status': False, 'message': templates.get_template('INVALID_CUSTOMER_ID')}
         coupon_object = models.CouponData.objects.filter(product=product.id,
                                                          unique_service_coupon=unique_service_coupon).select_related ('product')
+                                                         
         if not coupon_object:
                     return {'status': False, 'message': templates.get_template('INVALID_UCN')}
         coupon_object = coupon_object[0]     
@@ -408,9 +409,10 @@ def is_sa_initiator(coupon_id, service_advisor, phone_number):
     
     else:
         coupon_sa_obj = models.ServiceAdvisorCouponRelationship.objects.filter(unique_service_coupon=coupon_data\
-                                                                        ,service_advisor=service_advisor)
+                                                                        ,
+                                                                        service_advisor=service_advisor)
     if len(coupon_sa_obj) > 0:
-        return True
+        return True, "Success"
     else:
         sa_phone = utils.get_phone_number_format(phone_number)
         message = "SA is not the coupon initiator."
