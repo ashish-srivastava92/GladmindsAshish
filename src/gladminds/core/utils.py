@@ -143,9 +143,8 @@ def get_phone_number_format(phone_number):
 #         return   phone_number_uganda
 #     except Exception as ex:
 #         return phone_number[-10:]
-
     country_name = get_model('Country').objects.get(name = 'UGA')
-    area_code = country_name.area_code
+    area_code = country_name[0].area_code
     try:
         phone_number_uganda = phone_number.split(area_code,1)[1]
         return   phone_number_uganda
