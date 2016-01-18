@@ -105,6 +105,8 @@ def register_owner(sms_dict, phone_number):
                 send_job_to_queue(send_service_detail, {"phone_number": phone_number,
                                                 "message": sa_message_for_owner,
                                                 "sms_client": settings.SMS_CLIENT})
+                
+                return {'message' : sa_message_for_owner, 'status': False}
             
         data = {'message' : owner_message, 'status': True}
     except Exception as ex:
