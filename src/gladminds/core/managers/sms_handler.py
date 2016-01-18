@@ -57,6 +57,7 @@ class SMSResources(Resource):
         except InvalidKeyWord as ink:
             LOGGER.info("The database failed to perform {0}:{1}".format(
                                             request.POST.get('action'), ink))
+            
             send_job_to_queue(send_invalid_keyword_message, {"phone_number":phone_number, "message":ink.template, "sms_client":settings.SMS_CLIENT})
             return HttpBadRequest(json.dumps({'status':False, 'message':ink.template}))
         except Exception as ex:

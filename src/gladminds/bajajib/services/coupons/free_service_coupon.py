@@ -93,9 +93,9 @@ def register_owner(sms_dict, phone_number):
                 old_number = product.customer_phone_number
                 product.customer_phone_number = owner_phone_number
                 product.save()
-       
                 owner_message = templates.get_template('OWNER_MOBILE_NUMBER_UPDATE').format(customer_name=product.customer_name,
-                                                                                new_number=owner_phone_number)
+                                                                                new_number=owner_phone_number, phone_number=customer_support)
+                
                 for phone_number in [old_number, owner_phone_number]:
                     sms_log(settings.BRAND, receiver=phone_number, action=AUDIT_ACTION, message=owner_message)
                     send_job_to_queue(send_coupon, {"phone_number":phone_number, "message": owner_message,
@@ -177,6 +177,7 @@ def validate_coupon(sms_dict, phone_number):
     customer_message_countdown = settings.DELAY_IN_CUSTOMER_UCN_MESSAGE
     vehicle_registration_no = sms_dict.get('veh_reg_no', None)
     service_advisor = validate_service_advisor(phone_number)
+    
     if settings.LOGAN_ACTIVE:
         LOGGER.post_event("check_coupon", {'sender':phone_number,
                                           'brand':settings.BRAND})
@@ -192,12 +193,10 @@ def validate_coupon(sms_dict, phone_number):
         product_data_list = get_product(sms_dict)
         customer_support = models.Constant.objects.get(constant_name='customer_support_number_uganda').constant_value
         if not product_data_list:
-                   
                     # This new line is added 
                     message = templates.get_template('INVALID_VEH_REG_NO').format(
                                                     support_number=customer_support)
                     return {'status': False, 'message': message}
-            
                    # return {'status': False, 'message': templates.get_template('INVALID_VEH_REG_NO')}
         LOG.info("Associated product %s" % product_data_list.product_id)
 #         update_exceed_limit_coupon(actual_kms, product, service_advisor)
@@ -286,7 +285,6 @@ def validate_coupon(sms_dict, phone_number):
             customer_message = dealer_message
             rider_message = dealer_message
             
-        
         try:
             val =unicodedata.normalize('NFKD', rider_message).encode('ascii','ignore')
             if rider and val != None:
@@ -330,11 +328,11 @@ def close_coupon(sms_dict, phone_number):
                                           'brand':settings.BRAND})
     if not service_advisor:
         return {'status': False, 'message': templates.get_template('UNAUTHORISED_SA')}
-    if not is_sa_initiator(unique_service_coupon, service_advisor, phone_number):
-        return {'status': False, 'message': "SA is not the coupon initiator."}
     
-#     if not is_valid_data(customer_id=customer_id, coupon=unique_service_coupon, sa_phone=phone_number):
-#         return {'status': False, 'message': templates.get_template('SEND_SA_WRONG_CUSTOMER_UCN')}
+    sa_uinitiator_result, msg = is_sa_initiator(unique_service_coupon, service_advisor, phone_number)
+    if not is_sa_initiator(unique_service_coupon, service_advisor, phone_number):
+        return {'status': False, 'message': msg}
+    
     try:
         product = get_product(sms_dict)
         if not product:
@@ -391,8 +389,18 @@ def validate_service_advisor(phone_number, close_action=False):
 
 
 def is_sa_initiator(coupon_id, service_advisor, phone_number):
+    coupon_sa_obj = []
     coupon_data = models.CouponData.objects.filter(unique_service_coupon=coupon_id)
-    coupon_sa_obj = models.ServiceAdvisorCouponRelationship.objects.filter(unique_service_coupon=coupon_data\
+    
+    if len(coupon_data) is 0:
+        sa_phone = utils.get_phone_number_format(phone_number)
+        message = "Unique service coupon you entered is not valid"
+        sms_log(settings.BRAND, receiver=sa_phone, action=AUDIT_ACTION, message=message)
+        send_job_to_queue(send_invalid_keyword_message, {"phone_number":sa_phone, "message": message, "sms_client":settings.SMS_CLIENT})
+        return False, message
+    
+    else:
+        coupon_sa_obj = models.ServiceAdvisorCouponRelationship.objects.filter(unique_service_coupon=coupon_data\
                                                                         ,service_advisor=service_advisor)
     if len(coupon_sa_obj) > 0:
         return True
@@ -401,7 +409,7 @@ def is_sa_initiator(coupon_id, service_advisor, phone_number):
         message = "SA is not the coupon initiator."
         sms_log(settings.BRAND, receiver=sa_phone, action=AUDIT_ACTION, message=message)
         send_job_to_queue(send_invalid_keyword_message, {"phone_number":sa_phone, "message": message, "sms_client":settings.SMS_CLIENT})
-    return False
+    return False, message
 
 
 def is_valid_data(customer_id=None, coupon=None, sa_phone=None):
