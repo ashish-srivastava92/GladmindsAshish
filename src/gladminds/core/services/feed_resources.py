@@ -109,6 +109,24 @@ class BaseFeed(object):
             dealer_data.save()            
         return dealer_data
     
+    
+    # added for UFSC country Distributor
+    def check_or_create_country_distributor(self, dealer_id, address=None):
+        try:
+            country_id = 1
+            distributor_data = get_model('CountryDistributor').objects.select_related('user__user',).get(
+                distributor_id=dealer_id, country_id =1)
+            distributor_data.save()
+        except ObjectDoesNotExist as odne:
+            logger.debug(
+                "[Exception: new_country_distributor_data]: {0}"
+                .format(odne))
+            user = self.register_user(Roles.COUNTRYDISTRIBUTOR, username=dealer_id)
+            distributor_data = get_model('CountryDistributor')(user=user,
+                distributor_id=dealer_id, country_id=1)
+            distributor_data.save()            
+        return distributor_data
+    
     def check_or_create_transporter(self, transporter_id, name):
         try:
             transporter_data = get_model('Transporter').objects.select_related('user__user').get(

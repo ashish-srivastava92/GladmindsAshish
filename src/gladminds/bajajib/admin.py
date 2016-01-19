@@ -338,13 +338,20 @@ class CountryAdmin(GmModelAdmin):
     search_fields = ('name',  'area_code')
     list_display = ('name',  'area_code',)
 
+class ServiceDeskUserAdmin(GmModelAdmin):
+    list_display = ('user_profile', 'name', 'phone_number', 'email')
+    
+class ServiceAdmin(GmModelAdmin):
+    list_display = ('service_type', 'name', 'description')
+    readonly_fields = ('file_tag',)
+
 def get_admin_site_custom(brand):
     brand_admin = BajajibAdminSite(name=brand)
     
     brand_admin.register(User, UserAdmin)
     brand_admin.register(Group, GroupAdmin)
     brand_admin.register(get_model("UserProfile", brand), UserProfileAdmin)
-    #brand_admin.register(get_model("Country", brand))
+    brand_admin.register(get_model("Country", brand), CountryAdmin)
     
     brand_admin.register(get_model("CountryDistributor", brand), CountryDistributorAdmin)
     brand_admin.register(get_model("MainCountryDealer", brand), MainCountryDealerAdmin)
@@ -368,7 +375,10 @@ def get_admin_site_custom(brand):
     brand_admin.register(get_model("Constant", brand), ConstantAdmin)
     
     brand_admin.register(get_model("FleetRider", brand), FleetRiderAdmin)
-    brand_admin.register(get_model("Country", brand), CountryAdmin)
+    
+    brand_admin.register(get_model("ServiceDeskUser", brand), ServiceDeskUserAdmin)
+    brand_admin.register(get_model("Service", brand), ServiceAdmin)
+    brand_admin.register(get_model("ServiceType", brand))
 
     return brand_admin
 

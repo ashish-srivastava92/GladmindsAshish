@@ -178,6 +178,16 @@ SUIT_CONFIG = {
                     {'model': 'customertempregistration',
                      'label': ' Customer registration'},)},
              
+        {'app': 'bajaj', 'label': 'servicedesk', 'icon': ' icon-folder-open',
+         'models':(
+                    {'model': 'servicedeskuser',
+                     'label': ' Service Desk Users'},
+                    {'model': 'servicetype',
+                     'label': ' Service type'},
+                    {'model': 'service',
+                     'label': 'Services'},)},
+
+             
         {'app': 'bajaj', 'label': 'SFA Report', 'icon': ' icon-folder-open',
          'models': (
                     {'model': 'nsmtarget',
@@ -677,7 +687,7 @@ FEED_HEALTH_CHECK_INTERVAL = 8
 ################################################
 BRAND = None
 GM_BRAND = 'default'
-OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler','mechaneed']
+OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler','bajajib','mechaneed']
 
 BRANDS = OUTSIDE_BRANDS + ['afterbuy']
 ###############################################
@@ -708,7 +718,13 @@ SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                           'working_key': 'A7c60ff0d857cae421a2ad3026629960c',
                           'sender_id': 'GLADMS',
                           'params': 'kap'},
-                  'MOCK': {}
+                  'MOCK': {},
+                 'SMSMEDIA' : {
+                         'login':'gladminds',
+                         'pass':'g8a1i9n@s',
+                         #'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
+                         'message_url': 'http://lambda.smsmedia.ug/api/capi/send.php'
+                              }
                   }
 
 ADMIN_DETAILS = {GmApps.BAJAJ: {'user': 'bajaj', 'password': 'bajaj'},

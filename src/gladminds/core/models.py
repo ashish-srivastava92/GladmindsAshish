@@ -838,3 +838,8 @@ class RetailerHighlights(base_models.RetailerHighlights):
          app_label = _APP_NAME       
 
 
+class Country(base_models.Country):
+     
+    class Meta(base_models.Country.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Country"

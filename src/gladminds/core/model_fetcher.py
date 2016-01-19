@@ -1,5 +1,8 @@
 from importlib import import_module
 from django.conf import settings
+from gladminds.core.stats import LOGGER
+import logging
+LOG = logging.getLogger('gladminds')
 
 class ModelFetcher(object):
     """
@@ -34,6 +37,7 @@ def get_models():
 def get_model(model, brand=None):
     if not brand:
         brand = settings.BRAND
+    LOG.info("Using the brand %s" % brand)
     try:
         return getattr(import_module('gladminds.{0}.models'.format(brand)), model)
     except:
