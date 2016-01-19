@@ -29,12 +29,12 @@ class UserProfile(base_models.UserProfile):
      
     class Meta(base_models.UserProfile.Meta):
         app_label = _APP_NAME
-        verbose_name_plural = "Brand Users"
+        verbose_name_plural = "All Meechaneed Users"
 
 
 class Agency(base_models.Agency):
     
-    agency_id = models.CharField(max_length=255, null=True, blank=True, default=generate_agency_id)
+    agency_id = models.CharField(max_length=255, null=False, blank=True, default=generate_agency_id)
     name = models.CharField(max_length=255, null=False)
     address = models.CharField(max_length=255, null=True, blank=True)
     address1 = models.CharField(max_length=255, null=True, blank=True)
@@ -47,13 +47,13 @@ class Agency(base_models.Agency):
         verbose_name_plural = "Agency"
     
     def __unicode__(self):
-        return str(self.agency_id) + ' ' +str(self.name)
+        return str(self.agency_id) + ' | ' +str(self.name)
 
     
 class QualityCheck(base_models.QualityCheck):
     '''details of QualityCheck'''
-    user = models.ForeignKey(UserProfile, null=True, blank=True)
-    agency = models.ForeignKey(Agency, null=True, blank=True)
+    user = models.ForeignKey(UserProfile, null=False, blank=True)
+    agency = models.ForeignKey(Agency, null=False, blank=True)
     
     qualitycheck = models.CharField(max_length=50, unique=True, default=generate_qualitycheck_id)
     name = models.CharField(max_length=50, null=True, blank=True)
@@ -64,12 +64,12 @@ class QualityCheck(base_models.QualityCheck):
         verbose_name_plural = "Quality Check"
     
     def __unicode__(self):
-        return str(self.agency) + ' ' +str(self.name)
+        return str(self.qualitycheck) + ' | ' +str(self.name)
 
 
 class FieldInterviewerSupervisor(base_models.FieldInterviewerSupervisor):
     '''details of FieldInterviewerSupervisor'''
-    user = models.ForeignKey(UserProfile, null=True, blank=True)
+    user = models.ForeignKey(UserProfile, null=False, blank=True)
     qualitycheck_id = models.ForeignKey(QualityCheck, null=True, blank=True)
     agency = models.ForeignKey(Agency, null=True, blank=True)
 
@@ -82,12 +82,12 @@ class FieldInterviewerSupervisor(base_models.FieldInterviewerSupervisor):
         verbose_name_plural = "Field Interviewer Supervisor"
     
     def __unicode__(self):
-        return str(self.qualitycheck_id) + ' ' + str(self.name)
+        return str(self.qualitycheck_id) + ' | ' + str(self.name)
         
 
 class FieldInterviewer(base_models.FieldInterviewer):
     '''details of FieldInterviewer'''
-    user = models.ForeignKey(UserProfile, null=True, blank=True)
+    user = models.ForeignKey(UserProfile, null=False, blank=True)
     qualitycheck_id = models.ForeignKey(QualityCheck, null=True, blank=True)
     agency = models.ForeignKey(Agency, null=True, blank=True)
  
@@ -99,6 +99,6 @@ class FieldInterviewer(base_models.FieldInterviewer):
         verbose_name_plural = "Field Interviewer"
     
     def __unicode__(self):
-        return str(self.qualitycheck_id) + ' ' +str(self.name)
+        return str(self.qualitycheck_id) + ' | ' +str(self.name)
 
         

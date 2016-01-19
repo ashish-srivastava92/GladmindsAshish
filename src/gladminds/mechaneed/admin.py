@@ -39,20 +39,20 @@ class AgencyAdmin(GmModelAdmin):
 class QualityCheckAdmin(GmModelAdmin):
     search_fields = ('agency', 'qualitycheck','phone_number')
                      
-    list_display = ('agency', 'name', 'phone_number','qualitycheck',)
+    list_display = ('agency', 'qualitycheck','name', 'phone_number',)
                      
 
 
 class FieldInterviewerSupervisorAdmin(GmModelAdmin):
     search_fields = ('agency', 'qualitycheck_id','phone_number')
                      
-    list_display = ('agency', 'name', 'phone_number','qualitycheck_id',)
+    list_display = ('agency','qualitycheck_id','name', 'phone_number',)
                      
 
 class FieldInterviewerAdmin(GmModelAdmin):
     search_fields = ('agency', 'qualitycheck_id','phone_number')
                      
-    list_display = ('agency', 'name', 'phone_number','qualitycheck_id',)
+    list_display = ('agency','qualitycheck_id', 'name', 'phone_number',)
                      
 
 def get_admin_site_custom(brand):

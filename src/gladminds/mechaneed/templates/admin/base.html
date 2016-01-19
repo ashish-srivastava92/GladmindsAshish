@@ -32,10 +32,9 @@
       {% block header %}
         {% if not is_popup %}
           <!-- Header -->
-          <div id="header" class="header" style="background-image: -webkit-gradient(linear, left top, right top, from(#F5F5F5), to(#F5F5F5));color:#708090;">
+          <div id="header" class="header" style="background-image: -webkit-gradient(linear, left top, right top, from(#000000), to(#F5F5F5));color:#000000;">
             <div id="branding" style="border-right: 0px; min-width: 225px;">
-              <a href="{% url 'admin:index' %}"><h1 id="site-name">{% block branding %}<img style="width: 209px;height: 43px;margin-left: -11px;argin-top: -2px;
-"  />{% endblock %}</h1></a>
+              <a href="{% url 'admin:index' %}"><h1 id="site-name" style="font-size: 25px"> Mechaneed </h1></a>
             </div>
 
             {% block header_time %}
@@ -44,8 +43,8 @@
                 <i class="icon-time"></i>
               </div>
               <div class="header-column">
-                <span class="date"> {% suit_date %}</span><br>
-                <span style="color: #708090" class="time" id="clock">{% suit_time %}</span>
+                <span style="color: #ffffff" class="date"> {% suit_date %}</span><br>
+                <span style="color: #ffffff" class="time" id="clock">{% suit_time %}</span>
               </div>
             </div>
             {% endblock %}
@@ -181,9 +180,7 @@
       </div>
 
       <div class="copyright">
-        {% block copyright %}
-          Copyright &copy; 2013 DjangoSuit.com<br>Developed by <a href="http://djangosuit.com" target="_blank">DjangoSuit.com</a>
-        {% endblock %}
+     
       </div>
 
       <div class="branding">{% block footer_branding %}
