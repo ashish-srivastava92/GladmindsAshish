@@ -44,7 +44,6 @@ api_v1.register(user_apis.ServiceDeskUserResource())
 api_v1.register(user_apis.TransporterResource())
 api_v1.register(user_apis.SupervisorResource())
 
-
 api_v1.register(product_apis.ProductTypeResource())
 api_v1.register(product_apis.ProductResource())
 api_v1.register(product_apis.CustomerTempRegistrationResource())

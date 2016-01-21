@@ -4,10 +4,7 @@ from gladminds.core import base_models, constants
 from gladminds.core.auth_helper import GmApps
 import datetime
 
-from gladminds.core.models import NationalSparesManager, AreaSparesManager, Distributor, Retailer
-from gladminds.core.base_models import SparePartUPC
-
-_APP_NAME = GmApps.BAJAJ    
+_APP_NAME = GmApps.BAJAJ
 
 try:
     from django.utils.timezone import now as datetime_now
@@ -601,6 +598,7 @@ class LoyaltySLA(base_models.LoyaltySLA):
         
 class EmailToken(base_models.EmailToken):
     user = models.ForeignKey(UserProfile)
+
     class Meta(base_models.EmailToken.Meta):
         verbose_name_plural = 'email_tokens'
 
