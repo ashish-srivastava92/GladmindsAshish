@@ -22,6 +22,26 @@ except ImportError:
     datetime_now = datetime.datetime.now
 
  
+class MessageTemplate(base_models.MessageTemplate):
+
+    class Meta(base_models.MessageTemplate.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Message Template"
+
+
+class EmailTemplate(base_models.EmailTemplate):
+
+    class Meta(base_models.EmailTemplate.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Email Template"
+
+
+class Constant(base_models.Constant):
+    ''' contains all the constants'''
+    class Meta(base_models.Constant.Meta):
+        app_label = _APP_NAME
+
+
 class UserProfile(base_models.UserProfile):
     user = models.OneToOneField(User, primary_key=True,
                                         related_name='mechaneed_users')
