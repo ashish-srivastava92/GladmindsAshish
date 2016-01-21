@@ -29,7 +29,7 @@ class UserProfile(base_models.UserProfile):
      
     class Meta(base_models.UserProfile.Meta):
         app_label = _APP_NAME
-        verbose_name_plural = "All Meechaneed Users"
+        verbose_name_plural = "All Mechaneed Users"
 
 
 class Agency(base_models.Agency):

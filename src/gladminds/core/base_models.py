@@ -22,7 +22,6 @@ from gladminds.core.managers.mail import sent_password_reset_link,\
     send_email_activation
 from gladminds.core.constants import SBOM_STATUS
 from gladminds.core.managers.email_token_manager import EmailTokenManager
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 try:
@@ -612,12 +611,10 @@ class EmailToken(models.Model):
                     'site': site,
                     'base_url':settings.DOMAIN_BASE_URL}
         if trigger_mail == 'forgot-password':
-            print('============================sent passwordddddd==================================')
             ctx_dict = {'activation_key': self.activation_key,
                     'link': settings.FORGOT_PASSWORD_LINK[settings.BRAND],
                     'base_url': settings.COUPON_URL}
             sent_password_reset_link(reciever_email, ctx_dict)
-            print("==============================ctx dict===============================")
         else:
             send_email_activation(reciever_email, ctx_dict)
 
