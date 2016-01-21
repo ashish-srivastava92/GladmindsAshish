@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.db import models
 from django.core.exceptions import ValidationError
+
 from composite_field.base import CompositeField
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -21,6 +22,7 @@ from gladminds.core.managers.mail import sent_password_reset_link,\
     send_email_activation
 from gladminds.core.constants import SBOM_STATUS
 from gladminds.core.managers.email_token_manager import EmailTokenManager
+
 
 try:
     from django.utils.timezone import now as datetime_now
@@ -1987,4 +1989,36 @@ class FleetRider(BaseModel):
     def __unicode__(self):
         return self.phone_number
     
+################################MECHANEED MODELS###############   
+
+class Agency(BaseModel):
+    '''details of Agency'''
     
+    class Meta:
+        abstract = True
+        db_table = "md_agency"
+
+
+class QualityCheck(BaseModel):
+    '''details of QualityCheck'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_qualitycheck"
+
+
+class FieldInterviewerSupervisor(BaseModel):
+    '''details of FieldInterviewerSupervisor'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_fieldinterviewersupervisor"
+
+
+class FieldInterviewer(BaseModel):
+    '''details of FieldInterviewer'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_fieldinterviewer"
+

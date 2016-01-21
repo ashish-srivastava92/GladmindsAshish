@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>
+    {% block title %}
+      Dashboard
+    {% endblock %}
+    </title>
+       <link rel="stylesheet" href="/static/libs/datepicker/css/jquery-ui.css">
+        <link href="/static/css/bootstrap.css" rel="stylesheet"> 
+        <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">  
+        <link href="/static/css/jquery.datetimepicker.css" rel="stylesheet">
+        <!--[if gt IE 7]>
+            <link href="/static/css/bootstrap-ie7.css" rel="stylesheet">
+            <link href="/static/css/style-ie7.css" rel="stylesheet">
+            <script src="/static/libs/html5.js"></script>
+        <![endif]-->
+        
+        <!-- Add custom CSS here -->
+        <link href="/static/css/sb-admin.css" rel="stylesheet">
+        <link rel="stylesheet" href="/static/css/morris-0.4.3.min.css">
+        <link href="/static/css/portal.css" rel="stylesheet">
+    {% block style %}
+    {% endblock %}
+  </head>
+  <body>
+    {% block header %}
+    <header class="navbar" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="navbar-inner">
+            <a class="brand " href="#"><img src="/static/{{METAINFO.logo}}" class='brand-logo logo-size' ></a>
+          </div>
+        </div>
+      </div>
+    </header>
+    {% endblock %}
+    <div id="wrapper">
+    {% block body %}
+    {% endblock %}
+   </div>
+	<!--[if IE]>
+       	<script src="/static/libs/jquery-1.7.1.min.js"></script> 
+       	<script src="/static/libs/form-validation.js"></script> 
+   	<![endif]-->
+
+	<!--[if !IE]><!-->
+		<script src="/static/libs/jquery-2.1.1.js"></script> 
+	<!--<![endif]-->
+
+    <script src="/static/libs/bootstrap.js"></script>
+    <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="http://cdn.oesmith.co.uk/morris-0.4.3.min.js"></script> 
+    <script src="/static/libs/morris/chart-data-morris.js"></script>
+    <script src="/static/libs/tablesorter/jquery.tablesorter.js"></script>
+    <script src="/static/libs/tablesorter/tables.js"></script> -->
+    {% block dependency %}
+    {% endblock dependency %}
+  </body>
+</html>

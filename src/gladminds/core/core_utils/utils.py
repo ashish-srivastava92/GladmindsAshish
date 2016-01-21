@@ -62,6 +62,14 @@ def generate_asm_id():
     asm_id=generate_temp_id('ASM')
     return asm_id
 
+def generate_agency_id():
+    agency_id=generate_temp_id('AGY')
+    return agency_id
+
+def generate_qualitycheck_id():
+    qualitycheck_id=generate_temp_id('QC')
+    return qualitycheck_id
+
 def debug(fn):
     '''
     Use as print utility
