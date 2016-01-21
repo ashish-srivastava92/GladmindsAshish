@@ -33,6 +33,7 @@ ADMINS = (
 API_FLAG = False
 COUPON_VALID_DAYS = 30
 # BRAND_BASE_URL = 'local.bajaj.gladminds.co'
+#COUPON_URL = 'local.bajaj.gladminds.co'
 TOTP_SECRET_KEY = '93424'
 OTP_VALIDITY = 120
 HARCODED_OTPS = ['000000']
@@ -186,21 +187,6 @@ SUIT_CONFIG = {
                      'label': ' Service type'},
                     {'model': 'service',
                      'label': 'Services'},)},
-
-             
-        {'app': 'bajaj', 'label': 'SFA Report', 'icon': ' icon-folder-open',
-         'models': (
-                    {'model': 'nsmtarget',
-                     'label': 'National Spares Manager Target'},
-                    {'model': 'asmtarget',
-                     'label': 'Area Spares Manager Target'},
-                    {'model': 'distributortarget',
-                     'label': 'Distributor Target'},
-                     {'model': 'dsrtarget',
-                     'label': 'DSR Target'},
-                    {'model': 'retailertarget',
-                     'label': 'Retailer Target'},
-                    )}, 
              
         {'app': 'mechaneed', 'label': 'Mechaneed Manager', 'icon': ' icon-folder-open',
          'models': ( 
@@ -227,7 +213,7 @@ DATABASE_ROUTERS = ['gladminds.router.DatabaseAppsRouter']
 DB_USER = os.environ.get('DB_USER', 'root')
 DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 DB_PORT = os.environ.get('DB_PORT', '3306')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
+DB_PASSWORD = os.environ.get('DB_PASSWORD', 'root')
 
 class GmApps():
     AFTERBUY = 'afterbuy'

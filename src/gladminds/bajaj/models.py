@@ -4,11 +4,8 @@ from gladminds.core import base_models, constants
 from gladminds.core.auth_helper import GmApps
 import datetime
 
-from django.db import models
 from gladminds.core.models import NationalSparesManager, AreaSparesManager, Distributor, Retailer
 from gladminds.core.base_models import SparePartUPC
-from django.core.validators import MinValueValidator, MaxValueValidator
-
 
 _APP_NAME = GmApps.BAJAJ    
 
@@ -604,7 +601,6 @@ class LoyaltySLA(base_models.LoyaltySLA):
         
 class EmailToken(base_models.EmailToken):
     user = models.ForeignKey(UserProfile)
-
     class Meta(base_models.EmailToken.Meta):
         verbose_name_plural = 'email_tokens'
 
@@ -689,102 +685,3 @@ class ManufacturingData(base_models.ManufacturingData):
     '''Manufacturing data of a product'''
     class Meta(base_models.ManufacturingData.Meta):
         app_label = _APP_NAME
-
-
-
-###################################SFA-REPORTS#######################################
-
-
-class SfaReportNames(base_models.SfaReportNames):
-    '''SFA REPORTS'''
-    class Meta(base_models.SfaReportNames.Meta):
-        app_label = _APP_NAME
-
-class NsmTarget(base_models.NsmTarget):
-    '''NSM TARGETS'''
-    nsm = models.ForeignKey(NationalSparesManager, on_delete=models.CASCADE)
-    reportnames = models.ForeignKey(SfaReportNames, null=True, blank=True)
-    
-    class Meta(base_models.NsmTarget.Meta):
-        app_label = _APP_NAME
-
-class AsmTarget(base_models.AsmTarget):
-    '''ASM TARGETS'''
-    asm = models.ForeignKey(AreaSalesManager, on_delete=models.CASCADE)  
-    reportnames = models.ForeignKey(SfaReportNames, null=True, blank=True)
-
-    class Meta(base_models.AsmTarget.Meta):
-        app_label = _APP_NAME
-
-class DistributorTarget(base_models.DistributorTarget):  
-    '''Distributor TARGETS'''
-    distributor = models.ForeignKey(Distributor, on_delete=models.CASCADE)
-    reportnames = models.ForeignKey(SfaReportNames, null=True, blank=True)
-     
-    class Meta(base_models.DistributorTarget.Meta):
-        app_label = _APP_NAME
-
-class DsrTarget(base_models.DsrTarget):  
-    '''Distributor Sales Rep TARGETS'''
-    distributor = models.ForeignKey(DistributorSalesRep, on_delete=models.CASCADE)
-    reportnames = models.ForeignKey(SfaReportNames, null=True, blank=True)
-    
-    class Meta(base_models.DsrTarget.Meta):
-        app_label = _APP_NAME
-
-class RetailerTarget(base_models.RetailerTarget):  
-    '''Retailer TARGETS'''
-    retailer = models.ForeignKey(Retailer, on_delete=models.CASCADE)
-    reportnames = models.ForeignKey(SfaReportNames, null=True, blank=True)
-    
-    class Meta(base_models.RetailerTarget.Meta):
-        app_label = _APP_NAME
-
-##############################SFAHIGHLIGHTS#######################################3
-class SfaHighlights(base_models.SfaHighlights):
-    '''SFA HIGHLIGHTS REPORTS'''
-    class Meta(base_models.SfaHighlights.Meta):
-        app_label = _APP_NAME
-    
-class NsmHighlights(base_models.NsmHighlights):  
-    nsm = models.ForeignKey(NationalSparesManager, on_delete=models.CASCADE)
-    sfahighlight = models.ForeignKey(SfaHighlights, null=True, blank=True)
-                
-    class Meta(base_models.NsmHighlights.Meta):
-        app_label = _APP_NAME
-
-
-class AsmHighlights(base_models.AsmHighlights):
-    '''ASM HIGHLIGHTS'''
-    asm = models.ForeignKey(AreaSparesManager, on_delete=models.CASCADE)
-    sfahighlight = models.ForeignKey(SfaHighlights, null=True, blank=True)
-    
-    class Meta(base_models.AsmHighlights.Meta):
-        app_label = _APP_NAME
-
-class DistributorHighlights(base_models.DistributorHighlights):
-    distributor = models.ForeignKey(Distributor, on_delete=models.CASCADE)    
-    sfahighlight = models.ForeignKey(SfaHighlights, null=True, blank=True)
-
-    class Meta(base_models.DistributorHighlights.Meta):
-        app_label = _APP_NAME
-
-class DsrHighlights(base_models.DsrHighlights):
-    distributor = models.ForeignKey(DistributorSalesRep, on_delete=models.CASCADE)
-    sfahighlight = models.ForeignKey(SfaHighlights, null=True, blank=True)
-
-    class Meta(base_models.DsrHighlights.Meta):
-        app_label = _APP_NAME
-
-
-class RetailerHighlights(base_models.RetailerHighlights):
-    retailer = models.ForeignKey(Retailer, on_delete=models.CASCADE)
-    sfahighlight = models.ForeignKey(SfaHighlights, null=True, blank=True)
-
-    class Meta(base_models.RetailerHighlights.Meta):
-        app_label = _APP_NAME
-
-def generate_asm_reports(request):
-    #Get the asm target
-    pass
-

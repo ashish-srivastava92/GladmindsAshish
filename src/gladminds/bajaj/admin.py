@@ -900,45 +900,6 @@ class ContainerLRAdmin(GmModelAdmin):
         if css_class:
             return {'class': css_class}
 
-#################################################SFA ADMIN##############################################
-class SfaReportAdmin(GmModelAdmin):
-
-    list_display = ('name',)
-    
-class NsmTargetAdmin(GmModelAdmin):
-#     search_fields = ('nsm','reportnames', 'month',
-#                      'year')
-    list_display = ('nsm', 'reportnames','month',
-                     'year','target', 'active')
-    
-    
-class AsmTargetAdmin(GmModelAdmin):
-    search_fields = ('asm', 'month',
-                     'year','reportnames')
-    list_display = ('asm', 'reportnames', 'month',
-                     'year','target', 'active')
-    
-
-class DistributorTargetAdmin(GmModelAdmin):
-    search_fields = ('distributor', 'month',
-                     'year','reportnames', 'active')
-    list_display = ('distributor', 'reportnames', 'month',
-                     'year','target', 'active')
-
-class DsrTargetAdmin(GmModelAdmin):
-    search_fields = ('distributor', 'month',
-                     'year','reportnames', 'active')
-    list_display = ('distributor', 'reportnames', 'month',
-                     'year','target', 'active')
-        
-class RetailerTargetAdmin(GmModelAdmin):
-    search_fields = ('retailer','reportnames', 'month',
-                     'year',)
-    list_display = ('retailer','reportnames', 'month',
-                     'year','target', 'active')
-    
-    
-
 
 def get_admin_site_custom(brand):
     brand_admin = BajajAdminSite(name=brand)
@@ -982,22 +943,7 @@ def get_admin_site_custom(brand):
     brand_admin.register(get_model("Supervisor", brand), SupervisorAdmin)
     brand_admin.register(get_model("ContainerIndent", brand), ContainerIndentAdmin)
     brand_admin.register(get_model("ContainerLR", brand), ContainerLRAdmin)
-    
-    
-    brand_admin.register(get_model("SfaReportNames", brand), SfaReportAdmin)
-    brand_admin.register(get_model("NsmTarget", brand), NsmTargetAdmin)
-    brand_admin.register(get_model("AsmTarget", brand), AsmTargetAdmin)
-    brand_admin.register(get_model("DistributorTarget", brand), DistributorTargetAdmin)
-    brand_admin.register(get_model("DsrTarget", brand), DsrTargetAdmin)
-    brand_admin.register(get_model("RetailerTarget", brand), RetailerTargetAdmin)
-#    brand_admin.register(get_model("SfaHighlights", brand), SfaHighlightsAdmin)
-#    brand_admin.register(get_model("NsmHighlights", brand), ContainerLRAdmin)
-#    brand_admin.register(get_model("AsmHighlights", brand), ContainerLRAdmin)
-#    brand_admin.register(get_model("DistributorHighlights", brand), ContainerLRAdmin)
-#    brand_admin.register(get_model("RetailerHighlights", brand), ContainerLRAdmin)
-    
-    
-
+        
     return brand_admin
 
 brand_admin = get_admin_site_custom(GmApps.BAJAJ)
