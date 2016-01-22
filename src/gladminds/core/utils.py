@@ -151,8 +151,8 @@ def get_phone_number_format(phone_number):
         phone_number_uganda = phone_number.split(area_code,1)[1]
         return   phone_number_uganda
     except Exception as ex:
-        x = phone_number.replace(" ", "")
-        return phone_number[-10:]
+        phone_number_new = phone_number.replace(" ", "")
+        return phone_number_new[-10:]
 
 
 def save_otp(user, token, email):
