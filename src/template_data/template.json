@@ -152,7 +152,7 @@
     "pk": 17,
     "fields": {
       "template_key":"RCV_SA_COUPON_VALIDATION",
-      "template":"{veh_reg_no} {service_type}",
+      "template":"{sap_customer_id} {kms} {service_type}",
       "description":"Receive this message when SA send to check the coupon status"
     }
   },

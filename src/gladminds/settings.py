@@ -201,6 +201,12 @@ DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 DB_PORT = os.environ.get('DB_PORT', '3306')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
 
+# DB_USER = "gladminds"
+# DB_HOST = "gladminds-qa-2.chnnvvffqwop.us-east-1.rds.amazonaws.com"
+# DB_PORT = "3306"
+# DB_PASSWORD = "gladmindsqa2"
+
+
 class GmApps():
     AFTERBUY = 'afterbuy'
     BAJAJ = 'bajaj'
