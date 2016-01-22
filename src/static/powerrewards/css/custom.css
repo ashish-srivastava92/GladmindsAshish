@@ -1,0 +1,123 @@
+#splash{
+	position: absolute;
+	left:0;
+	top:0;
+	z-index:5000;
+	height:100%;
+	text-align: center;
+	width: 100%;
+	background: #94B0C8;
+}
+
+#splash img.splashImg{
+	height:100%;
+}
+
+#splash img.loading{
+	position: absolute;
+	left: 50%;
+	top:20%;
+	z-index: 5002;
+	margin-left: -8px;
+}
+
+#loading{
+    display:none;
+}
+
+#loading, #loading div.bg{
+    position:fixed;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    top:0px;
+    left: 0px;
+    z-index: 500000;
+}
+
+#loading div.txt{
+    position: absolute;
+    top:50%;
+    padding:23px 0;
+    width: 100%;
+    height: 12px;
+    font-size: 12px;
+    z-index: 500001;
+    background: url(../img/loading.gif) no-repeat 50%;
+    margin-top: -46px;
+}
+
+.tab-content{
+	border-left: 1px solid #DDDDDD;
+	border-right: 1px solid #DDDDDD;
+	border-bottom: 1px solid #DDDDDD;
+}
+
+#loading div.bg{
+    background: #fff;
+    opacity:0.7;
+    filter:alpha(opacity=70); /* For IE8 and earlier */
+}
+
+.navbar-brand{
+	padding:0;
+}
+.navbar{
+	min-height: 65px;
+}
+
+.mechanic{
+	background: #F5EFE6;
+}
+
+.retailer{
+	background: #E0E5E6;
+}
+
+@media (min-width: 1200px){
+	.container {
+		width:100%;
+	}
+}
+.pageRetailer{
+	display:none;
+}
+.pageMechanic.block{
+  display:block;
+}
+.pageRetailer.block{
+  display:block;
+}
+
+.pageMechanic .nav-tabs>li>a:hover{
+	background: #ECDFCD;
+}
+
+.pageRetailer .nav-tabs>li>a:hover{
+	background: #CAD3D6;
+}
+
+.pageMechanic .nav-tabs>li.active>a:hover{
+	background: #fff !important;
+}
+
+.pageRetailer .nav-tabs>li.active>a:hover{
+	background: #fff !important;
+}
+
+
+.tabDiv{
+	width:100%;
+}
+
+body{
+	overflow-x:hidden
+}
+
+.canvasStyle{
+	/*margin-top:40px;*/
+}
+
+.tab-pane{
+	text-align: center;
+}
