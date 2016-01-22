@@ -151,7 +151,7 @@ def get_phone_number_format(phone_number):
         phone_number_uganda = phone_number.split(area_code,1)[1]
         return   phone_number_uganda
     except Exception as ex:
-        phone_number_new = phone_number.replace(" ", "")
+        phone_number_new = phone_number.strip()
         return phone_number_new[-10:]
 
 
