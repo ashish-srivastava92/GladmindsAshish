@@ -654,6 +654,7 @@ class CoreLoyaltyService(Services):
         valid_upc=[]
         valid_product_number=[]
         invalid_upcs_message=''
+        
         try:
             if len(unique_product_codes)>constants.MAX_UPC_ALLOWED:
                 message=get_template('MAX_ALLOWED_UPC').format(
