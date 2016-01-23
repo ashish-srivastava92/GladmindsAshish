@@ -32,6 +32,7 @@ from gladminds.core.managers.mail import get_email_template
 from gladminds.settings import TOTP_SECRET_KEY, OTP_VALIDITY
 from django.forms.models import model_to_dict   
 from gladminds.core.model_fetcher import get_model, models
+from string import whitespace
 
 logger = logging.getLogger('gladminds')
 
@@ -143,13 +144,15 @@ def get_phone_number_format(phone_number):
 #         return   phone_number_uganda
 #     except Exception as ex:
 #         return phone_number[-10:]
+    
     country_name = get_model('Country').objects.get(name = 'UGA')
     area_code = country_name.area_code
     try:
         phone_number_uganda = phone_number.split(area_code,1)[1]
         return   phone_number_uganda
     except Exception as ex:
-        return phone_number[-10:]
+        phone_number_new = phone_number.strip()
+        return phone_number_new[-10:]
 
 
 def save_otp(user, token, email):

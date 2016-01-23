@@ -476,37 +476,53 @@ class Retailer(base_models.Retailer):
     retailer_permanent_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     
     user = models.ForeignKey(UserProfile)
-    billing_code = models.CharField(max_length=15)
-    distributor = models.ForeignKey(Distributor)
+    billing_code = models.CharField(max_length=15, null=True, blank=True)
+    
     approved = models.PositiveSmallIntegerField(default=constants.STATUS['WAITING_FOR_APPROVAL'])
     territory = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(max_length=50, null=True, blank=True)
+    
     mobile = models.CharField(max_length=15, unique=True)
+    form_number = models.IntegerField(max_length=50, null=True)
+    address_line_2 = models.CharField(max_length=40, null=True, blank=True)
+    address_line_3 = models.CharField(max_length=40, null=True, blank=True)
+    address_line_4 = models.CharField(max_length=40, null=True , blank=True)
+    address_line_5 = models.CharField(max_length=40,null=True, blank=True )
+    address_line_6 = models.CharField(max_length=40, null=True, blank=True )
+    registered_date = models.DateTimeField(null=True)
+    shop_number = models.CharField(max_length=50, null=True)
+    shop_name = models.CharField(max_length=50, null=True)
+    shop_address = models.CharField(max_length=50, null=True)
+    locality = models.CharField(max_length=50, null=True)
+    tehsil = models.CharField(max_length=50, null=True, blank=True)
+    taluka = models.CharField(max_length=50, null=True, blank=True)
+    district = models.CharField(max_length=50, null=True)
+    state = models.ForeignKey(State)
+    nearest_dealer_name = models.CharField(max_length=50, null=True, blank=True)
+    total_countersale_3wheeler_parts = models.CharField(max_length=50, blank=True, null=True)
+    total_sale_bajaj_3wheeler = models.CharField(max_length=50, blank=True, null=True)
+    identification_no = models.CharField(max_length=50, null=True)
+    shop_image_url =  models.FileField(upload_to=set_retailer_image_path,
+                                  max_length=255, validators=[validate_image], blank=True, null=True)
+    brand_movement_from_counter = models.CharField(max_length=50, null=True, blank=True)
+    category = models.CharField(max_length=50, blank=True, null=True)
+    top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
+    description = models.CharField(max_length=50,blank=True, null=True)
+    top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
+    distributor = models.ForeignKey(Distributor)
+    total_accumulation_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    total_redemption_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    total_accumulation_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
+    total_redemption_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     profile = models.CharField(max_length=15, null=True, blank=True)
     latitude = models.DecimalField(max_digits = 10, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits = 11, decimal_places=6, null=True, blank=True)
     language = models.CharField(max_length=10, null=True, blank=True)
     rejected_reason = models.CharField(max_length=300, null=True, blank=True)
-    
     form_status = models.CharField(max_length=15, choices=constants.FORM_STATUS_CHOICES,
                                default='Incomplete')
     total_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
-    
     last_transaction_date = models.DateTimeField(null=True, blank=True)
-    total_accumulation_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
-    total_redemption_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
-    total_accumulation_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
-    total_redemption_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
-    
-    address_line_2 = models.CharField(max_length=40, null=True)
-    address_line_3 = models.CharField(max_length=40, null=True)
-    address_line_4 = models.CharField(max_length=40, null=True )
-    
-    address_line_5 = models.CharField(max_length=40,null=True, blank=True )
-    address_line_6 = models.CharField(max_length=40, null=True, blank=True )
-    form_number = models.IntegerField(max_length=50, null=True, blank=True)
-    locality = models.CharField(max_length=50, null=True, blank=True)
-    tehsil = models.CharField(max_length=50, null=True, blank=True)
     shop_wall_length = models.IntegerField(max_length=50, null=True, blank=True)
     shop_wall_width = models.IntegerField(max_length=50, null=True, blank=True)
     serviced_4S = models.IntegerField(max_length=50, null=True, blank=True)
@@ -516,30 +532,8 @@ class Retailer(base_models.Retailer):
     spare_per_month = models.IntegerField(max_length=50, null=True, blank=True)
     genuine_parts_used = models.IntegerField(max_length=50, null=True, blank=True)
     sent_to_sap = models.BooleanField(default=False)
-    
-    
-    district = models.CharField(max_length=50)
     status = models.CharField(max_length=20, default=False)
     
-    shop_number = models.CharField(max_length=50, null=True, blank=True)
-    shop_name = models.CharField(max_length=50, null=True)
-    shop_address = models.CharField(max_length=50, null=True)
-    
-    # new column area added for retailer
-    nearest_dealer_name = models.CharField(max_length=50, null=True)
-    total_countersale_3wheeler_parts = models.CharField(max_length=50, blank=False, null=True)
-    total_sale_bajaj_3wheeler = models.CharField(max_length=50, blank=False, null=True)
-    identification_no = models.CharField(max_length=50, null=True)
-    brand_movement_from_counter = models.CharField(max_length=50, null=True)
-    category = models.CharField(max_length=50, blank=True, null=True)
-    top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
-    description = models.CharField(max_length=50,blank=True, null=True)
-    top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
-    shop_image_url =  models.FileField(upload_to=set_retailer_image_path,
-                                  max_length=255, null=True, blank=True,
-                                  validators=[validate_image])
-    
-    state = models.ForeignKey(State)
     
     
     class Meta(base_models.Retailer.Meta):
