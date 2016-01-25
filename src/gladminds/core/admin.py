@@ -581,7 +581,7 @@ class AccumulationRequestRetailerAdmin(GmModelAdmin):
             query_set=query_set.filter(retailer__user__state__in = state_list)
             
         return query_set
-
+    
     def changelist_view(self, request, extra_context=None):
         extra_context = {'created_date_search': True
                         }
