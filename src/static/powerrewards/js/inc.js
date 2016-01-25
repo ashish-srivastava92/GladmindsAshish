@@ -1,7 +1,6 @@
-accessToken = localStorage.getItem("access_token");
+//accessToken = localStorage.getItem("access_token");
 
-mainURL = "http://powerrewardsreports.elasticbeanstalk.com/api/index.php?access_token="+accessToken+"&action=";
-
+mainURL = "http://powerrewardsreports.elasticbeanstalk.com/api/index.php?access_token="+access_token+"&action=";
 $(document).ready(function(){
 	 initAddChart("mhome",1);
 	
