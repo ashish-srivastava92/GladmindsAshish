@@ -1232,7 +1232,7 @@ class Member(BaseModel):
     total_accumulation_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     total_redemption_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     is_active = models.BooleanField(default=True)
-    is_inactive = models.BooleanField(default=False)
+    is_pt = models.BooleanField(default=False)
 
     def image_tag(self):
         return u'<img src="{0}/{1}" width="200px;"/>'.format(settings.S3_BASE_URL, self.image_url)
@@ -1967,6 +1967,8 @@ class FleetRider(BaseModel):
     '''Details of riders'''
     phone_number = PhoneField()
     is_active = models.BooleanField(default=False)
+    # new added after change request in pune
+    rider_name = models.CharField(max_length=215, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -1976,3 +1978,17 @@ class FleetRider(BaseModel):
         return self.phone_number
     
     
+class BrandMovementDetailRetailer(BaseModel):
+    '''Brand movement detail for retailer'''
+     
+    class Meta:
+        abstract = True
+        db_table = "gm_retailers_brandmovement_details"
+        
+        
+class BrandMovementDetailCategoryRetailer(BaseModel):
+    '''category for Brand Movement Detail for retailer'''
+     
+    class Meta:
+        abstract = True
+        db_table = "gm_retailers_category_masterdata"
