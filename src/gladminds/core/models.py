@@ -567,9 +567,9 @@ class BrandMovementDetailCategoryRetailer(base_models.BrandMovementDetailCategor
         return self.category_name
         
 class BrandMovementDetailRetailer(base_models.BrandMovementDetailRetailer):
-    retailer = models.ForeignKey(Retailer)
-    category_name = models.ForeignKey(BrandMovementDetailCategoryRetailer)
-    top_2selling_parts_from_counter = models.ForeignKey(SellingPartsRetailer)
+    retailer = models.ForeignKey(Retailer, null=True, blank=True)
+    category_name = models.ForeignKey(BrandMovementDetailCategoryRetailer,null=True, blank=True)
+    top_2selling_parts_from_counter = models.ForeignKey(SellingPartsRetailer,null=True, blank=True )
     description = models.CharField(max_length=50,blank=True, null=True)
     top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
      
