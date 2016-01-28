@@ -1991,4 +1991,19 @@ class BrandMovementDetailCategoryRetailer(BaseModel):
      
     class Meta:
         abstract = True
-        db_table = "gm_retailers_category_masterdata"
+        db_table = "gm_retailers_category_masterdata" 
+
+
+class NameTopTwoMechFromCounter(BaseModel):
+    '''Name Number Of Top Two Mechanic Buying From Counter for retailer'''
+        
+    class Meta:
+        abstract = True
+        db_table = "gm_toptwo_mechanic_buying_from_counter"
+        
+class SellingPartsRetailer(BaseModel):
+    '''Name Number Of Top Two Mechanic Buying From Counter for retailer'''
+        
+    class Meta:
+        abstract = True
+        db_table = "gm_selling_parts_retailer"
