@@ -551,6 +551,9 @@ class SellingPartsRetailer(base_models.SellingPartsRetailer):
     class Meta(base_models.SellingPartsRetailer.Meta):
         app_label = _APP_NAME
         verbose_name_plural = "Top MechanicFrom Counter"
+    
+    def __unicode__(self):
+        return self.part_name
 
 
 class BrandMovementDetailCategoryRetailer(base_models.BrandMovementDetailCategoryRetailer): 

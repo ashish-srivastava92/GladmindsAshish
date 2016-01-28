@@ -410,7 +410,7 @@ class NSMAdmin(GmModelAdmin):
 class ASMAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS]
     search_fields = ('asm_id', 'nsm__name',
-                     'phone_number', 'state')
+                     'phone_number')
     list_display = ('asm_id', 'name', 'email',
                      'phone_number', 'get_state', 'nsm')
 
