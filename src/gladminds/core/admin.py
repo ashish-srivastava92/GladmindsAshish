@@ -606,8 +606,7 @@ class MemberForm(forms.ModelForm):
                 phone_number = self.cleaned_data['phone_number'].strip()
                 if retailer[0].mobile[-10:] == phone_number[-10:]:
                     raise forms.ValidationError("Mobile number already exist.")
-        elif 'phone_number' not in self.cleaned_data:
-            pass
+                
         return self.cleaned_data
             
 
@@ -1212,8 +1211,7 @@ class RetailerForm(forms.ModelForm):
             if mechanic:
                 if mechanic[0].phone_number[-10:] == self.cleaned_data['mobile'][-10:]:
                     raise forms.ValidationError("Mobile number already exist.")
-        elif 'mobile' not in self.cleaned_data:
-            pass
+        
         return self.cleaned_data
         
         
