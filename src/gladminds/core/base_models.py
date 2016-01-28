@@ -1028,6 +1028,17 @@ class ContainerLR(BaseModel):
             self.submitted_by = None
         super(ContainerLR, self).save(*args, **kwargs)
 
+
+class ContainerLR_junk(BaseModel):
+    ''' details of Container LR came as NULL'''
+    lr_number = models.CharField(max_length=20, null=True, blank=True)
+    lr_date = models.DateField(max_length=10, null=True, blank=True)
+     
+    class Meta:
+        abstract = True
+        db_table = "gm_containerlr_junk"
+        verbose_name_plural = "Container LR junk"
+    
 class ContainerTracker(BaseModel):
     ''' details of Container Tracker'''
     
@@ -1977,6 +1988,38 @@ class FleetRider(BaseModel):
     def __unicode__(self):
         return self.phone_number
     
+################################MECHANEED MODELS###############   
+
+class Agency(BaseModel):
+    '''details of Agency'''
+    class Meta:
+        abstract = True
+        db_table = "md_agency"
+
+
+class QualityCheck(BaseModel):
+    '''details of QualityCheck'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_qualitycheck"
+
+
+class FieldInterviewerSupervisor(BaseModel):
+    '''details of FieldInterviewerSupervisor'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_fieldinterviewersupervisor"
+
+
+class FieldInterviewer(BaseModel):
+    '''details of FieldInterviewer'''
+
+    class Meta:
+        abstract = True
+        db_table = "md_fieldinterviewer"
+
     
 class BrandMovementDetailRetailer(BaseModel):
     '''Brand movement detail for retailer'''

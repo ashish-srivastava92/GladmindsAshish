@@ -186,10 +186,23 @@ SUIT_CONFIG = {
                      'label': ' Service type'},
                     {'model': 'service',
                      'label': 'Services'},)},
+             
+        {'app': 'mechaneed', 'label': 'Mechaneed Manager', 'icon': ' icon-folder-open',
+         'models': ( 
+                    {'model': 'agency',
+                     'label': 'Agency'},
+                    {'model': 'qualitycheck',
+                     'label': 'Quality Check'},
+                    {'model': 'fieldinterviewersupervisor',
+                     'label': 'Field Interviewer Supervisor'},
+                    {'model': 'fieldinterviewer',
+                     'label': 'Field Interviewer'},
+                    )},      
+            
+             
         {'app': 'bajaj', 'label': 'Templates', 'icon': ' icon-folder-open',
          'models':(
                     'messagetemplate', 'emailtemplate',)},)
-        
 }
 
 
@@ -211,7 +224,7 @@ class GmApps():
     DAIMLER = 'daimler'
     PROBIKING = 'probiking'
     BAJAJIB= 'bajajib'
-
+    MECHANEED= 'mechaneed'
 # Mapping is first app name then db name
 DATABASE_APPS_MAPPING = {
                          GmApps.GM: 'default',
@@ -221,7 +234,8 @@ DATABASE_APPS_MAPPING = {
                          GmApps.BAJAJCV:'bajajcv',
                          GmApps.DAIMLER:'daimler',
                          GmApps.PROBIKING : 'probiking',
-                         GmApps.BAJAJIB: 'bajajib'
+                         GmApps.BAJAJIB: 'bajajib',
+                         GmApps.MECHANEED:'mechaneed'
                     }
 
 db_common = {
@@ -386,6 +400,7 @@ ALL_APPS = (
     'gladminds.demo',
     'gladminds.afterbuy',
     'gladminds.bajajib',
+    'gladminds.mechaneed',
     'djcelery',
     'corsheaders',
     'storages',
@@ -658,7 +673,7 @@ FEED_HEALTH_CHECK_INTERVAL = 8
 ################################################
 BRAND = None
 GM_BRAND = 'default'
-OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler','bajajib']
+OUTSIDE_BRANDS = ['bajaj', 'demo','bajajcv','daimler','bajajib','mechaneed']
 
 BRANDS = OUTSIDE_BRANDS + ['afterbuy']
 ###############################################
@@ -705,7 +720,9 @@ ADMIN_DETAILS = {GmApps.BAJAJ: {'user': 'bajaj', 'password': 'bajaj'},
           GmApps.BAJAJCV: {'user': 'bajajcv', 'password': 'bajajcv'},
           GmApps.DAIMLER: {'user': 'daimler', 'password': 'daimler'},
           GmApps.PROBIKING: {'user': 'probiking', 'password': 'probiking'},
-          GmApps.BAJAJIB: {'user': 'bajajib', 'password': 'bajajib'}
+          GmApps.BAJAJIB: {'user': 'bajajib', 'password': 'bajajib'},
+          GmApps.MECHANEED: {'user': 'mechaneed', 'password': 'mechaneed'}
+
           }
 ##################################################################################################
 ENABLE_SERVICE_DESK = True
@@ -763,6 +780,8 @@ BRAND_META = {
                         "basecss": "/css/portal.css"},
             "bajajib": {"title": "BajajIB", "logo": "img/bajaj_logo.jpg", "tagline": "Bajaj Auto Pvt Ltd", "admin_url":"/admin/",
                         "basecss": "/css/portal.css"},
+          "mechaneed": {"title": "Mechaneed","logo": "img/", "tagline": "Mechaneed", "admin_url":"/admin/", 
+                         "base_url": "local.mechaneed.gladminds.co"},
                }
 
 HOME_URLS = {

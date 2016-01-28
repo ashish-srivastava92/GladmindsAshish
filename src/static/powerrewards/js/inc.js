@@ -1,372 +1,280 @@
+//accessToken = localStorage.getItem("access_token");
+
+mainURL = "http://powerrewardsreports.elasticbeanstalk.com/api/index.php?access_token="+access_token+"&action=";
 $(document).ready(function(){
-	windowResizer();
-
-});
-
-window.onresize = windowResizer;
+	 initAddChart("mhome",1);
 	
-$(document).on("click","#transitionExample-screen",function(){
-	$('#video').get(0).pause();
-	$('#myCarousel').carousel('cycle');
-});
 
-$(document).on("hide","#add-form",function(){
-	$('.ui-panel-dismiss-open').hide();
-});
- 
-$(document).on("click",".ui-panel-dismiss-open",function(){
-	$('.ui-panel-dismiss-open').hide();
-});
+    $(".nav-tabs a").click(function(){
+        $(this).tab('show');
+    });
 
-$(document).on("click","#imgprvw",function(){
-	$('#filUpload').click();
-});
-
-$(document).on("click",".playimg",function(){
-	$('#myCarousel').carousel('pause');
-});
-
-function slideSplash(){
-	// alert("un")
-	$.mobile.changePage("#welcome", { transition : 'flip'});
-}
-
-
-$(document).on("pagecreate",function(){
-
-	// $("#rewards").click(function(){
-
-	// 	// alert("in")
-	// 	// $.mobile.loadPage("pages/rewards.html",{
-	//  //        pageContainer: $('#target'),
-	//  //        type: 'post',
-	//  //        reloadPage: true
-	//  //    });
-
-	// 	// $( ":mobile-pagecontainer" ).pageContainer( "load", "pages/rewards.html", { role: "page" } );
-
-	//     // $.mobile.changePage( "pages/rewards.html", { transition: "slideup"} );
-	//      // $.mobile.changePage( "pages/faq.html");
-
- //    });
-
-
-
-	$("#add-form").on('hide',function () {
-            $('.ui-panel-dismiss').hide();
+    $('.nav-tabs a').on('shown.bs.tab', function(event){
+        var x = $(event.target).text();         // active tab
+        var y = $(event.relatedTarget).text();  // previous tab
+        $(".act span").text(x);
+        $(".prev span").text(y);
     });
 
 
-	$(".topMenu").navbar();
+    $(document).on("click",".downloadBtn",function(){
+    	stateID = $(this).parent().find(".allstates").val();
+    	yearID = $(this).parent().find(".allyears").val();
 
-	$(".footer").html('<nav id="footerMenu" class="footerMenu">\
-		<a href="#add-form" class="ui-link footer_links" data-role="none">Reward Catalogue</a> |\
-		<a href="#page4" class="footer_links">Terms and Conditions</a> |\
-		<a href="#page5" class="footer_links">Legal Disclaimer</a>\
-		</nav>')
+    	monthID = "";
 
-	$(".footerMenu").navbar();
+    	if($(this).parent().find(".allmonths")){
+    		// debugger;
+    		// alert("in");
 
-	
+			monthID = $(this).parent().find(".allmonths").val();
+    	}
 
-	
+    	tabPaneID = $(this).parents(".tab-pane").attr("id");
+    	className = $("."+tabPaneID).attr("charturl");
+
+
+    	dataURL = mainURL+className+"download&stateid="+stateID+"&year="+yearID;
+
+		if(monthID!="")
+			dataURL +="&monthID="+monthID;
+
+    	document.location.assign(dataURL);
+
+		// $.ajax({
+		// 	url: dataURL, 
+		// 	success: function(result){
+		// 		// loadChart(result,className);
+		// 		// hideLoading();
+		// 		alert(result)
+		// 	}
+		// });	
+    })
 
 
 
-// 	var str = '<div data-role="panel" class="panel" data-position="right" data-display="reveal"  data-dismissible="true"  data-theme="a" id="add-form"  >\
-// 	 	<div class="wrapper" style="height: 454px;">\
-// 	 	<a href="" data-rel="close" class="ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all "></a>\
-// 	            <div class="bajaj-header-bar centered">\
-// 	                <div class="header content clearfix" id="brand_image">	\
-// 	                <img class="img-responsive logo" src="img/Bajaj_Logo.png"></div>\
-// 	            </div>\
-// 	            <div class="main content clearfix">\
-// 	                <div class="card signin-card clearfix">\
-// 	                    <h1 class="login-aftersell-title">\
-// 	                        One Company...One Experience\
-// 	                    </h1>\
-// 	                    <form method="post" id="login-form" autocomplete="off" action="#">\
-// 	                    	<input type="hidden" id="csrfmiddlewaretoken" name="csrfmiddlewaretoken" value="" />\
-// 	                        <div class="text-left alert alert-danger" id="error-msg-login-window">Invalid Credientials</div>\
-// 	                        <label class="hidden-label" for="Email">Email</label>\
-// 	                        <input id="Email" name="username" type="email" placeholder="Email" value="" spellcheck="false" required>\
-// 	                        <label class="hidden-label" for="Passwd">Password</label>\
-// 	                        <input id="Passwd" name="password" type="password" placeholder="Password" value="" required><br/>\
-// 	                        <button type="submit" id="signIn" name="signIn" class="rc-button rc-button-submit">Sign In</button>\
-// 	                        <!-- <div class="forgot-pwd">\
-// 	                            <label class="remember">\
-// 	                                <a href="#">\
-// 	                                    Forgot Password?\
-// 	                                </a>\
-// 	                            </label>\
-// 	                        </div> -->\
-// 	                    </form>\
-// 	                </div>\
-// 	              <!--   <div class="text-center aftersell-logo">\
-// 	                    <img class="profile-img after-sell img-circle img-responsive" src="img/aftersell.png" alt="aftersell">\
-// 	                </div>\
-// 	                <div class="oneApp-bajaj">\
-// 	                    <p class="create-account">\
-// 	                        <a id="link-signup" class="new-user-reg" href="">\
-// 	                            Create an account\
-// 	                        </a>\
-// 	                    </p>\
-// 	                </div> -->\
-// 	            </div>\
-// 	            <div class="browserSupport">\
-// 	                Supporting Browsers: <a href="https://www.google.co.in/chrome/" target="_blank"><img data-toggle="tooltip" title="" data-placement="top" src="img/chrome.png" data-original-title="Download Chrome"></a> <a href="https://www.mozilla.org/en-US/firefox/new/" target="_blank"><img data-toggle="tooltip" title="" data-placement="top" src="img/firefox.png" data-original-title="Download Firefox"></a><br/>\
-// 	            </div>\
-// 	    </div>\
-// 	        <footer><img id="panelimg" src="img/panelimg.png" alt="jQuery Mobile"><br><span>All rights reserved by Bajaj Auto. Ltd.</span><br>        <div style="margin:2px 0"><span class="framed circle" style="line-height:20px;margin:10px 20px 10px 0;"><img style="width:16px;height:16px" src="img/phone.png" alt="phone icon" align="top"> <a href="tel:917847011011">+917847011011</a></span> <span class="framed circle"><img style="width:16px;height:16px" src="img/mail.png" alt="Mail icon" align="top"> <a href="mailto:hello@gladminds.co">hello@gladminds.co</a></span></div>        <div style="margin-bottom:10px;"><span>Powered by <a href="//www.gladminds.co/#products" target="_blank">GladMinds Connect Platform</a></span>         </div></footer>\
-// 	</div>';
+    var checkbox = $("#checkbox");
+	checkbox.change(function(event) {
+	    var checkbox = event.target;
+	    if (checkbox.checked) {
+	    	$("body").removeClass("retailer").addClass("mechanic");
+	        //Checkbox has been checked
+			$(".pageRetailer").fadeOut("fast",function(){
 
-// 	$(document).one('pagebeforecreate', function () {
-//   $.mobile.pageContainer.prepend(str);
-  
-// });
-	
+		        $(".pageMechanic").fadeIn("slow"); 
+		        $('.pageMechanic a:first').tab('show');
+			});
 
-	$( ".panel" ).panel();
 
-	$(document).on('close', ".ui-panel", function() {
-	    $(".ui-panel-dismiss").css("display","none");
-	    alert("in")
+	    } else {
+	    	$("body").removeClass("mechanic").addClass("retailer");
+	        //Checkbox has been unchecked
+			$(".pageMechanic").fadeOut("fast",function(){
+
+		        $(".pageRetailer").fadeIn("slow"); 
+		        $('.pageRetailer a:first').tab('show');
+		        initAddChart("rhome",1);
+		        // alert($('.pageRetailer a:first').css("class"));
+
+		        
+
+			});
+	    }
 
 	});
 
-	$(".ui-panel").on("close",function(){
-	        alert("byebye");
+    $("a").on('shown.bs.tab', function(e) {
+	    var target = $(e.target).attr("class");
+		initAddChart(target,1)
+	 });
+
+	$(document).on('change', '.allstates,.allyears,.allmonths', function(event){
+
+		divName = $(this).parents(".tab-pane")[0].id;
+		// alert(divName)
+		// $("#"+divName+"DataChart").remove();
+		// getChartData(divName+"Data");
+		FusionCharts(divName+"DataChart").dispose();
+		getChartData(divName+"Data");
+
 	});
 
-  // (you have to add IDs to each page like 'page1content')
-    $(".footer a").removeClass("active");
 
-// debugger
-// 	pageID = $.mobile.activePage.attr('id');
-
-//     $('.footer a[href="#'+pageID+'"]').addClass("active");
-
-	
-  //   $("#signIn").click(function(){
-
-  //       $.post("//bajajcv.gladminds.co/admin/", function(data, status){
-  //           alert("Data: " + data + "\nStatus: " + status);
-  //       });
-		// alert('clicked');
-
-		// ajaxify("login-form",pageRedirect)
-  //   });
 
 });
 
-qaLoginURL = "/v1/gm-users/login/";
-
-// qaLoginURL = "//bajaj.gladminds.co/v1/gm-users/login/";
+// $( window ).resize(resizeChart);
 
 
-// $("#signIn").bind('click', function(e){
+function resizeChart(){
+	// $("#page-wrapper").css("min-height",$(window).height()-$("nav.navbar").height());
+}
 
-$(document).on('click','#signIn',function(e){
-	e.preventDefault();
-	// $("#error-msg-login-window").css("display", "none");
+function initAddChart(className,loadChart){
 
+	obj = $("#"+className+"Data");
+	chartWidth = window.innerWidth-200;
+	chartHeight = window.innerHeight-250;
+	months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+	if(obj.length==0){
+		// alert(className)
+
+		str = '<div id="'+className+'Data" width="'+chartWidth+'" height="'+chartHeight+'" class="canvasStyle"></div>\
+				<div class="row-fluid">\
+			 		<div class="col-md-12 text-right form-group" style="position: absolute;top: 0;right: 0;padding-top: 15px;">\
+			 			<label>';
+
+		if($("."+className).attr("showstate")!="0"){
+			str +='<select class="form-control allstates">\
+	 					<option value="">All States</option>\
+	 				</select>';
+		}
+
+		if($("#"+className).attr("foruser")=="mechanic"){
+			buttonClass = "warning";
+		}
+		else{
+			buttonClass = "info";
+		}
+
+
+		//For Product Fitment
+		if(className=="mmenu6" || className=="rmenu6"){
+			str +='</label> <label><select class="form-control allmonths">';
+
+			months.forEach(function(month,index) {
+			    str +="<option value='"+ parseInt(index+1) +"'>"+month+"</option>"
+			});
+
+			str +="</select>";
+		}
+
+			str += '</label>\
+				 			<label>\
+				 				<select class="form-control allyears">\
+				 				</select>\
+				 			</label>'
+				 			
+			if(className!="mmenu1")
+				str += ' <button type="button" class="downloadBtn btn btn-'+buttonClass+'" >Download</button>';
+				 		
+
+			str += '</div></div>';
+
+	 	$("#"+className).append(str);
+	 	 getStates(className, loadChart);
+
+	}
+
+}
+
+function getStates(className,loadChart){
+
+	dataURL = mainURL+"getstates";
 	showLoading();
-	var input_email = $("#Email").val();
-	var email = input_email.trim();
-	 localStorage.setItem('email', email);
-
-	var input_password = $("#Passwd").val();
-	var password = input_password.trim();
-
-	// var pwd_encrypted = $.md5(password);
-	var pwd_encrypted = password;
-
-	    var formData = {"username":email,"password":pwd_encrypted}
-	    serilizedData = JSON.stringify(formData);
+	$.ajax({
+		url: dataURL, 
+		dataType: 'json',
+		success: function(result){
+			$("#splash").fadeOut("slow",function(){
 
 
-	    //console.log(formData)
+		
+				if(result.user_role=="SuperAdmins"){
+					$(".mmenu1, .rmenu1, #mmenu1, #rmenu1").removeAttr("style")
+				}
 
-	    $.ajax({
-	        url : qaLoginURL,
-	        type: "POST",
-	        cache: false,
-	        data: serilizedData,
-	        async: true,
-	        success: function(data, resp){	
-	        	console.log(data)
-	        	if (data.status == 1) {
-	        		localStorage.setItem('access_token', data.access_token)
-	        		$("#csrfmiddlewaretoken").val(data.access_token);
-//	        		$("#login-form").attr("action", "/login/");
-//	        		$("#login-form").submit();
-	        		window.location.replace("/login/");
-	        	} else {
-	                $("#error-msg-login-window").css("display", "block");   
-	                hideLoading();
-	            }
-	        },
-	        error: function(error)
-	        {
-	        	hideLoading();
-	            $(".error-msg-login-window").css("display", "block");
-	        }
+
+			    years = result.years.split(",").sort();
+				currYear = new Date().getFullYear();
+				$.each(years, function(a,obj) {
+
+					selected = ""
+					if(currYear == obj)
+						selected = " selected "
+					// debugger;
+
+			        $("#"+className+" .allyears").append("<option value='"+obj+"'"+selected+">"+obj+"</option>");
+			    });
+
+				$.each(result.states, function(a,obj) {
+			        $("#"+className+" .allstates").append("<option value='"+obj.id+"'>"+obj.state_name+"</option>");
+			    });
+
+
+
+			 	if(loadChart){
+			 		getChartData(className+"Data");
+			 	}
+
+			});
+		}
+	});
+}
+
+function getChartData(className){
+
+	parentDivID = $("#"+className).parents(".tab-pane")[0].id;
+	// alert(parentDivID.length)
+	// debugger;
+	stateID = $("#"+parentDivID+" .allstates").val();
+	yearID = $("#"+parentDivID+" .allyears").val();
+	monthID = "";
+
+	if($("#"+parentDivID+" .allmonths"))
+		monthID = $("#"+parentDivID+" .allmonths").val();
+
+	tabClassName = className.replace('Data','');
+	// debugger;
+	action = $("."+tabClassName).attr("chartURL");
+	showLoading();
+
+	dataURL = mainURL+action+"&stateid="+stateID+"&year="+yearID;
+
+	if(monthID!="")
+		dataURL +="&monthID="+monthID;
+
+
+	$.ajax({
+		url: dataURL, 
+		dataType:"json",
+		success: function(result){
+			loadChart(result,className);
+			hideLoading();
+		}
 	});
 
-});
-
-
-$(document).on("pageshow", function (e, data) {
-
-
-    pageID = ($.mobile.activePage.attr('id'));
-    // alert(pageID)
-
-    
-    if(pageID=="splashScreen")
-    	setTimeout(slideSplash,2000);
-
-
-    $('.footer a[href="#'+pageID+'"]').addClass("ui-btn-active");
-
-});
-
-function windowResizer(){
-	docHeight = $(document).height();
-	ht1 = $("#page1 .jqm-header").height();
-	ht2 = $("#page1 .f.ooter").height();
-	
-
-
-	carousalHeight = docHeight - (135);
-
-	$("#myCarousel, .carousel-inner, .item").height(carousalHeight);
 }
 
-
-function hover(element) {
-    element.setAttribute('src', '/static/powerrewards/img/play_mo.png');
-}
-function unhover(element) {
-    element.setAttribute('src', '/static/powerrewards/img/play.png');
-}
-
-function showimagepreview(input) {
-if (input.files && input.files[0]) {
-var filerdr = new FileReader();
-filerdr.onload = function(e) {
-$('#imgprvw').attr('src', e.target.result);
-}
-filerdr.readAsDataURL(input.files[0]);
-}
-}
-
-
-jQuery.browser = {};
-(function () {
-    jQuery.browser.msie = false;
-    jQuery.browser.version = 0;
-    if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
-        jQuery.browser.msie = true;
-        jQuery.browser.version = RegExp.$1;
-    }
-})();
-	$(function() {
-
-
-		$('#sig1').signature({color: 'blue',width: '100% !important', height:'80%'});
-		$('#clear1').click(function() {
-			$('#sig1').signature('clear');
-		});
-		$('#sig2').signature();
-		$('#clear2').click(function() {
-			$('#sig2').signature('clear');
-		});
-		$('#sig3').signature();
-		$('#clear3').click(function() {
-			$('#sig3').signature('clear');
-		});
-
-
+function loadChart(result,renderObj){
+	FusionCharts.ready(function() {
+		chartID = renderObj+'Chart';
+		// alert(chartID+"----")
+	// alert(chartID)
+	    var revenueChart = new FusionCharts({
+	        id: chartID,
+	        type: 'column3d',
+	        width: "100%",
+	        height: "100%",
+	        renderAt: renderObj,
+	        dataFormat: 'json',
+	        dataSource: result
+	        });
+	 
+	    revenueChart.render();
 	});
 
-
-
-// function ajaxify(formObj,successfunction){
-
-// 		showLoading();
-// 		var input_email = $("#Email").val();
-// 		var email = input_email.trim();
-
-// 		var input_password = $("#Passwd").val();
-// 		var password = input_password.trim();
-
-// 		// var pwd_encrypted = $.md5(password);
-// 		var pwd_encrypted = password;
-
-// 		var formData = {"username":email,"password":pwd_encrypted}
-// 		serilizedData = JSON.stringify(formData);
-// 		alert(serilizedData)
-//   		testURL = "http://bajajcv.gladminds.co/v1/gm-users/login";
-
-
-
-
-//         $.ajax({
-//             url : testURL,
-//             type: "POST",
-//             cache: false,
-//             data: serilizedData,
-//             success: function(data, resp){	
-//             	//console.log(data)
-//             	if (data.status == 1) {
-
-//             		alert(data.access_token)
-//             		// localStorage.setItem("email", email);
-//             		// localStorage.setItem("access_token", data.access_token);
-//             		// var txtPermissions = getPermissions(data);
-// 					hideLoading();
-
-//             	} else {
-//                     $("#error-msg-login-window").css("display", "block");   
-//                     hideLoading();
-//                 }
-//             },
-//             error: function(error)
-//             {
-//             	hideLoading();
-//                 $(".error-msg-login-window").css("display", "block");
-//             }
-//     });
-
-//     return false;
-// }
-
-
-function pageRedirect(jsonObj){
-	alert(jsonObj);
-	$("#csrfmiddlewaretoken").val($(jsonObj).access_token)
 }
 
+function changeRole(obj){
+	alert(obj.value)
+}
 
 function showLoading(){
-	$("body").append('<div class="modalWindow"/>');
-
-	$.mobile.loading( 'show', {
-		textVisible: true,
-		theme: 'z',
-		html: ""
-	});
-
-  // $.mobile.showPageLoadingMsg();
-
+	$("#loading").show();
 }
 
 function hideLoading(){
-	$.mobile.loading( 'hide');
-	$(".modalWindow").remove();
-
-
+	$("#loading").hide();
 }
-
-

@@ -815,6 +815,7 @@ class ManufacturingData(base_models.ManufacturingData):
     '''Manufacturing data of a product'''
     class Meta(base_models.ManufacturingData.Meta):
         app_label = _APP_NAME
+  
         
 
 class Country(base_models.Country):

@@ -1,0 +1,60 @@
+{#{% load sitetree %}#}
+{% load i18n suit_menu_custom %}
+{% load url from future %}
+
+<div class="left-nav" id="left-nav">
+  <ul>
+    {% block menu_home %}
+      {% url 'admin:index' as index_url %}
+      <li{% if index_url == request.path %} class="active"{% endif %}>
+        <a href="{{ index_url }}"><i class="icon-home"></i>{% trans 'Home' %}
+        </a>
+      </li>
+    {% endblock %}
+
+    {% get_menu request as app_list %}
+    {% if app_list %}
+      {% for app in app_list %}
+      {% if app.models %}
+        {% if app.separator %}
+          <li class="separator"></li>
+        {% else %}
+          <li{{ app.is_active|yesno:' class=active,' }}>
+            <a href="{{ app.url }}"{{ app.blank|yesno:' target=_blank,' }}><i class="{% firstof app.icon 'icon-chevron-right' %}"></i>{% trans app.label|capfirst %}
+            </a>
+            {% if app.models %}
+              <ul>
+                {% for model in app.models %}
+                  <li{{ model.is_active|yesno:' class=active,' }}>
+                    <a href="{{ model.url }}"{{ model.blank|yesno:' target=_blank,' }}>{{ model.label }}</a></li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endif %}
+        {% endif %}
+      {% endfor %}
+       {% for app in app_list %}
+       {% if 'Products' in app.label and  app.models  %}
+       <li {{ model.is_active|yesno:' class=active,' }}><a><i class="{% firstof 'icon-folder-open' 'icon-chevron-right' %}"></i>DFSC Report
+	     </a>
+	    <ul>
+	       <li{{ model.is_active|yesno:' class=active,' }}>
+	           <a href="/coupon/report/asc" target="_blank">ASC Report</a>
+	           <!-- <a href="/coupon/report/dealer" target="_blank">Dealer Report</a> -->
+	       </li>
+	     </ul>
+     </li>
+     {% endif %}
+     {% endfor %}     
+     {% for app in app_list %}
+       {% if 'Products' in app.label and  app.models  %}
+       <li {{ model.is_active|yesno:' class=active,' }}>
+        <a href="/aftersell/servicedesk/helpdesk" target="_blank"><i class="{% firstof 'icon-folder-open' 'icon-chevron-right' %}"></i>Contact Support
+	    </a>
+       </li> 
+     {% endif %}
+     {% endfor %}
+    {% endif %}
+  </ul>
+</div>
