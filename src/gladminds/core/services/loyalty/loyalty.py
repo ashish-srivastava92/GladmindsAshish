@@ -654,13 +654,11 @@ class CoreLoyaltyService(Services):
         valid_upc=[]
         valid_product_number=[]
         invalid_upcs_message=''
-        
         try:
             if len(unique_product_codes)>constants.MAX_UPC_ALLOWED:
                 message=get_template('MAX_ALLOWED_UPC').format(
                                         max_limit=constants.MAX_UPC_ALLOWED)
                 raise ValueError('Maximum allowed upc exceeded')
-            
             if not retailer:
                 message=get_template('UNREGISTERED_USER')
                 raise ValueError('Unregistered user')
@@ -668,15 +666,12 @@ class CoreLoyaltyService(Services):
                 message=get_template('INCOMPLETE_FORM')
                 raise ValueError('Incomplete user details')
             
-            retailer_state_name = retailer[0].user.state
-            state_list = get_model('State').objects.filter(state_name = retailer_state_name)
-            state_code = state_list[0].state_code
+            state_code = retailer[0].state.state_code
             spares = get_model('SparePartUPC').objects.filter(unique_part_code__in=unique_product_codes,is_used_by_retailer=False)
             
             if not spares:
                 message=get_template('SEND_UPC_IS_USED')
                 raise ValueError('Requested UPC is already used.')
-            
             added_points=0
             spare_upc_part_map={}
             total_points=retailer[0].total_points

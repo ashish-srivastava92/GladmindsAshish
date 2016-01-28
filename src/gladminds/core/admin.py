@@ -24,8 +24,9 @@ from django.utils.html import mark_safe
 from django.forms.widgets import TextInput
 import logging, os
 
-from django.contrib import messages
+from django.contrib import messages, admin
 from tastypie.validation import FormValidation
+
 
 logger = logging.getLogger('gladminds')
 
@@ -409,7 +410,7 @@ class NSMAdmin(GmModelAdmin):
 class ASMAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS]
     search_fields = ('asm_id', 'nsm__name',
-                     'phone_number', 'state')
+                     'phone_number')
     list_display = ('asm_id', 'name', 'email',
                      'phone_number', 'get_state', 'nsm')
 
@@ -596,6 +597,18 @@ class MemberForm(forms.ModelForm):
         super(MemberForm, self).__init__(*args, **kwargs)
         for field in constants.MANDATORY_MECHANIC_FIELDS:
             self.fields[field].label = self.fields[field].label + ' * '
+            
+    def clean(self):
+        self.cleaned_data = super(MemberForm, self).clean()
+        if 'phone_number' in self.cleaned_data:
+            retailer = get_model('Retailer').objects.filter(mobile=self.cleaned_data['phone_number'])
+            if retailer:
+                phone_number = self.cleaned_data['phone_number'].strip()
+                if retailer[0].mobile[-10:] == phone_number[-10:]:
+                    raise forms.ValidationError("Mobile number already exist.")
+                
+        return self.cleaned_data
+            
 
 class MemberAdmin(GmModelAdmin):
     list_filter = ('form_status',)
@@ -605,7 +618,7 @@ class MemberAdmin(GmModelAdmin):
                      'state__state_name', 'district')
     list_display = ('get_mechanic_id','first_name', 'date_of_birth',
                     'phone_number', 'shop_name', 'district',
-                    'state', 'pincode', 'registered_by_distributor')
+                    'state', 'pincode', 'registered_by_distributor', 'is_pt')
     readonly_fields = ('image_tag',)
 
     def suit_row_attributes(self, obj):
@@ -671,7 +684,7 @@ class RedemptionRequestAdmin(GmModelAdmin):
     list_display = ('member',  'get_mechanic_name',
                      'delivery_address', 'get_mechanic_pincode',
                      'get_mechanic_district', 'get_mechanic_state',
-                     'product', 'created_date','due_date',
+                     'product','get_product_description', 'created_date','due_date',
                      'expected_delivery_date', 'status', 'partner')
     
     fieldsets = (
@@ -798,7 +811,7 @@ class RedemptionRequestRetailerAdmin(GmModelAdmin):
 
     list_display = ('get_retailer_id','get_retailer_name','delivery_address',
                     'get_retailer_pincode','get_retailer_district','get_retailer_state',
-                    'get_product_id','created_date','due_date','expected_delivery_date',
+                    'get_product_id','get_product_description', 'created_date','due_date','expected_delivery_date',
                     'status', 'get_partner'
                      )
     
@@ -838,6 +851,10 @@ class RedemptionRequestRetailerAdmin(GmModelAdmin):
     def get_product_id(self, obj):
         return obj.product.product_id
     get_product_id.short_description = 'Product'
+    
+    def get_product_description(self, obj):
+        return obj.product.description
+    get_product_description.short_description = 'Product Description'
     
     def get_partner(self, obj):
         return obj.partner
@@ -1154,7 +1171,33 @@ class ConstantAdmin(GmModelAdmin):
     search_fields = ('constant_name',  'constant_value')
     list_display = ('constant_name',  'constant_value',)
     
+########################These are added for Brand movement category detail in retailer#######################################
+class NameTopTwoMechFromCounterInline(TabularInline):
+    model = get_model('NameTopTwoMechFromCounter')
+    extra = 1
+    fields = ('retailer','Name_of_mechanic','mobile_no_mechanic', 'Name_of_reborer','mobile_no_reborer')
     
+class BrandMovementDetailRetailerInline(TabularInline):
+    model = get_model('BrandMovementDetailRetailer')
+    extra = 1
+    fields = ('retailer','category_name','top_2selling_parts_from_counter', 'description','top_2competitor_brands')
+
+class BrandMovementDetailCategoryRetailerAdmin(GmModelAdmin):
+    groups_update_not_allowed = [Roles.NATIONALSPARESMANAGERS,Roles.AREASPARESMANAGERS]
+    search_fields = ('category_name',)
+    list_display = ('category_name',)
+    inlines = (BrandMovementDetailRetailerInline,)
+    
+class SellingPartsRetailerAdmin(GmModelAdmin):
+    groups_update_not_allowed = [Roles.NATIONALSPARESMANAGERS,Roles.AREASPARESMANAGERS]
+    search_fields = ('part_name',)
+    list_display = ('part_name',)
+    inlines = (BrandMovementDetailRetailerInline,)
+
+
+    
+###############################################################
+
 class RetailerForm(forms.ModelForm):
     
     class Meta:
@@ -1162,15 +1205,13 @@ class RetailerForm(forms.ModelForm):
         exclude = ['approved', 'rejected_reason',  'retailer_code', 'retailer_permanent_id','retailer_id','form_status']
 
     def clean(self):
-        
         self.cleaned_data = super(RetailerForm, self).clean()
         if 'mobile' in self.cleaned_data:
             mechanic = get_model('Member').objects.filter(phone_number=self.cleaned_data['mobile'])
             if mechanic:
                 if mechanic[0].phone_number[-10:] == self.cleaned_data['mobile'][-10:]:
                     raise forms.ValidationError("Mobile number already exist.")
-        elif 'mobile' not in self.cleaned_data:
-            pass
+        
         return self.cleaned_data
         
         
@@ -1187,6 +1228,8 @@ class RetailerAdmin(GmModelAdmin):
                     'user_territory', 'town', 'pincode', 'user_mobile',
                     'user_email', 'distributor_name', 'Status')
     exclude = []
+    inlines = (NameTopTwoMechFromCounterInline, BrandMovementDetailRetailerInline)
+    
     
     def suit_cell_attributes(self, obj, column):
         if column == 'status':
@@ -1390,6 +1433,8 @@ def get_admin_site_custom(brand):
     brand_admin.register(get_model("AccumulationRequestRetailer", brand), AccumulationRequestRetailerAdmin)
     brand_admin.register(get_model("RedemptionRequestRetailer", brand), RedemptionRequestRetailerAdmin)
     brand_admin.register(get_model("WelcomeKitRetailer", brand), WelcomeKitRetailerAdmin)
+    brand_admin.register(get_model("BrandMovementDetailCategoryRetailer", brand), BrandMovementDetailCategoryRetailerAdmin)
+    brand_admin.register(get_model("SellingPartsRetailer", brand), SellingPartsRetailerAdmin)
     
     
     return brand_admin

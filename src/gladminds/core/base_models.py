@@ -1,7 +1,6 @@
 from datetime import datetime
 from django.db import models
 from django.core.exceptions import ValidationError
-
 from composite_field.base import CompositeField
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -22,7 +21,6 @@ from gladminds.core.managers.mail import sent_password_reset_link,\
     send_email_activation
 from gladminds.core.constants import SBOM_STATUS
 from gladminds.core.managers.email_token_manager import EmailTokenManager
-
 
 try:
     from django.utils.timezone import now as datetime_now
@@ -995,7 +993,6 @@ class ContainerIndent(BaseModel):
     def __unicode__(self):
         return str(self.indent_num)
 
-
 class ContainerLR(BaseModel):
     ''' details of Container LR'''
     
@@ -1246,7 +1243,7 @@ class Member(BaseModel):
     total_accumulation_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     total_redemption_points = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     is_active = models.BooleanField(default=True)
-    is_inactive = models.BooleanField(default=False)
+    is_pt = models.BooleanField(default=False)
 
     def image_tag(self):
         return u'<img src="{0}/{1}" width="200px;"/>'.format(settings.S3_BASE_URL, self.image_url)
@@ -1981,6 +1978,8 @@ class FleetRider(BaseModel):
     '''Details of riders'''
     phone_number = PhoneField()
     is_active = models.BooleanField(default=False)
+    # new added after change request in pune
+    rider_name = models.CharField(max_length=215, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -1993,7 +1992,6 @@ class FleetRider(BaseModel):
 
 class Agency(BaseModel):
     '''details of Agency'''
-    
     class Meta:
         abstract = True
         db_table = "md_agency"
@@ -2022,3 +2020,33 @@ class FieldInterviewer(BaseModel):
         abstract = True
         db_table = "md_fieldinterviewer"
 
+    
+class BrandMovementDetailRetailer(BaseModel):
+    '''Brand movement detail for retailer'''
+     
+    class Meta:
+        abstract = True
+        db_table = "gm_retailers_brandmovement_details"
+        
+        
+class BrandMovementDetailCategoryRetailer(BaseModel):
+    '''category for Brand Movement Detail for retailer'''
+     
+    class Meta:
+        abstract = True
+        db_table = "gm_retailers_category_masterdata" 
+
+
+class NameTopTwoMechFromCounter(BaseModel):
+    '''Name Number Of Top Two Mechanic Buying From Counter for retailer'''
+        
+    class Meta:
+        abstract = True
+        db_table = "gm_toptwo_mechanic_buying_from_counter"
+        
+class SellingPartsRetailer(BaseModel):
+    '''Name Number Of Top Two Mechanic Buying From Counter for retailer'''
+        
+    class Meta:
+        abstract = True
+        db_table = "gm_selling_parts_retailer"
