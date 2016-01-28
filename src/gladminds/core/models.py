@@ -460,10 +460,6 @@ class DistributorSalesRep(base_models.DistributorSalesRep):
     class Meta(base_models.DistributorSalesRep.Meta):
         app_label = _APP_NAME
 
-
-
-
-
 ###################### FROM HERE NEW RETAILER IS ADDED, as it is in SFA##########################
 # class Retailer(base_models.Retailer):
 #     '''details of retailer'''
@@ -548,6 +544,15 @@ class Retailer(base_models.Retailer):
     
 ################################################################################################
 # added for retailer for his category  of Brand Movement Detail
+class SellingPartsRetailer(base_models.SellingPartsRetailer):
+    part_name = models.CharField(max_length=50, blank=True, null=True)
+    description = models.CharField(max_length=50,blank=True, null=True)
+        
+    class Meta(base_models.SellingPartsRetailer.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Top MechanicFrom Counter"
+
+
 class BrandMovementDetailCategoryRetailer(base_models.BrandMovementDetailCategoryRetailer): 
     category_name = models.CharField(max_length=50, blank=True, null=True)
     
@@ -561,13 +566,25 @@ class BrandMovementDetailCategoryRetailer(base_models.BrandMovementDetailCategor
 class BrandMovementDetailRetailer(base_models.BrandMovementDetailRetailer):
     retailer = models.ForeignKey(Retailer)
     category_name = models.ForeignKey(BrandMovementDetailCategoryRetailer)
-    top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
+    top_2selling_parts_from_counter = models.ForeignKey(SellingPartsRetailer)
     description = models.CharField(max_length=50,blank=True, null=True)
     top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
      
     class Meta(base_models.BrandMovementDetailRetailer.Meta):
         app_label = _APP_NAME
-        verbose_name_plural = "BrandMovementDetailRetailer"
+        verbose_name_plural = "Brand Movement Detail Retailer"
+
+class NameTopTwoMechFromCounter(base_models.NameTopTwoMechFromCounter):
+    retailer = models.ForeignKey(Retailer)
+    Name_of_mechanic = models.CharField(max_length=50, blank=True, null=True)
+    mobile_no_mechanic = models.CharField(max_length=50,blank=True, null=True)
+    Name_of_reborer = models.CharField(max_length=50, blank=True, null=True)
+    mobile_no_reborer = models.CharField(max_length=50, blank=True,null=True)
+        
+    class Meta(base_models.NameTopTwoMechFromCounter.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Top MechanicFrom Counter"
+        
         
 ################################################################################################
 

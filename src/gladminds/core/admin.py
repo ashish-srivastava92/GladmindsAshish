@@ -1173,17 +1173,29 @@ class ConstantAdmin(GmModelAdmin):
     list_display = ('constant_name',  'constant_value',)
     
 ########################These are added for Brand movement category detail in retailer#######################################
-
+class NameTopTwoMechFromCounterInline(TabularInline):
+    model = get_model('NameTopTwoMechFromCounter')
+    extra = 1
+    fields = ('retailer','Name_of_mechanic','mobile_no_mechanic', 'Name_of_reborer','mobile_no_reborer')
+    
 class BrandMovementDetailRetailerInline(TabularInline):
     model = get_model('BrandMovementDetailRetailer')
-    extra = 0
+    extra = 1
     fields = ('retailer','category_name','top_2selling_parts_from_counter', 'description','top_2competitor_brands')
-    
+
 class BrandMovementDetailCategoryRetailerAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.NATIONALSPARESMANAGERS,Roles.AREASPARESMANAGERS]
     search_fields = ('category_name',)
     list_display = ('category_name',)
     inlines = (BrandMovementDetailRetailerInline,)
+    
+class SellingPartsRetailerAdmin(GmModelAdmin):
+    groups_update_not_allowed = [Roles.NATIONALSPARESMANAGERS,Roles.AREASPARESMANAGERS]
+    search_fields = ('part_name',)
+    list_display = ('part_name',)
+    inlines = (BrandMovementDetailRetailerInline,)
+
+
     
 ###############################################################
 
@@ -1218,7 +1230,8 @@ class RetailerAdmin(GmModelAdmin):
                     'user_territory', 'town', 'pincode', 'user_mobile',
                     'user_email', 'distributor_name', 'Status')
     exclude = []
-    inlines = (BrandMovementDetailRetailerInline,)
+    inlines = (NameTopTwoMechFromCounterInline, BrandMovementDetailRetailerInline)
+    
     
     def suit_cell_attributes(self, obj, column):
         if column == 'status':
@@ -1423,6 +1436,7 @@ def get_admin_site_custom(brand):
     brand_admin.register(get_model("RedemptionRequestRetailer", brand), RedemptionRequestRetailerAdmin)
     brand_admin.register(get_model("WelcomeKitRetailer", brand), WelcomeKitRetailerAdmin)
     brand_admin.register(get_model("BrandMovementDetailCategoryRetailer", brand), BrandMovementDetailCategoryRetailerAdmin)
+    brand_admin.register(get_model("SellingPartsRetailer", brand), SellingPartsRetailerAdmin)
     
     
     return brand_admin
