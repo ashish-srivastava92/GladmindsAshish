@@ -425,8 +425,8 @@ class ASMAdmin(GmModelAdmin):
 
 class DistributorAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS]
-    search_fields = ('distributor_id', 'asm__asm_id',
-                     'phone_number', 'city')
+    search_fields = ('distributor_id', 'asm__name',
+                     'phone_number', 'state__state_name')
     list_display = ('distributor_id', 'name', 'email',
                     'phone_number', 'city', 'asm', 'state')
 
@@ -680,7 +680,7 @@ class RedemptionRequestAdmin(GmModelAdmin):
     list_filter = (
         ('created_date', DateFieldListFilter),
     )
-    search_fields = ('member__phone_number', 'product__product_id', 'partner__partner_id', 'transaction_id')
+    search_fields = ('member__mechanic_id','member__permanent_id', 'product__product_id')
     list_display = ('member',  'get_mechanic_name',
                      'delivery_address', 'get_mechanic_pincode',
                      'get_mechanic_district', 'get_mechanic_state',
@@ -807,7 +807,7 @@ class RedemptionRequestRetailerAdmin(GmModelAdmin):
     list_filter = (
         ('created_date', DateFieldListFilter),
     )
-    search_fields = ('product__product_id', 'partner__partner_id','retailer__user__state','retailer__retailer_id','retailer__retailer_permanent_id')
+    search_fields = ('retailer__retailer_id','retailer__retailer_permanent_id','product__product_id','retailer__user__state')
 
     list_display = ('get_retailer_id','get_retailer_name','delivery_address',
                     'get_retailer_pincode','get_retailer_district','get_retailer_state',
@@ -962,7 +962,7 @@ class WelcomeKitAdmin(GmModelAdmin):
     list_filter = ('status',)
     form = WelcomeKitCommentForm
     inlines = (CommentThreadInline,)
-    search_fields = ('member__phone_number','member__mechanic_id', 'partner__partner_id', 'transaction_id')
+    search_fields = ('member__permanent_id','member__mechanic_id', 'member__state__state_name')
     list_display = ('get_members_mechanic_id',  'get_mechanic_name',
                      'delivery_address', 'get_mechanic_pincode',
                      'get_mechanic_district', 'get_mechanic_state',
@@ -1049,7 +1049,7 @@ class WelcomeKitRetailerAdmin(GmModelAdmin):
     list_filter = ('status',)
     form = WelcomeKitCommentRetailerForm
     inlines = (CommentThreadRetailerInline,)
-    search_fields = ('retailer__retailer_id','retailer__retailer_permanent_id','partner__partner_id', 'transaction_id')
+    search_fields = ('retailer__retailer_id','retailer__retailer_permanent_id','retailer__state__state_name')
     list_display = ('get_retailer_retailer_id',  'get_retailer_name',
                      'delivery_address', 'get_retailer_pincode',
                     'get_retailer_district', 'get_retailer_state',
@@ -1207,6 +1207,9 @@ class RetailerForm(forms.ModelForm):
     def clean(self):
         self.cleaned_data = super(RetailerForm, self).clean()
         if 'mobile' in self.cleaned_data:
+            if len(self.cleaned_data['mobile']) <10:
+                raise forms.ValidationError("Please enter 10 digit mobile number")
+            
             mechanic = get_model('Member').objects.filter(phone_number=self.cleaned_data['mobile'])
             if mechanic:
                 if mechanic[0].phone_number[-10:] == self.cleaned_data['mobile'][-10:]:

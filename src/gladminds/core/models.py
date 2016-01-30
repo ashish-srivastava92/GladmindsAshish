@@ -4,6 +4,7 @@ from gladminds.core import base_models, constants
 
 from gladminds.core.core_utils.utils import generate_retailer_id
 from gladminds.core.model_helpers import set_retailer_image_path, validate_image
+from gladminds.core.model_helpers import PhoneField
  
 _APP_NAME ='core'
  
@@ -480,7 +481,8 @@ class Retailer(base_models.Retailer):
     territory = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(max_length=50, null=True, blank=True)
     
-    mobile = models.CharField(max_length=15, unique=True)
+   # mobile = models.CharField(max_length=15, unique=True)
+    mobile = PhoneField(null=True, blank=True, unique=True)
     form_number = models.IntegerField(max_length=50, null=True)
     address_line_2 = models.CharField(max_length=40, null=True, blank=True)
     address_line_3 = models.CharField(max_length=40, null=True, blank=True)
