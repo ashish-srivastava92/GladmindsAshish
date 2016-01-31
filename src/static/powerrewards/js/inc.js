@@ -155,7 +155,7 @@ function initAddChart(className,loadChart){
 				 				<select class="form-control allyears">\
 				 				</select>\
 				 			</label>'
-				 			
+
 			if(className!="mmenu1")
 				str += ' <button type="button" class="downloadBtn btn btn-'+buttonClass+'" >Download</button>';
 				 		
@@ -177,38 +177,49 @@ function getStates(className,loadChart){
 		url: dataURL, 
 		dataType: 'json',
 		success: function(result){
-			$("#splash").fadeOut("slow",function(){
+			if(result.status==0){
+				
+				alert(result.message)
+				hideLoading();
+				$("#splash .loading").hide();
+				return;
+			}
+			else{
+
+				$("#splash").fadeOut("slow",function(){
 
 
-		
-				if(result.user_role=="SuperAdmins"){
-					$(".mmenu1, .rmenu1, #mmenu1, #rmenu1").removeAttr("style")
-				}
+			
+					if(result.user_role=="SuperAdmins"){
+						$(".mmenu1, .rmenu1, #mmenu1, #rmenu1").removeAttr("style")
+					}
 
 
-			    years = result.years.split(",").sort();
-				currYear = new Date().getFullYear();
-				$.each(years, function(a,obj) {
+				    years = result.years.split(",").sort();
+					currYear = new Date().getFullYear();
+					$.each(years, function(a,obj) {
 
-					selected = ""
-					if(currYear == obj)
-						selected = " selected "
-					// debugger;
+						selected = ""
+						if(currYear == obj)
+							selected = " selected "
+						// debugger;
 
-			        $("#"+className+" .allyears").append("<option value='"+obj+"'"+selected+">"+obj+"</option>");
-			    });
+				        $("#"+className+" .allyears").append("<option value='"+obj+"'"+selected+">"+obj+"</option>");
+				    });
 
-				$.each(result.states, function(a,obj) {
-			        $("#"+className+" .allstates").append("<option value='"+obj.id+"'>"+obj.state_name+"</option>");
-			    });
+					$.each(result.states, function(a,obj) {
+				        $("#"+className+" .allstates").append("<option value='"+obj.id+"'>"+obj.state_name+"</option>");
+				    });
 
 
 
-			 	if(loadChart){
-			 		getChartData(className+"Data");
-			 	}
+				 	if(loadChart){
+				 		getChartData(className+"Data");
+				 	}
 
-			});
+
+				});
+			}
 		}
 	});
 }
