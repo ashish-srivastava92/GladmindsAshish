@@ -96,6 +96,10 @@ class GmModelAdmin(ModelAdmin):
     def get_mechanic_state(self, obj):
         return obj.member.state.state_name
     
+    def get_product_description(self, obj):
+        return obj.product.description
+    get_product_description.short_description = 'Product Description'
+    
     def get_transporter(self, obj):
         return obj.transporter.transporter_id
     

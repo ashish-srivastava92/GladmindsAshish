@@ -722,7 +722,7 @@
     "pk": 80,
     "fields": {
       "template_key": "SEND_UPC_IS_USED",
-      "template": "This UPC is already used.",
+      "template": "Requested UPC is already used.",
       "description": "Send this message when UPC is already used by some other retailer"
     }
   },

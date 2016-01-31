@@ -55,7 +55,7 @@ def register_owner(sms_dict, phone_number):
     customer_support = models.Constant.objects.get(constant_name='customer_support_number_uganda').constant_value
     try:
         purchase_date_format = models.Constant.objects.get(constant_name='purchase_date_format',
-                                                           country__name='UGA').constant_value
+                                                           country__name='UG').constant_value
         purchase_date = datetime.strptime(sms_dict['purchase_date'], purchase_date_format)
         
         if purchase_date > datetime.now():

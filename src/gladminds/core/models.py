@@ -4,6 +4,7 @@ from gladminds.core import base_models, constants
 
 from gladminds.core.core_utils.utils import generate_retailer_id
 from gladminds.core.model_helpers import set_retailer_image_path, validate_image
+from gladminds.core.model_helpers import PhoneField
  
 _APP_NAME ='core'
  
@@ -460,8 +461,6 @@ class DistributorSalesRep(base_models.DistributorSalesRep):
     class Meta(base_models.DistributorSalesRep.Meta):
         app_label = _APP_NAME
 
-
-
 ###################### FROM HERE NEW RETAILER IS ADDED, as it is in SFA##########################
 # class Retailer(base_models.Retailer):
 #     '''details of retailer'''
@@ -482,7 +481,8 @@ class Retailer(base_models.Retailer):
     territory = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(max_length=50, null=True, blank=True)
     
-    mobile = models.CharField(max_length=15, unique=True)
+   # mobile = models.CharField(max_length=15, unique=True)
+    mobile = PhoneField(null=True, blank=True, unique=True)
     form_number = models.IntegerField(max_length=50, null=True)
     address_line_2 = models.CharField(max_length=40, null=True, blank=True)
     address_line_3 = models.CharField(max_length=40, null=True, blank=True)
@@ -505,10 +505,13 @@ class Retailer(base_models.Retailer):
     shop_image_url =  models.FileField(upload_to=set_retailer_image_path,
                                   max_length=255, validators=[validate_image], blank=True, null=True)
     brand_movement_from_counter = models.CharField(max_length=50, null=True, blank=True)
-    category = models.CharField(max_length=50, blank=True, null=True)
-    top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
-    description = models.CharField(max_length=50,blank=True, null=True)
-    top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
+    
+#  category = models.ForeignKey(CategoryForRetailer)
+#    category = models.CharField(max_length=50, blank=True, null=True)
+#     top_2selling_parts_from_counter = models.CharField(max_length=50, blank=True, null=True)
+#     description = models.CharField(max_length=50,blank=True, null=True)
+#     top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
+    
     distributor = models.ForeignKey(Distributor)
     total_accumulation_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
     total_redemption_req = models.IntegerField(max_length=50, null=True, blank=True, default=0)
@@ -535,13 +538,60 @@ class Retailer(base_models.Retailer):
     status = models.CharField(max_length=20, default=False)
     
     
-    
     class Meta(base_models.Retailer.Meta):
         app_label = _APP_NAME
 
     def __unicode__(self):
         return self.retailer_code + ' ' + self.retailer_name
+    
+################################################################################################
+# added for retailer for his category  of Brand Movement Detail
+class SellingPartsRetailer(base_models.SellingPartsRetailer):
+    part_name = models.CharField(max_length=50, blank=True, null=True)
+    description = models.CharField(max_length=50,blank=True, null=True)
+        
+    class Meta(base_models.SellingPartsRetailer.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Top MechanicFrom Counter"
+    
+    def __unicode__(self):
+        return self.part_name
 
+
+class BrandMovementDetailCategoryRetailer(base_models.BrandMovementDetailCategoryRetailer): 
+    category_name = models.CharField(max_length=50, blank=True, null=True)
+    
+    class Meta(base_models.BrandMovementDetailCategoryRetailer.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "BrandMovementDetailCategoryRetailer"
+        
+    def __unicode__(self):
+        return self.category_name
+        
+class BrandMovementDetailRetailer(base_models.BrandMovementDetailRetailer):
+    retailer = models.ForeignKey(Retailer, null=True, blank=True)
+    category_name = models.ForeignKey(BrandMovementDetailCategoryRetailer,null=True, blank=True)
+    top_2selling_parts_from_counter = models.ForeignKey(SellingPartsRetailer,null=True, blank=True )
+    description = models.CharField(max_length=50,blank=True, null=True)
+    top_2competitor_brands = models.CharField(max_length=50, blank=True,null=True)
+     
+    class Meta(base_models.BrandMovementDetailRetailer.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Brand Movement Detail Retailer"
+
+class NameTopTwoMechFromCounter(base_models.NameTopTwoMechFromCounter):
+    retailer = models.ForeignKey(Retailer)
+    Name_of_mechanic = models.CharField(max_length=50, blank=True, null=True)
+    mobile_no_mechanic = models.CharField(max_length=50,blank=True, null=True)
+    Name_of_reborer = models.CharField(max_length=50, blank=True, null=True)
+    mobile_no_reborer = models.CharField(max_length=50, blank=True,null=True)
+        
+    class Meta(base_models.NameTopTwoMechFromCounter.Meta):
+        app_label = _APP_NAME
+        verbose_name_plural = "Top MechanicFrom Counter"
+        
+        
+################################################################################################
 
 class DSRWrokAllocation(base_models.DSRWrokAllocation):
     '''details of DSR work allocation'''
@@ -775,3 +825,5 @@ class Country(base_models.Country):
     class Meta(base_models.Country.Meta):
         app_label = _APP_NAME
         verbose_name_plural = "Country"
+        
+        

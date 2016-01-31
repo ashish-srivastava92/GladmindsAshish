@@ -331,8 +331,8 @@ class ConstantAdmin(GmModelAdmin):
             super(ConstantAdmin, self).save_model(request, obj, form, change)
                         
 class FleetRiderAdmin(GmModelAdmin):
-    search_fields = ('product',  'phone_number')
-    list_display = ('product',  'phone_number',)
+    search_fields = ('product',  'phone_number', 'rider_name')
+    list_display = ('product',  'phone_number', 'rider_name')
     
 class CountryAdmin(GmModelAdmin):
     search_fields = ('name',  'area_code')
