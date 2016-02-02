@@ -169,7 +169,7 @@ class ConsumerResource(CustomBaseModelResource):
                                                                              user__is_active=True)
             data = {'status': 1, 'message': 'phone number already registered'}
         except Exception as ObjectDoesNotExist:
-            print (ObjectDoesNotExist,"ppp")
+            logger.info('Exception while registering user - {0}'.format(ObjectDoesNotExist))
             try:
                 user_obj = self.create_user(True, phone_number=phone_number)
                 consumer_obj = user_obj['consumer_obj']
@@ -295,11 +295,12 @@ class ConsumerResource(CustomBaseModelResource):
                 return HttpResponse(json.dumps({'status': 1,'access_token':access_token, 'message':'OTP validated'}),
                                     content_type='application/json')            
         
-            except Exception as ex:
+            except Exception as ex:                
                     user = get_model('Consumer', settings.BRAND).objects.get(phone_number=phone_number, user__is_active=True)
                     otp_handler.validate_otp(otp_token, phone_number=phone_number)
                     user.is_phone_verified = True
                     user.save(using=settings.BRAND)
+                    logger.info("Exception checking exisiting user {0}".format(ex))
                     return HttpResponse(json.dumps({'status': 1, 'message':'OTP validated'}),
                                 content_type='application/json')
             
