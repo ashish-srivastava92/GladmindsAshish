@@ -303,8 +303,7 @@ class ConsumerResource(CustomBaseModelResource):
                     logger.info("Exception checking exisiting user {0}".format(ex))
                     return HttpResponse(json.dumps({'status': 1, 'message':'OTP validated'}),
                                 content_type='application/json')
-            
-                 
+                                     
         except Exception as ex:
                 logger.info("Exception while validating OTP {0}".format(ex))
                 return HttpBadRequest("OTP couldnot be validated")
