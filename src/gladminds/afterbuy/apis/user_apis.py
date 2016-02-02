@@ -169,6 +169,7 @@ class ConsumerResource(CustomBaseModelResource):
                                                                              user__is_active=True)
             data = {'status': 1, 'message': 'phone number already registered'}
         except Exception as ObjectDoesNotExist:
+            logger.info('Exception while registering user - {0}'.format(phone_number))
             try:
                 user_obj = self.create_user(True, phone_number=phone_number)
                 consumer_obj = user_obj['consumer_obj']
@@ -269,7 +270,7 @@ class ConsumerResource(CustomBaseModelResource):
         else:
             data = {'status': 0, 'message': 'email-id not validated'}
         return HttpResponse(json.dumps(data), content_type="application/json")
-    
+        
     def validate_otp_phone(self, request, **kwargs):
         '''
         Validate otp sent to phone
@@ -279,23 +280,34 @@ class ConsumerResource(CustomBaseModelResource):
         if request.method != 'POST':
             return HttpResponse(json.dumps({"message":"method not allowed"}),
                                 content_type="application/json",status=401)
-            
-        try:
+        try:       
             load = json.loads(request.body)
             otp_token = load.get('otp_token')
             phone_number = load.get('phone_number')
             if not otp_token or not phone_number:
                 return HttpBadRequest("OTP and phone number is mandatory")
-            user = get_model('Consumer', settings.BRAND).objects.get(phone_number=phone_number,
-                                                                     user__is_active=True)
-            otp_handler.validate_otp(otp_token, phone_number=phone_number)
-            user.is_phone_verified = True
-            user.save(using=settings.BRAND)
-            return HttpResponse(json.dumps({'status': 1, 'message':'OTP validated'}),
+            
+            try:
+                consumer_user = get_model('Consumer', settings.BRAND).objects.get(phone_number=phone_number, 
+                                                                         is_email_verified=True)
+                otp_handler.validate_otp(otp_token, phone_number=phone_number)
+                access_token = self.generate_access_token(request, consumer_user)
+                return HttpResponse(json.dumps({'status': 1,'access_token':access_token, 'message':'OTP validated'}),
+                                    content_type='application/json')            
+        
+            except Exception as ex:                
+                    user = get_model('Consumer', settings.BRAND).objects.get(phone_number=phone_number, user__is_active=True)
+                    otp_handler.validate_otp(otp_token, phone_number=phone_number)
+                    user.is_phone_verified = True
+                    user.save(using=settings.BRAND)
+                    logger.info("Exception checking exisiting user {0}".format(ex))
+                    return HttpResponse(json.dumps({'status': 1, 'message':'OTP validated'}),
                                 content_type='application/json')
+                                     
         except Exception as ex:
-            logger.info("Exception while validating OTP {0}".format(ex))
-            return HttpBadRequest("OTP couldnot be validated")
+                logger.info("Exception while validating OTP {0}".format(ex))
+                return HttpBadRequest("OTP couldnot be validated")
+
 
     @atomic(using=settings.BRAND)
     def validate_otp_email(self, request, **kwargs):
@@ -507,6 +519,7 @@ class ConsumerResource(CustomBaseModelResource):
                 try:
                     user_obj = afterbuy_model.EmailToken.objects.get(activation_key=auth_key).user
                 except Exception:
+                    
                     raise ImmediateHttpResponse(
                         response=http.HttpBadRequest('invalid authentication key!'))
                 user_details['email'] = user_obj.user.email
