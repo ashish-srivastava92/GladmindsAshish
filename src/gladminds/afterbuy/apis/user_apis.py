@@ -169,7 +169,7 @@ class ConsumerResource(CustomBaseModelResource):
                                                                              user__is_active=True)
             data = {'status': 1, 'message': 'phone number already registered'}
         except Exception as ObjectDoesNotExist:
-            logger.info('Exception while registering user - {0}'.format(ObjectDoesNotExist))
+            logger.info('Exception while registering user - {0}'.format(phone_number))
             try:
                 user_obj = self.create_user(True, phone_number=phone_number)
                 consumer_obj = user_obj['consumer_obj']
