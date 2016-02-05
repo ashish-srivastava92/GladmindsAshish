@@ -708,8 +708,9 @@ SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                  'SMSMEDIA' : {
                          'login':'gladminds',
                          'pass':'g8a1i9n@s',
+                         'message_url': 'http://52.2.203.138'
                          #'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
-                         'message_url': 'http://lambda.smsmedia.ug/api/capi/send.php'
+                         #'message_url': 'http://lambda.smsmedia.ug/api/capi/send.php'
                               }
                   }
 
