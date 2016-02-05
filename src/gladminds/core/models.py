@@ -462,41 +462,30 @@ class DistributorSalesRep(base_models.DistributorSalesRep):
         app_label = _APP_NAME
 
 ###################### FROM HERE NEW RETAILER IS ADDED, as it is in SFA##########################
-# class Retailer(base_models.Retailer):
-#     '''details of retailer'''
-# 
-#     class Meta(base_models.Retailer.Meta):
-#         app_label = _APP_NAME
-
 class Retailer(base_models.Retailer):
     '''details of retailer'''
-    
     retailer_id = models.CharField(max_length=50, unique=True, default=generate_retailer_id)
     retailer_permanent_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
-    
     user = models.ForeignKey(UserProfile)
     billing_code = models.CharField(max_length=15, null=True, blank=True)
-    
     approved = models.PositiveSmallIntegerField(default=constants.STATUS['WAITING_FOR_APPROVAL'])
     territory = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(max_length=50, null=True, blank=True)
-    
-   # mobile = models.CharField(max_length=15, unique=True)
-    mobile = PhoneField(unique=True)
-    form_number = models.IntegerField(max_length=15, null=True)
+    mobile = PhoneField(unique=True, null=True)
+    form_number = models.IntegerField(max_length=15, null=True, blank=True)
     address_line_2 = models.CharField(max_length=40, null=True, blank=True)
     address_line_3 = models.CharField(max_length=40, null=True, blank=True)
     address_line_4 = models.CharField(max_length=40, null=True , blank=True)
     address_line_5 = models.CharField(max_length=40,null=True, blank=True )
     address_line_6 = models.CharField(max_length=40, null=True, blank=True )
-    registered_date = models.DateTimeField()
-    shop_number = models.CharField(max_length=50, null=True)
-    shop_name = models.CharField(max_length=50, null=True)
-    shop_address = models.CharField(max_length=50, null=True)
-    locality = models.CharField(max_length=50, null=True)
-    tehsil = models.CharField(max_length=50, null=True,blank=True)
+    registered_date = models.DateTimeField(null=True, blank=True)
+    shop_number = models.CharField(max_length=50, null=True, blank=True)
+    shop_name = models.CharField(max_length=50, null=True, blank=True)
+    shop_address = models.CharField(max_length=50, null=True, blank=True)
+    locality = models.CharField(max_length=50, null=True, blank=True)
+    tehsil = models.CharField(max_length=50, null=True, blank=True)
     taluka = models.CharField(max_length=50, null=True,blank=True)
-    district = models.CharField(max_length=50, null=True)
+    district = models.CharField(max_length=50, null=True, blank=True)
     state = models.ForeignKey(State)
     nearest_dealer_name = models.CharField(max_length=50, null=True, blank=True)
     total_countersale_3wheeler_parts = models.CharField(max_length=50, blank=True, null=True)
@@ -505,7 +494,7 @@ class Retailer(base_models.Retailer):
     shop_image_url =  models.FileField(upload_to=set_retailer_image_path,
                                   max_length=255, validators=[validate_image], blank=True, null=True)
     brand_movement_from_counter = models.CharField(max_length=50, null=True, blank=True)
-    distributor = models.ForeignKey(Distributor)
+    distributor = models.ForeignKey(Distributor,null=True, blank=True)
     total_accumulation_req = models.IntegerField(max_length=15, null=True, blank=True, default=0)
     total_redemption_req = models.IntegerField(max_length=15, null=True, blank=True, default=0)
     total_accumulation_points = models.IntegerField(max_length=15, null=True, blank=True, default=0)
@@ -529,7 +518,6 @@ class Retailer(base_models.Retailer):
     genuine_parts_used = models.IntegerField(max_length=15, null=True, blank=True)
     sent_to_sap = models.BooleanField(default=False)
     status = models.CharField(max_length=20, default=False)
-    
     
     class Meta(base_models.Retailer.Meta):
         app_label = _APP_NAME

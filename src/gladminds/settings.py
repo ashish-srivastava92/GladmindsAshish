@@ -106,7 +106,7 @@ SUIT_CONFIG = {
                     {'model': 'coupondata',
                      'label': 'Coupon Redemption'},
                    {'model': 'fleetrider',
-                     'label': 'Fleet Rider'},)},
+                     'label': 'Rider'},)},
         {'app': 'bajaj', 'label': 'Logs', 'icon': ' icon-folder-open',
          'models':(
                     {'model': 'smslog',

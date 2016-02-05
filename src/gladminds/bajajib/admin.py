@@ -107,7 +107,7 @@ class Couponline(TabularInline):
 class ProductDataAdmin(GmModelAdmin):
     search_fields = ('product_id', 'customer_id', 'customer_phone_number',
                      'customer_name')
-    list_display = ('product_id', 'customer_id', "UCN", 'customer_name',
+    list_display = ('product_id','veh_reg_no', 'customer_id', "UCN", 'customer_name',
                     'customer_phone_number', 'purchase_date')
     inlines = (Couponline,)
     list_per_page = 50
@@ -332,7 +332,20 @@ class ConstantAdmin(GmModelAdmin):
                         
 class FleetRiderAdmin(GmModelAdmin):
     search_fields = ('product',  'phone_number', 'rider_name')
-    list_display = ('product',  'phone_number', 'rider_name')
+    list_display = ('product',  'get_rider_phone_number', 'rider_name','get_product__customer_name',
+                    'get_owner_phone_number')
+    
+    def get_rider_phone_number(self, obj):
+        return obj.phone_number
+    get_rider_phone_number.short_description = 'Rider Mobile'
+    
+    def get_product__customer_name(self, obj):
+        return obj.product.customer_name
+    get_product__customer_name.short_description = 'Owner name'
+    
+    def get_owner_phone_number(self, obj):
+        return obj.phone_number
+    get_owner_phone_number.short_description = 'Owner Mobile'
     
 class CountryAdmin(GmModelAdmin):
     search_fields = ('name',  'area_code')
