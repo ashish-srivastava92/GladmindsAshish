@@ -101,12 +101,12 @@ def mobile_format(phone_number):
         And when airtel pull message from customer
         or service advisor we will check that number in +91 format
     '''
-#     if settings.BRAND == 'bajajib':
-#         return '256' + phone_number
-#     return '+91' + phone_number[-10:]
+    if settings.BRAND == 'bajajib':
+        return '256' + phone_number
+    return '+91' + phone_number[-10:]
 #     #return '+256' + phone_number
     
-    return '+91' + phone_number[-10:]
+#     return '+91' + phone_number[-10:]
 
 
 def format_message(message):
@@ -136,23 +136,24 @@ def get_phone_number_format(phone_number):
     '''
     
 #TODO: when bajajib format will come change this and return only--> phone_number[-10:]
-#     if settings.BRAND == 'bajajib':
-#         country_name = get_model('Country').objects.get(name = 'UGA')
-#         area_code = country_name.area_code
+    if settings.BRAND == 'bajajib':
+        country_name = get_model('Country').objects.get(name = 'UG')
+        area_code = country_name.area_code
+    try:
+        if phone_number.startswith('256'):
+            phone_number_uganda = phone_number.split(area_code,1)[1]
+            return   phone_number_uganda
+    except Exception as ex:
+        return phone_number[-10:]
+    
+#     country_name = get_model('Country').objects.get(name = 'UG')
+#     area_code = country_name.area_code
 #     try:
 #         phone_number_uganda = phone_number.split(area_code,1)[1]
 #         return   phone_number_uganda
 #     except Exception as ex:
-#         return phone_number[-10:]
-    
-    country_name = get_model('Country').objects.get(name = 'UG')
-    area_code = country_name.area_code
-    try:
-        phone_number_uganda = phone_number.split(area_code,1)[1]
-        return   phone_number_uganda
-    except Exception as ex:
-        phone_number_new = phone_number.strip()
-        return phone_number_new[-10:]
+#         phone_number_new = phone_number.strip()
+#         return phone_number_new[-10:]
 
 
 def save_otp(user, token, email):

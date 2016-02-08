@@ -1217,11 +1217,17 @@ class RetailerForm(forms.ModelForm):
         
         return self.cleaned_data
         
-        
+#     def __init__(self, *args, **kwargs):
+#         super(MemberForm, self).__init__(*args, **kwargs)
+#         for field in constants.MANDATORY_MECHANIC_FIELDS:
+#             self.fields[field].label = self.fields[field].label + ' * '
+                
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super(RetailerForm, self).__init__(*args, **kwargs)
         self.fields['profile'].widget = TextInput(attrs={'placeholder': 'Retailer'})
+        for field in constants.MANDATORY_RETAILER_FIELDS:
+            self.fields[field].label = self.fields[field].label + ' * '
 
 class RetailerAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.NATIONALSPARESMANAGERS,Roles.AREASPARESMANAGERS]

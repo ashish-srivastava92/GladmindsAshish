@@ -106,7 +106,7 @@ SUIT_CONFIG = {
                     {'model': 'coupondata',
                      'label': 'Coupon Redemption'},
                    {'model': 'fleetrider',
-                     'label': 'Fleet Rider'},)},
+                     'label': 'Rider'},)},
         {'app': 'bajaj', 'label': 'Logs', 'icon': ' icon-folder-open',
          'models':(
                     {'model': 'smslog',
@@ -679,7 +679,7 @@ BRANDS = OUTSIDE_BRANDS + ['afterbuy']
 ###############################################
 AIRTEL_IP = '54.84.243.77'
 SMS_CLIENT = "MOCK"
-BRAND_SMS_GATEWAY={'bajaj':'AIRTEL', 'daimler':'KAP', 'bajajcv': 'AIRTEL', 'afterbuy': 'KAP', 'bajajib': 'KAP'}
+BRAND_SMS_GATEWAY={'bajaj':'AIRTEL', 'daimler':'KAP', 'bajajcv': 'AIRTEL', 'afterbuy': 'KAP', 'bajajib': 'SMSMEDIA'}
 SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                               'pass':'bajaj',
                               'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
@@ -708,8 +708,9 @@ SMS_CLIENT_DETAIL = { 'AIRTEL': {'login':'bajajauto',
                  'SMSMEDIA' : {
                          'login':'gladminds',
                          'pass':'g8a1i9n@s',
+                         'message_url': 'http://52.2.203.138/api/capi/send.php'
                          #'authenticate_url':'http://117.99.128.32:80/login/pushsms.php',
-                         'message_url': 'http://lambda.smsmedia.ug/api/capi/send.php'
+                         #'message_url': 'http://lambda.smsmedia.ug/api/capi/send.php'
                               }
                   }
 
