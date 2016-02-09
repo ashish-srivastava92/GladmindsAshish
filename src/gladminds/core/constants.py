@@ -194,8 +194,9 @@ COUPON_STATUS = dict((v, k) for k, v in dict(STATUS_CHOICES).items())
 
 MAX_UPC_ALLOWED=10
 MANDATORY_MECHANIC_FIELDS = ['first_name', 'phone_number','shop_address', 'shop_name', 'district', 'state', 'pincode', 'registered_by_distributor', 'image_url']
-MANDATORY_RETAILER_FIELDS = ['retailer_name', 'mobile','shop_name','shop_number','shop_address','locality','tehsil',
-                             'taluka', 'district', 'distributor','shop_image_url','state']
+MANDATORY_RETAILER_FIELDS = ['retailer_name', 'mobile','shop_name','shop_number','shop_address','locality',
+                             'district', 'distributor','state','retailer_image']
+
 
 FORM_STATUS_CHOICES = (
                        ('Complete', 'Complete'),

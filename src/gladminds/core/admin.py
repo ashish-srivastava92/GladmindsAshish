@@ -21,11 +21,12 @@ from gladminds.core import constants
 
 from gladminds.core.models import Retailer,AreaSparesManager
 from django.utils.html import mark_safe
-from django.forms.widgets import TextInput
+from django.forms.widgets import TextInput, FileInput
 import logging, os
 
 from django.contrib import messages, admin
 from tastypie.validation import FormValidation
+from django.forms.fields import ImageField
 
 
 logger = logging.getLogger('gladminds')
@@ -521,6 +522,9 @@ class AccumulationRequestAdmin(GmModelAdmin):
             return None
 
     get_upcs.short_description = 'UPC'
+    
+    def has_add_permission(self, request):
+        return False
 
     def queryset(self, request):
         """
@@ -541,9 +545,12 @@ class AccumulationRequestAdmin(GmModelAdmin):
     
 class AccumulationRequestRetailerAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.AREASPARESMANAGERS, Roles.NATIONALSPARESMANAGERS, Roles.LOYALTYADMINS, Roles.LOYALTYSUPERADMINS]
-    search_fields = ('retailer__retailer_id','retailer__retailer_permanent_id','upcs__unique_part_code','retailer__mobile','retailer__user__state')
+    search_fields = ('retailer__retailer_id','retailer__retailer_permanent_id','upcs__unique_part_code','retailer__user__state')
     list_display = ( 'get_retailer_id',  'retailer_user_name', 'get_retailer_state',
                      'get_upcs', 'points', 'total_points', 'created_date')
+    
+    def has_add_permission(self, request):
+        return False
     
     def get_retailer_id(self,obj):
         if obj.retailer.retailer_permanent_id:
@@ -618,7 +625,7 @@ class MemberAdmin(GmModelAdmin):
                      'state__state_name', 'district')
     list_display = ('get_mechanic_id','first_name', 'date_of_birth',
                     'phone_number', 'shop_name', 'district',
-                    'state', 'pincode', 'registered_by_distributor', 'is_pt')
+                    'state', 'pincode', 'registered_by_distributor', 'is_pt', 'form_status')
     readonly_fields = ('image_tag',)
 
     def suit_row_attributes(self, obj):
@@ -696,7 +703,10 @@ class RedemptionRequestAdmin(GmModelAdmin):
             'partner', 'image_url', 'image_tag',
             'extra_field','points')
         }),
-        )   
+        )  
+    
+    def has_add_permission(self, request):
+        return False
     
 
     def queryset(self, request):
@@ -825,6 +835,9 @@ class RedemptionRequestRetailerAdmin(GmModelAdmin):
             'extra_field', 'points')
         }),
         )   
+    
+    def has_add_permission(self, request):
+        return False
     
     def get_retailer_id(self, obj):
         if obj.retailer.retailer_permanent_id:
@@ -1200,6 +1213,8 @@ class SellingPartsRetailerAdmin(GmModelAdmin):
 
 class RetailerForm(forms.ModelForm):
     
+    retailer_image = forms.FileField(required=False)
+       
     class Meta:
         model = get_model('Retailer')
         exclude = ['approved', 'rejected_reason',  'retailer_code', 'retailer_permanent_id','retailer_id','form_status']
@@ -1207,7 +1222,7 @@ class RetailerForm(forms.ModelForm):
     def clean(self):
         self.cleaned_data = super(RetailerForm, self).clean()
         if 'mobile' in self.cleaned_data:
-            if len(self.cleaned_data['mobile']) <10:
+            if len(self.cleaned_data['mobile']) <12:
                 raise forms.ValidationError("Please enter 10 digit mobile number")
             
             mechanic = get_model('Member').objects.filter(phone_number=self.cleaned_data['mobile'])
@@ -1224,18 +1239,21 @@ class RetailerForm(forms.ModelForm):
                 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
+#             
         super(RetailerForm, self).__init__(*args, **kwargs)
         self.fields['profile'].widget = TextInput(attrs={'placeholder': 'Retailer'})
+        #self.fields['retailer_image'].initial = get_model('UserProfile').objects.get(image_url=get_model("UserProfile").objects.get(user=self.request.user).image_url)
+        self.fields['retailer_image'].label = 'retailer_image'
         for field in constants.MANDATORY_RETAILER_FIELDS:
             self.fields[field].label = self.fields[field].label + ' * '
-
+            
 class RetailerAdmin(GmModelAdmin):
     groups_update_not_allowed = [Roles.NATIONALSPARESMANAGERS,Roles.AREASPARESMANAGERS]
     form = RetailerForm
-    search_fields = ('retailer_name', 'retailer_town', 'billing_code','territory','mobile')
-    list_display = ('retailer_code', 'retailer_billing_code', 'retailer_user_name',
-                    'user_territory', 'town', 'pincode', 'user_mobile',
-                    'user_email', 'distributor_name', 'Status')
+    search_fields = ('retailer_id', 'retailer_permanent_id','retailer_name', 'retailer_town', 'billing_code','territory','mobile','state__state_name','form_status')
+    list_display = ('get_retailer_id','retailer_code', 'retailer_billing_code', 'retailer_user_name',
+                    'user_territory', 'town','get_state', 'pincode', 'user_mobile',
+                    'user_email', 'distributor_name', 'Status','form_status')
     exclude = []
     inlines = (NameTopTwoMechFromCounterInline, BrandMovementDetailRetailerInline)
     
@@ -1243,6 +1261,14 @@ class RetailerAdmin(GmModelAdmin):
     def suit_cell_attributes(self, obj, column):
         if column == 'status':
             return {'width': '500px'}
+    
+    def suit_row_attributes(self, obj):
+        class_map = {
+            'Incomplete': 'error'
+        }
+        css_class = class_map.get(str(obj.form_status))
+        if css_class:
+            return {'class': css_class}
     
     def get_form(self, request, obj=None, **kwargs):
         ModelForm = super(RetailerAdmin, self).get_form(request, obj, **kwargs)
@@ -1283,7 +1309,14 @@ class RetailerAdmin(GmModelAdmin):
 #             except Exception as e:
 #                 logger.error('Mail is not sent. Exception occurred ',e)
 #     approve.short_description = 'Approve Selected Retailers'
-
+    
+    def get_retailer_id(self, obj):
+        if obj.retailer_permanent_id:
+            return obj.retailer_permanent_id
+        else:
+            return obj.retailer_id
+    get_retailer_id.short_description = "Retailer ID"
+    
     def Status(self, obj):
         return obj.status
     Status.short_description = 'Status'
@@ -1307,6 +1340,10 @@ class RetailerAdmin(GmModelAdmin):
     def pincode(self, obj):
         return obj.user.pincode
     
+    def get_state(self, obj):
+        return obj.state.state_name
+    get_state.short_description = 'State'
+ 
     def city(self, obj):
         return obj.retailer_town
     
@@ -1334,9 +1371,14 @@ class RetailerAdmin(GmModelAdmin):
         form_data = form.cleaned_data
         
         for field in form_data:
-            if field in constants.MANDATORY_RETAILER_FIELDS and not form_data.get(field):
+            if field is 'retailer_image':
+                userimage= get_model('UserProfile').objects.get(user_id = obj.user.user_id)
+                userimage.image_url = form_data.get(field)
+                userimage.save()
+             
+            if field in constants.MANDATORY_RETAILER_FIELDS and not form_data.get(field): 
                 form_status = False
-                
+                        
         if form_status == False:
             obj.form_status='Incomplete'
             obj.save()
@@ -1353,7 +1395,7 @@ class RetailerAdmin(GmModelAdmin):
             except:
                 obj.retailer_code = str(constants.RETAILER_SEQUENCE)
                 
-                
+            
             super(RetailerAdmin, self).save_model(request, obj, form, change)
             
 #     def status(self, obj):
