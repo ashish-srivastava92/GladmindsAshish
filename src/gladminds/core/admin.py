@@ -1224,7 +1224,7 @@ class RetailerForm(forms.ModelForm):
         if 'mobile' in self.cleaned_data:
             if self.cleaned_data['mobile'].startswith('+91'):
                 split_mobile = self.cleaned_data['mobile'].split('+91',1)[1]
-                if len(split_mobile)<10 or len(split_mobile)>10 :
+                if len(split_mobile) != 10:
                     raise forms.ValidationError("Please enter 10 digit mobile number")
             
             mechanic = get_model('Member').objects.filter(phone_number=self.cleaned_data['mobile'])
