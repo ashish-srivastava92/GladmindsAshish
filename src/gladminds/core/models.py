@@ -494,7 +494,7 @@ class Retailer(base_models.Retailer):
     shop_image_url =  models.FileField(upload_to=set_retailer_shopimage_path,
                                   max_length=255, validators=[validate_image], blank=True, null=True)
     brand_movement_from_counter = models.CharField(max_length=50, null=True, blank=True)
-    distributor = models.ForeignKey(Distributor,null=True)
+    distributor = models.ForeignKey(Distributor)
     total_accumulation_req = models.IntegerField(max_length=15, null=True, blank=True, default=0)
     total_redemption_req = models.IntegerField(max_length=15, null=True, blank=True, default=0)
     total_accumulation_points = models.IntegerField(max_length=15, null=True, blank=True, default=0)
