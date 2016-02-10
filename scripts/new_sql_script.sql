@@ -167,5 +167,3 @@ alter table gm_retailer add foreign key(state_id) references gm_state(id);
 Add this for bajajib
 alter table gm_fleetrider add column rider_name varchar(215) null;
 ----------------------------------------------------------------------------------------------
-
-

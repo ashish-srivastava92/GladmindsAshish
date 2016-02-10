@@ -1151,22 +1151,6 @@ class DistributorSalesRep(BaseModel):
         return self.distributor_sales_id
 
 
-##################### RETAILER IS MODIFIED #####################################
-# class Retailer(BaseModel):
-#     '''details of Retailer'''
-#     retailer_name = models.CharField(max_length=50)
-#     retailer_town = models.CharField(max_length=50, null=True, blank=True)
-#     approved = models.BooleanField(default=False)
-#     is_active = models.BooleanField(default=True)
-# 
-#     class Meta:
-#         abstract = True
-#         db_table = "gm_retailer"
-#         verbose_name_plural = "Retailers"
-# 
-#     def __unicode__(self):
-#         return self.retailer_name
-
 class Retailer(BaseModel):
     '''details of Retailer'''
     retailer_code = models.CharField(max_length=50)
