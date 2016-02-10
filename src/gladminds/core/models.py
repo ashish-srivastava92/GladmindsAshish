@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from gladminds.core import base_models, constants
 
 from gladminds.core.core_utils.utils import generate_retailer_id
-from gladminds.core.model_helpers import  set_retailer_shopimage_path,set_retailer_image_path, validate_image
+from gladminds.core.model_helpers import  set_retailer_shopimage_path, validate_image
 from gladminds.core.model_helpers import PhoneField
  
 _APP_NAME ='core'
