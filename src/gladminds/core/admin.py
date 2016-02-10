@@ -1371,7 +1371,7 @@ class RetailerAdmin(GmModelAdmin):
         form_data = form.cleaned_data
         
         for field in form_data:
-            if field is 'retailer_image':
+            if field is 'retailer_image' and form_data.get(field):
                 userimage= get_model('UserProfile').objects.get(user_id = obj.user.user_id)
                 userimage.image_url = form_data.get(field)
                 userimage.save()
