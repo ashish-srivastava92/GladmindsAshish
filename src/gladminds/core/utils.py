@@ -143,6 +143,8 @@ def get_phone_number_format(phone_number):
         if phone_number.startswith('256'):
             phone_number_uganda = phone_number.split(area_code,1)[1]
             return   phone_number_uganda
+        else:
+            return phone_number[-10:]
     except Exception as ex:
         return phone_number[-10:]
     
