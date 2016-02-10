@@ -1242,7 +1242,7 @@ class RetailerForm(forms.ModelForm):
 #             
         super(RetailerForm, self).__init__(*args, **kwargs)
         self.fields['profile'].widget = TextInput(attrs={'placeholder': 'Retailer'})
-        #self.fields['retailer_image'].initial = get_model('UserProfile').objects.get(image_url=get_model("UserProfile").objects.get(user=self.request.user).image_url)
+        self.fields['retailer_image'].initial = get_model("UserProfile").objects.get(user=self.request.user).image_url
         self.fields['retailer_image'].label = 'retailer_image'
         for field in constants.MANDATORY_RETAILER_FIELDS:
             self.fields[field].label = self.fields[field].label + ' * '
