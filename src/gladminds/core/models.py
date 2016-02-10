@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from gladminds.core import base_models, constants
 
 from gladminds.core.core_utils.utils import generate_retailer_id
-from gladminds.core.model_helpers import set_retailer_image_path, validate_image
+from gladminds.core.model_helpers import  set_retailer_shopimage_path, validate_image
 from gladminds.core.model_helpers import PhoneField
  
 _APP_NAME ='core'
@@ -472,13 +472,13 @@ class Retailer(base_models.Retailer):
     territory = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(max_length=50, null=True, blank=True)
     mobile = PhoneField(unique=True, null=True)
-    form_number = models.IntegerField(max_length=15, null=True, blank=True)
+    form_number = models.IntegerField(max_length=15, null=True)
     address_line_2 = models.CharField(max_length=40, null=True, blank=True)
     address_line_3 = models.CharField(max_length=40, null=True, blank=True)
     address_line_4 = models.CharField(max_length=40, null=True , blank=True)
     address_line_5 = models.CharField(max_length=40,null=True, blank=True )
     address_line_6 = models.CharField(max_length=40, null=True, blank=True )
-    registered_date = models.DateTimeField(null=True, blank=True)
+    registered_date = models.DateTimeField(null=True)
     shop_number = models.CharField(max_length=50, null=True, blank=True)
     shop_name = models.CharField(max_length=50, null=True, blank=True)
     shop_address = models.CharField(max_length=50, null=True, blank=True)
@@ -491,10 +491,10 @@ class Retailer(base_models.Retailer):
     total_countersale_3wheeler_parts = models.CharField(max_length=50, blank=True, null=True)
     total_sale_bajaj_3wheeler = models.CharField(max_length=50, blank=True, null=True)
     identification_no = models.CharField(max_length=50, null=True,blank=True)
-    shop_image_url =  models.FileField(upload_to=set_retailer_image_path,
+    shop_image_url =  models.FileField(upload_to=set_retailer_shopimage_path,
                                   max_length=255, validators=[validate_image], blank=True, null=True)
     brand_movement_from_counter = models.CharField(max_length=50, null=True, blank=True)
-    distributor = models.ForeignKey(Distributor,null=True, blank=True)
+    distributor = models.ForeignKey(Distributor,null=True)
     total_accumulation_req = models.IntegerField(max_length=15, null=True, blank=True, default=0)
     total_redemption_req = models.IntegerField(max_length=15, null=True, blank=True, default=0)
     total_accumulation_points = models.IntegerField(max_length=15, null=True, blank=True, default=0)

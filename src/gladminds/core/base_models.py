@@ -1154,7 +1154,7 @@ class DistributorSalesRep(BaseModel):
 class Retailer(BaseModel):
     '''details of Retailer'''
     retailer_code = models.CharField(max_length=50)
-    retailer_name = models.CharField(max_length=50,null=True, blank=True)
+    retailer_name = models.CharField(max_length=50,null=True)
     retailer_town = models.CharField(max_length=50, null=True, blank=True)
     #approved = models.BooleanField(default=False)# we have to uncomment it after SFA API-Test
     is_active = models.BooleanField(default=True)
