@@ -17,11 +17,42 @@
 		<script src="/static/powerrewards/js/fusioncharts.js"></script>
 		<script src="/static/powerrewards/js/fusioncharts.charts.js"></script>
 		<script src="/static/powerrewards/js/fusioncharts-jquery-plugin.min.js"></script>
+        <script src="/static/powerrewards/js/jquery-ui.min.js"></script>
+
 		<script>
 			access_token = "{{token}}";
 		</script>
-
 		<script src="/static/powerrewards/js/inc.js"></script>
+		<style type="text/css"> 
+		li{
+			    cursor: pointer;
+			    }
+			    #transitionExample{
+				    padding-bottom: 0;
+				}
+
+				#transitionExample-popup{
+					top: 20% !important;
+				    left: 2% !important;
+				    width: 100%;
+				}
+				.carousel-caption {
+					left : 80%;
+				}
+				.ulclass {
+					  list-style-type: none;
+					    margin: 10px auto;
+					    /*padding: 10px auto;*/
+					    overflow: hidden;
+				}
+				.inclass {
+					display: inline-block;
+				    padding: 8px;
+				}
+				#mhomeData, #rhomeData {
+					height: 600px !important;
+				}
+			    </style>
 	</head>
 	<body class="mechanic">
 
@@ -103,11 +134,405 @@
         </div>
         <!-- /#page-wrapper -->
 
-    	</div>
+  <!--   </div> -->
+    	 <ul class="ulclass">
+			<li class="inclass"><a data-toggle="modal" data-target="#welcome" >Welcome</a>	</li>
+			<li class="inclass"><a data-toggle="modal" data-target="#PRP" >Power Rewards Program</a></li>
+			<li class="inclass"><a data-toggle="modal" data-target="#enroll" >Enrollment Conditions</a></li>
+			<li class="inclass"><a data-toggle="modal" data-target="#faq" >FAQs</a></li>
+			<li class="inclass"><a data-toggle="modal" data-target="#tc">Terms and Conditions</a></li>
+			<li class="inclass"><a data-toggle="modal" data-target="#ld" >Legal Disclaimer</a></li> 
+			<li class="inclass" style="margin-left: 450px;"><a href="//www.gladminds.co/#products" target="_blank"><span style="color:black"> Powered by </span>  GladMinds Connect Platform</a></li>
+
+		 </ul>
+
+	<!-- 	 <div>
+		 	
+		 </div> -->
+
+
+
+<!--  Welcome -->
+
+<div class="modal fade" id="welcome" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Welcome</h4>
+        </div>
+        <div class="modal-body">
+          <p><b>Dear Partners,</b></p>
+
+			<p>We would like to thank you for the trust and support you have extended to us over the years. We are today, the most preferred brand in the country and leader in <b>AUTOMOTIVE INDUSTRY</b> as a result of your constant support.</p>
+
+			<p>In appreciation of your co-operation, we are pleased to introduce to you <b>POWER REWARDS 'BAJAJ CV LOYALTY	PROGRAME'</b>- an exclusive programme designed for your benefit. In this new programme, we would like to continue offering the value and rewards that you truly deserve.</p>
+
+			<p>As a member of <b>POWER REWARDS</b> program, you can now enjoy a host of privileges:- Earn points of every genuine spare parts you purchase which are later used for redeeming Exciting gifts. All you have to do is send an SMS to a unique number to accumulate points.</p>
+
+			<p>To get you off to a flying start, we present to you a pre-aproved membership. Wishing you all the best to reach your first landmark of 100 points and start claiming your gifts.</p> 
+
+			<p>Start sending your SMSs today and enjoy the benefits.</p> 
+
+			<p>For more information on how the program works, kindly read on.</p> 
+
+			<p>Best Regards</p> 
+
+			<p><b>Bajaj Genuine Parts - CV Team</b><br/>Bajaj Auto Limited<br/>Pune</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+<!--  EOF -->
+
+
+<!--  Power Rewards Program  -->
+
+<div class="modal fade" id="PRP" role="dialog" >
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content" style="width:750px;">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Power Rewards Program</h4>
+        </div>
+        <div class="modal-body" style="width:750px;">
+
+       
+
+    <div data-role="content" id="content1">
+
+		<div id="myCarousel" class="carousel slide" data-ride="carousel">
+		    <!-- Indicators -->
+		    <ol class="carousel-indicators">
+		      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+		      <li data-target="#myCarousel" data-slide-to="1"></li>
+		      <li data-target="#myCarousel" data-slide-to="2"></li>
+		    </ol>
+
+		    <!-- Wrapper for slides -->
+		    <div class="carousel-inner" role="listbox">
+
+		      <div class="item active" style="background:#007b4d url(/static/powerrewards/img/img-1_sm.png) no-repeat top center;height:500px;text-align:center;">
+		        <!-- <img class="img" src="img/img-1_sm.png" alt="img1" > -->
+				<div class="carousel-caption">
+		    			
+						<a  data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#video"><img class="playimg" title="Play Video" src="/static/powerrewards/img/play.png" ></a>
+						
+		        </div>
+		      </div>
+
+		      <div class="item" style="background:#007b4d url(/static/powerrewards/img/img-2_sm.png) no-repeat top center;height:500px;text-align:center;">
+		        <!-- <img class="img" src="img/img-2_sm.png" alt="img2" > -->
+				<div class="carousel-caption">
+		          <a  data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#video"><img class="playimg" title="Play Video" src="/static/powerrewards/img/play.png"></a>
+		        </div>
+		      </div>
+		    
+		      <div class="item" style="background:#007b4d url(/static/powerrewards/img/img-3_sm.png) no-repeat top center;height:500px;text-align:center;">
+		        <!-- <img class="img" src="img/img-3_sm.png" alt="img3" > -->
+				<div class="carousel-caption">
+		          <a  data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#video"><img class="playimg" title="Play Video" src="/static/powerrewards/img/play.png"></a>
+		        </div>
+		      </div>
+		    </div>
+
+		    <!-- Left and right controls -->
+		    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+		      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+		      <span class="sr-only">Previous</span>
+		    </a>
+		    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+		      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+		      <span class="sr-only">Next</span>
+		    </a>
+		</div> 
+
+
+    </div><!-- /content -->
+
+
+	    </div><!-- Modal -->
+	        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+<!--  EOF -->
+
+
+<!--  Power Rewards Program  Video-->
+
+<div class="modal fade" id="video" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content" style="width:750px;">
+        <div class="modal-header">
+          <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+          <h4 class="modal-title">Power Rewards Program - Video</h4>
+        </div>
+        <div class="modal-body" style="width:750px;">
+
+        <div data-role="popup" id="transitionExample"  data-theme="a" >
+			<video id="prvideo" width="100%" height="100%" controls>
+			<source src="/static/powerrewards/img/Bajaj CV Power Rewards.mp4" type="video/mp4">
+			</video> 
+			
+	</div>
+
+   
+	    </div><!-- Modal -->
+	        <div class="modal-footer">
+          <button type="button" class="btn btn-default" id="videoclose" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+<!--  EOF -->
+
+<!--  Enrollment Conditions -->
+
+<div class="modal fade" id="enroll" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content" style="width:750px;">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Enrolment Conditions of Power Rewards</h4>
+        </div>
+        <div class="modal-body">
+        	<ul>
+				<li>This scheme is a genuine parts fitment promotional scheme, to encourage and reward garage owners who recommend and use BAJAJ GENUINE PARTS.</li> 
+				
+				<li>Only Garage owners are eligible for participating in this program.Only one person from the participating garage is allowed to get registered in this program.</li>
+				
+				<li>The mandatory clauses for enrollment the person  are :- Photo identity of the person getting registered, Name, mobile number, garage name, complete address of the garage, PIN code, District/City/taluka, Clear Land Mark.</li>
+				
+				<li>The enrolment onto the club for garage would be physically verified periodically during the scheme period and any discrepancies if noticed,the registration will be deactivated from the scheme. Bajaj Auto's decision will be final in such decisions.The reward points if any accumulated will stand cancelled.</li>
+				
+				<li>Each Registered Garage would be physically verified periodically during the scheme period and any discrepancies if noticed, the registration will be deactivated from the scheme. Bajaj Auto's decision will be final in such decisions. The reward points if any accumulated will stand cancelled.</li>
+				
+				<li>Bajaj Auto do not provide any certification for the participants for the scheme.</li>
+				
+				<li>Only the CV parts having "UNIQUE CODE" sold by Bajaj CV Distributors are covered under this program.</li>
+				<li>The selected parts would carry "UNIQUE CODE" on its package. The reward points ar awarded when the "UNIQUE CODEs" of these parts are SMSed through the registered mobile no of the participating Garage owner.</li>
+				<li>Registered garage owners can accumulate such reward points during period of the scheme and can redeem them for eligible gifts.The eligible gifts with corresponding no of reward points required are listed in the scheme gift catalogue.</li>
+				<li>Any request for change of gifts/models other than mentioned in the gift catalogues will not be entertained. In case of any model/gift getting obsolete, BAJAJ reserves the right to offer another gift og equivalent points.</li>
+				<li>The gifts/alternate gifts are being provided from reputed suppliers. Bajaj Auto Ltd., and their Associates are in no way shall stand guarantee to the quality/purity of gifts nor be liable for any deficiencies, defects, warranties.</li>
+				<li>All applicable taxes including but not limited to income(With holding)tax, TDS, Gift tax &insurance charges or any other incidental charges for the program gifts will be payable by the respective Registered garage owner only.</li>
+				<li>"UNIQUE CODEs"after gaining reward points through SMS and confirmation are to be destroyed immediately to avoid duplicity/misuse.</li>
+				<li>Reward Points accumulated cannot be exchanged for cash.</li>
+			</ul>
+			
+	        </div>
+	        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+<!--  EOF -->
+
+<!--  Enrollment Conditions -->
+
+<div class="modal fade" id="faq" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">FAQ's</h4>
+        </div>
+        <div class="modal-body">
+        	<p style="color:red;">
+				(If you ever face any problem please call our helpline +917847011011)
+			</p>
+			<p>
+				<span class="boldheading">Invalid Unique Part Code (UPC)</span>
+				You might receive this message if the unique part code you sms is not a valid number, please check the UPC MRP sticker again and ensure you have entered it correctly.
+			</p><br/>
+			<p>
+				<span class="boldheading">Used Number</span>
+				This message might be sent to you in case this number has already been used once in our system. It might be that you have sent the sms twice. If you have not SMSed twice and yet you get this message please send used UPC MRP sticker along with your details ( xerox of your card ) to bajaj auto limited address mentioned on the reverse of the booklet.
+			</p><br/>
+			<p>
+				<span class="boldheading">SMS Cannot Be Delivered</span>
+				If your SMS fail to reach us, you can call us on our helpline number <span style="color:red;">+917847011011</span> to resolve the problem.
+			</p><br/>
+			<p>
+				<span class="boldheading">Change Of Your Phone Number</span>
+				If you change your mobile or address, you will have to fill in a form and send it to us. We will link your new phone number to your name and membership number.
+			</p><br/>
+			<p>
+				<span class="boldheading">Invalid Keyword</span>
+				If you received the reply SMS "Invalid Keyword". Then please check the SMS format and resend.
+			</p>
+			
+	        </div>
+	        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+<!--  EOF -->
+
+
+<!-- Terms and Conditions -->
+
+<div class="modal fade" id="tc" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Terms and Conditions</h4>
+        </div>
+        <div class="modal-body">
+        		<ul>
+				<li>This scheme is floated by Bajaj Auto for a limited period only and may get extended or discontinued without any prior notice. All reward points, outstanding/unclaimed will automatically get expired with effect from date of scheme discontinuation. None of the participants will be eligible for compensation.</li>
+				<li>Bajaj Auto reserves right to change/modify the Rules & Regulations of the scheme at its discretion without any prior notice.</li>
+				<li>Bajaj Auto reserves the right to make any changes in "addition/deletion of parts, period of the scheme,reward points eligible under each "UNIQUE CODE" etc. without any prior notice.</li>
+				<li>Bajaj auto reserves right to revise the gift catalogue, delete the gifts, change the gifts points mentioned in the gift catalogue at any point of time.</li>
+				<li>In the event of any dispute/issue arising out of this scheme, is subject to courts of pune jurisdiction(Maharashtra).</li>
+			</ul>
+			<br/>
+			<span style="font-size:100%;text-decoration:bold;text-align:justify;">In case of query please contact our customer care at:+91-7847011011.</span>
+			<br/>
+			
+	        </div>
+	        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+<!--  EOF -->
+
+
+<!-- Terms and Conditions -->
+
+<div class="modal fade" id="ld" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Legal Disclaimer</h4>
+        </div>
+        <div class="modal-body">
+        	<p>By using the site or downloading materials from the site, you agree to abide by the terms and conditions set forth in this notice. If you do not agree to abide by these terms and conditions please do not use the site or download materials from the site. You may print copies of the information on this site for your personal use and store the files on your computer for personal use. You may not distribute text or graphics from this site to others without the express written consent of Bajaj Auto Ltd. Also, you may not, without the permission of Bajaj Auto Ltd., copy and distribute this information on any other server, or modify or reuse text or graphics on this or any another system. No reproduction of any part of the site may be sold or distributed for commercial gain, nor shall it be modified or incorporated in any other work, publication or site, whether in hard copy or electronic format, including postings to any other site. of Bajaj Auto Ltd. reserves all other rights. The information on this site has been included in good faith and is for general purposes only. It should not be relied upon for any specific purpose and no representation or warranty is given as regards its accuracy or completeness.</p>
+
+			<p>No information on this site shall constitute an invitation to invest in of Bajaj Auto Ltd or any of its affiliates. Neither Bajaj Auto Ltd., nor their or their affiliates' officers, employees or agents shall be liable for any loss, damage or expense arising out of any access to or use of this site or any site linked to it, including, without limitation, any loss of profit, indirect, incidental or consequential loss. The foregoing are subject to the laws of the Republic of India and the courts in Mumbai, India shall have the exclusive jurisdiction on any dispute that may arise out of the use of this site.</p>
+
+			<p>Please proceed only if you accept all the conditions enumerated herein above, out of your free will and consent.</p>
+			
+	        </div>
+	        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+<!--  EOF -->
+
+
+
 
         <div id="loading">
             <div class="txt"></div>
             <div class="bg"></div>
         </div>
-	</body>
+
+<script type="text/javascript">		
+
+
+		$(document).on("click","#videoclose",function(){
+			$('#prvideo').get(0).pause();
+			$('#myCarousel').carousel('cycle');
+		});
+
+		// $(document).on("click","#PRP",function(){
+		// 	$('#video').modal({
+		//     backdrop: 'static',
+		//     keyboard: false
+		// 	})
+		// });
+
+
+
+
+		$(document).on("click",".playimg",function(){
+			$('#PRP').modal('hide')
+			$('#PRP').on('hidden', function () {
+			$('#video').modal('show')
+			})
+		});
+
+
+		$(document).on("hide","#add-form",function(){
+			$('.ui-panel-dismiss-open').hide();
+		});
+
+		$(document).on("click",".ui-panel-dismiss-open",function(){
+			$('.ui-panel-dismiss-open').hide();
+		});
+
+		$(document).on("click","#imgprvw",function(){
+			$('#filUpload').click();
+		});
+
+		$(document).on("click",".playimg",function(){
+			$('#myCarousel').carousel('pause');
+		});
+
+		function hover(element) {
+			element.setAttribute('src', '/static/powerrewards/img/play_mo.png');
+		}
+		function unhover(element) {
+			element.setAttribute('src', '/static/powerrewards/img/play.png');
+		}
+
+</script>   
+</body>
 </html>
