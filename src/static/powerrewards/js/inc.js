@@ -1,6 +1,6 @@
 //accessToken = localStorage.getItem("access_token");
 
-mainURL = "http://powerrewardsreports.elasticbeanstalk.com/api/index.php?access_token="+access_token+"&action=";
+mainURL = "http://elcomprr-powerrewards.elasticbeanstalk.com/api/index.php?access_token="+access_token+"&action=";
 
 customResize = function(){
 	chartHeight = $(window).innerHeight() - ($(".navbar").height() + $(".nav-tabs").height()+10+$(".ulclass").height())
