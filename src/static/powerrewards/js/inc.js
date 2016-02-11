@@ -1,6 +1,24 @@
 //accessToken = localStorage.getItem("access_token");
 
 mainURL = "http://powerrewardsreports.elasticbeanstalk.com/api/index.php?access_token="+access_token+"&action=";
+
+customResize = function(){
+	chartHeight = $(window).innerHeight() - ($(".navbar").height() + $(".nav-tabs").height()+10+$(".ulclass").height())
+	$(".tab-pane").height(chartHeight-40);
+	console.log(chartHeight);
+	// alert(chartHeight);
+
+
+	$('.fusioncharts-container').updateFusionCharts({
+        'height': chartHeight - 40
+    });
+
+
+
+}
+
+window.onresize = customResize;
+
 $(document).ready(function(){
 	 initAddChart("mhome",1);
 	
@@ -166,6 +184,10 @@ function initAddChart(className,loadChart){
 	 	 getStates(className, loadChart);
 
 	}
+				// $(".iclass").remove();
+			 //    // $("#"+renderObj).prepend("<a href='#' data-toggle='popover' title='Popover Header' data-content='Some content inside the popover'><img src='img/info.png' width='16'/></a>");
+			 //    $("li.active a").append(" <span href='#' data-toggle='popover' title='Popover Header' data-content='Some content inside the popover' class='iclass'>( <img src='img/info.png' width='16'/> )</span>");
+
 
 }
 
@@ -253,6 +275,7 @@ function getChartData(className){
 		success: function(result){
 			loadChart(result,className);
 			hideLoading();
+			customResize();
 		}
 	});
 
@@ -274,6 +297,8 @@ function loadChart(result,renderObj){
 	        });
 	 
 	    revenueChart.render();
+	    // debugger;
+	    
 	});
 
 }
