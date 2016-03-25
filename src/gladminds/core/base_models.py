@@ -161,7 +161,35 @@ class ZonalServiceManager(BaseModel):
     
     def __unicode__(self):
         return self.zsm_id
-
+    
+class Zone(BaseModel):
+    
+    territory = models.CharField(max_length=100, null = False, blank = True)
+    active = models.IntegerField(max_length=1, null = False, blank = True)
+    
+    class Meta:
+        abstract = True
+        db_table = "dss_cv_zone"
+        verbose_name_plural = "Zone "
+    
+#     def __unicode__(self):
+#         return self.zsm_id
+    
+class ZSMState(models.Model):
+    '''  Manual Mapping of StateRegion & ZonalServiceManager  '''
+    
+    class Meta():
+        abstract = True
+        db_table = "gm_zonalservicemanager_states"
+        verbose_name_plural = "ZSM Area Mapping"
+    
+class ASMState(models.Model):
+    '''  Manual Mapping of StateRegion & AreaServiceManager  '''
+    
+    class Meta():
+        abstract = True
+        db_table = "gm_areaservicemanager_state"
+        verbose_name_plural = "ASM State Mapping"
 class CircleHead(BaseModel):
     
     class Meta:
@@ -186,10 +214,24 @@ class AreaSalesManager(BaseModel):
         db_table = "gm_areasalesmanager"
         verbose_name_plural = "Area Sales Managers"
         
+class StateRegion(models.Model):
+    '''details of State_Region'''
+    state_region = models.CharField(max_length=100, null= False, blank = False)
+    active = models.IntegerField(max_length=1, null=False, blank=False, default='1')
+    
+    class Meta:
+        abstract = True
+        db_table = "dss_cv_state_region"
+        verbose_name_plural = "State_Regions "
+        
+    def __unicode__(self):
+        return self.state_region
+  
+    
 class AreaServiceManager(BaseModel):
     '''details of Area Service Manager'''
     asm_id = models.CharField(max_length=50, unique=True, null=False, blank=False)
-    area = models.CharField(max_length=100, null=True, blank=True)
+    area = models.CharField(max_length=100,null=True, blank=True)
     
     class Meta:
         abstract = True
@@ -198,7 +240,7 @@ class AreaServiceManager(BaseModel):
     
     def __unicode__(self):
         return self.asm_id
-
+    
 class Dealer(BaseModel):
     '''Details of Dealer'''
     dealer_id = models.CharField(
@@ -206,9 +248,10 @@ class Dealer(BaseModel):
         help_text="Dealer Code must be unique")
     use_cdms = models.BooleanField(default=True)
     last_transaction_date = models.DateTimeField(null=True, blank=True)
-
+    
     objects = user_manager.DealerManager()
     last_transaction_date = models.DateTimeField(null=True, blank=True)
+    asm_id = models.CharField(max_length=255,null=True, blank = True)
 
     class Meta:
         abstract = True
@@ -217,8 +260,46 @@ class Dealer(BaseModel):
 
     def __unicode__(self):
         return self.dealer_id
+    
 
+class City(BaseModel):
+    '''Details of City'''
+    city = models.CharField(max_length=50, blank=False, null=False)
+    state_id = models.IntegerField(max_length=11, null=False, blank=False)
+    active = models.IntegerField(max_length=1, null=False, blank=False, default='1')
+     
+    class Meta:
+        abstract = True
+        db_table = "dss_cv_city"
+        verbose_name_plural = "City"
+ 
+ 
+ 
+class Role(models.Model):
+    '''Details of Role'''
+    role_id = models.IntegerField(primary_key=True)
+    role_name = models.CharField(max_length=255,null=False, blank=False)
+    active = models.IntegerField(max_length=1,null=False, blank=False,default='1')
+     
+    class Meta:
+        abstract = True
+        db_table = "dss_cv_role"
+        verbose_name_plural = "Role"
 
+class RoleMapping(models.Model):
+    ''' Mapping of dealer with roles/branches'''
+    user_id = models.IntegerField(max_length = 11, null= False, blank = False )
+    dealers_id = models.IntegerField(max_length = 11, null= False, blank = False)
+    role_id = models.IntegerField(max_length = 11, null= False, blank = False)
+    active = models.IntegerField(max_length = 11, null = False, blank = False)
+    area = models.CharField(max_length = 255, null = False, blank =False)
+    
+    class Meta:
+        abstract = True
+        db_table = "dss_cv_rolemapping"
+#         verbose_name_plural = "Dealer-Branch Details"
+
+    
 class AuthorizedServiceCenter(BaseModel):
     '''Details of Authorized Service Center'''
     asc_id = models.CharField(

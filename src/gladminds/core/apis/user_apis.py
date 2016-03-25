@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import datetime, timedelta, date
+import pytz
 
 from django.conf import settings
 from django.conf.urls import url
@@ -52,10 +53,12 @@ logger = logging.getLogger('gladminds')
 
 register_user = RegisterUser()
 
+
+
+
 class UserResource(CustomBaseModelResource):
-    '''
-    Auth user resource
-    '''
+    '''    Auth user resource    '''
+    
     class Meta:
         queryset = User.objects.all()
         resource_name = 'users'
@@ -71,14 +74,14 @@ class UserResource(CustomBaseModelResource):
                      "email" : ALL
                      }
         always_return_data = True
-        ordering = ['username', 'email']
+        ordering = ['username', 'email','id']
 
 class UserProfileResource(CustomBaseModelResource):
     '''
     Extended user profile resource
     '''
     user = fields.ForeignKey(UserResource, 'user', null=True, blank=True, full=True)
-
+    
     class Meta:
         queryset = models.UserProfile.objects.all()
         resource_name = 'gm-users'
@@ -86,6 +89,7 @@ class UserProfileResource(CustomBaseModelResource):
 #         authorization = MultiAuthorization(DjangoAuthorization())
 #         authentication = AccessTokenAuthentication()
         allowed_methods = ['get', 'post', 'put']
+        
         filtering = {
                      "user":  ALL_WITH_RELATIONS,
                      "phone_number": ALL,
@@ -94,7 +98,7 @@ class UserProfileResource(CustomBaseModelResource):
                      "pincode": ALL
                      }
         always_return_data = True 
-        ordering = ['user', 'phone_number']
+        ordering = ['user', 'phone_number','user_id']
         
         
     def prepend_urls(self):
@@ -135,9 +139,11 @@ class UserProfileResource(CustomBaseModelResource):
             url(r"^(?P<resource_name>%s)/reset-password%s" % 
                 (self._meta.resource_name, trailing_slash()), self.wrap_view
                 ('reset_password'), name="reset_password"),
-
+                
         ]
+        
     
+            
     def reset_password(self, request, **kwargs):
         '''
            The function resets the function of a user.
@@ -145,6 +151,7 @@ class UserProfileResource(CustomBaseModelResource):
               oldPassword: earlier password
               newPassword : new password
         '''        
+        print "************************************************************************************"
         try:
             new_password = request.POST['newPassword']
             old_password = request.POST['oldPassword'] 
@@ -457,6 +464,8 @@ class UserProfileResource(CustomBaseModelResource):
             logger.info("[Exception get_user_login_information]:{0}".
                         format(ex))
         return HttpResponse(json.dumps(data), content_type="application/json")
+
+
 
 class CircleHeadResource(CustomBaseModelResource):
         '''
@@ -817,22 +826,44 @@ class ZonalServiceManagerResource(CustomBaseModelResource):
         resource_name = "zonal-service-managers"
         authentication = AccessTokenAuthentication()
         authorization = MultiAuthorization(DjangoAuthorization())
-        allowed_methods = ['get', 'delete']
+        allowed_methods = ['get', 'delete','post']
         filtering = {
                      "user": ALL_WITH_RELATIONS,
                      "zsm_id": ALL,
                      }
         always_return_data = True
-
+        ordering = ['user']
+        
     def prepend_urls(self):
         return [
                  url(r"^(?P<resource_name>%s)/register%s" % (self._meta.resource_name,trailing_slash()),
                      self.wrap_view('register_zonal_service_manager'), name="register_zonal_service_manager"),
                  url(r"^(?P<resource_name>%s)/update/(?P<zsm_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
                      self.wrap_view('update_zonal_service_manager'), name="update_zonal_service_manager"),
+                url(r"^(?P<resource_name>%s)/delete/(?P<zsm_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('delete_zonal_service_manager'), name="delete_zonal_service_manager"),
                 ]
     
+    def delete_zonal_service_manager(self, request, **kwargs):
+        
+        try:
+            self.is_authenticated(request)
+        except :
+            return HttpResponse(content=json.dumps({"message" : "Not Authenticated"}), content_type= "application/json",
+                                status=401)
+        zsm_id = kwargs['zsm_id']
+        if (models.Areaserevicemanager.objects.filter(zsm_id = zsm_id).count()) is not 0:
+            return HttpResponse(content=json.dumps({"message" : "Assign all associated ASM to a another ZSM first"}), content_type= "application/json",
+                                status=200)
     
+        zsm_data = models.ZonalServiceManager.objects.get(id = zsm_id)
+        auth_data = models.User.objects.get(id = zsm_data.user_id )
+        auth_data.is_active = 0
+        auth_data.save(update_fields=["is_active"])
+    
+        return HttpResponse(content=json.dumps({"message" : "ZSM Deactivated"}), content_type= "application/json",
+                                status=200)
+        
     def register_zonal_service_manager(self, request, **kwargs):
         '''
            Register a new ZSM
@@ -846,34 +877,63 @@ class ZonalServiceManagerResource(CustomBaseModelResource):
         if request.method != 'POST':
             return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
                                 status=400)
-        if not request.user.is_superuser:
-            return HttpResponse(json.dumps({"message" : "Not Authorized to add RSM"}), content_type= "application/json",
-                                status=401)
+
         try:
             load = json.loads(request.body)
         except:
             return HttpResponse(content_type="application/json", status=404)
-        zsm_id = load.get('id')
-
+        
+        password = load.get('password')
+        firstname = load.get('firstname')
+        lastname = load.get('lastname')
+        phone_number = load.get('phonenumber')
+        
+        address = load.get('address')
+        state = load.get('state')
+        country = load.get('country')
+        pincode = load.get('pincode')
+        
+        dob = load.get('dob')
+        date=datetime.strptime(dob,'%Y-%m-%d')
+        dob=datetime(date.year,date.month,date.day,0,0,0,0,pytz.timezone('UTC'))
+        
+        gender = load.get('gender')
+        zone_id= load.get('zone')
+        
         try:
-            zsm_data = models.ZonalServiceManager.objects.get(zsm_id=zsm_id)
-            data = {'status': 0 , 'message' : 'Regional service manager with this id already exists'}
-        except Exception as ex:
-            logger.info("[register_zonal_service_manager]:New RSM registration:: {0}".format(ex))
-            name = load.get('name')
-            regional_office = load.get('regional-office')
-            phone_number = load.get('phone-number')
-            email = load.get('email')
-            user_data = register_user.register_user(Roles.ZSM,username=email,
-                                             phone_number=phone_number,
-                                             first_name=name,
-                                             email = email,
+            user_data = models.User.objects.get(username= email)
+            data = {'status': 0 , 'message' : 'Username already exists, pick another'}
+        except Exception as ex:   
+            
+            user_auth = register_user.register_user(Roles.ZSM,
+                                             username=email,
+                                             first_name=firstname,
+                                             last_name= lastname, email = email, phone_number = phone_number,
+                                             address = address, state = state, pincode = pincode,
                                              APP=settings.BRAND)
-            zsm_data = models.ZonalServiceManager(zsm_id=zsm_id, user=user_data,
-                                        regional_office=regional_office)
-            zsm_data.save()
+            user_auth = models.User.objects.get(username = email)
+
+            user_auth.set_password(str(password))
+            user_auth.save(using=settings.BRAND)
+           
+            user_details = models.UserProfile.objects.get(user_id = user_auth.id)
+            user_details.gender = gender
+            user_details.country = country
+            user_details.date_of_birth = dob
+            user_details.save()
+
+            zsm_details = get_model('ZonalServiceManager')(zsm_id = user_auth.username, user_id = user_details.user_id)
+            
+            Queryset = models.StateRegion.objects.filter(zone_id=zone_id)
+            zsm_details.save()
+            
+            for obj in Queryset:
+                zsm_map = get_model('ZSMState')(zsm_id = zsm_details.id, state_id = obj.id)
+                zsm_map.save()
+             
             data = {"status": 1 , "message" : "Regional service manager registered successfully"}
-        return HttpResponse(json.dumps(data), content_type="application/json")
+        
+        return HttpResponse(json.dumps(data), content_type="application/json")       
     
     def update_zonal_service_manager(self, request, **kwargs):
         '''
@@ -888,44 +948,66 @@ class ZonalServiceManagerResource(CustomBaseModelResource):
         if request.method != 'POST':
             return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
                                 status=400)
-        if not request.user.is_superuser:
-            return HttpResponse(json.dumps({"message" : "Not Authorized to edit RSM"}), content_type= "application/json",
-                                status=401)
+
         zsm_id=kwargs['zsm_id']
         try:
-            zsm_obj = models.ZonalServiceManager.objects.get(pk=zsm_id)
             load = json.loads(request.body)
-            
+            zsm_obj = models.ZonalServiceManager.objects.get(id = zsm_id)
+        except Exception as ex:
+            logger.info("[update_zonal_service_manager]: Invalid RSM ID:: {0}".format(ex))
+            data = {'status': 0 , 'message' : 'RSM id not exists, pick another'}
+            return HttpResponse(json.dumps({"message" : "RSM ID not found"}),content_type="application/json", status=404)    
+                  
+        try:
             zsm_profile = zsm_obj.user
-            zsm_profile.phone_number = load.get('phone-number')
+            zsm_profile.phone_number = load.get('phonenumber')
+            zsm_profile.address = load.get('address')
+            zsm_profile.state = load.get('state')
+            zsm_profile.country = load.get('country')
+            
+            dob = load.get('dob')
+            date=datetime.strptime(dob,'%Y-%m-%d')
+            dob=datetime(date.year,date.month,date.day,0,0,0,0,pytz.timezone('UTC'))
+            zsm_profile.date_of_birth = dob
+            
+            zsm_profile.pincode = load.get('pincode')
+            zsm_profile.gender = load.get('gender')
             
             zsm_user= zsm_obj.user.user
-            zsm_user.first_name=load.get('name')
+            zsm_user.first_name=load.get('firstname')
+            zsm_user.last_name = load.get('lastname')
             
-            zsm_obj.regional_office = load.get('regional-office')
+            zsm_map = models.ZSMState.objects.filter(zsm_id = zsm_id)
+            zsm_map.delete()
+            
+            zone_id = load.get('zone')
+            Queryset = models.StateRegion.objects.filter(zone_id=zone_id)
+            
+            for obj in Queryset:
+                zsm_map = get_model('ZSMState')(zsm_id = zsm_id, state_id = obj.id)
+                zsm_map.save()
             
             zsm_user.save(using=settings.BRAND)
             zsm_profile.save()
             zsm_obj.save()
             data = {'status': 0 , 'message' : 'Regional service manager updated successfully'}
-        except Exception as ex:
-            logger.info("[update_zonal_service_manager]: Invalid RSM ID:: {0}".format(ex))
-            return HttpResponse(json.dumps({"message" : "RSM ID not found"}),content_type="application/json", status=404)
+        except :
+            data = {'status': 0 , 'message' : 'Error with data'}
         return HttpResponse(json.dumps(data), content_type="application/json")
 
 class AreaServiceManagerResource(CustomBaseModelResource):
-    '''
-       Area service managers resource
-    '''
+    
+    '''       Area service managers resource    '''
+    
     user = fields.ForeignKey(UserProfileResource, 'user', full=True)
-    zsm = fields.ForeignKey(ZonalServiceManagerResource, 'zsm', full =True)
+    zsm = fields.ForeignKey(ZonalServiceManagerResource, 'zsm', full =True, null= True, blank = True)
 
     class Meta:
         queryset = models.AreaServiceManager.objects.all()
         resource_name = "area-service-managers"
         authentication = AccessTokenAuthentication()
         authorization = MultiAuthorization(DjangoAuthorization(), ZSMCustomAuthorization())
-        allowed_methods = ['get', 'delete']
+        allowed_methods = ['get', 'delete','post']
         filtering = {
                      "user": ALL_WITH_RELATIONS,
                      "asm_id": ALL, 
@@ -933,104 +1015,162 @@ class AreaServiceManagerResource(CustomBaseModelResource):
                      "area": ALL,
                      }
         always_return_data = True
-
     def prepend_urls(self):
         return [
                  url(r"^(?P<resource_name>%s)/register%s" % (self._meta.resource_name,trailing_slash()),
                      self.wrap_view('register_area_service_manager'), name="register_area_service_manager"),
                  url(r"^(?P<resource_name>%s)/update/(?P<asm_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
                      self.wrap_view('update_area_service_manager'), name="update_area_service_manager"),
+                url(r"^(?P<resource_name>%s)/delete/(?P<asm_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('delete_area_service_manager'), name="delete_area_service_manager"),
                 ]
     
-    
+    def delete_area_service_manager(self,request, **kwargs):
+        
+        try:
+            self.is_authenticated(request)
+            asm_id = kwargs['asm_id']
+            
+            if (models.Dealer.objects.filter(asm_id = asm_id).count()) is not 0:
+                return HttpResponse(content=json.dumps({"message" : "Assign associated Dealers to another ASM first"}), content_type= "application/json",
+                                status=200)
+            
+            asm_data = models.AreaServiceManager.objects.get(id = asm_id)
+            auth_data = models.User.objects.get(id = asm_data.user_id )
+            auth_data.is_active = 0
+            auth_data.save(update_fields=["is_active"])
+        except :
+            return HttpResponse(content=json.dumps({"message" : "Not Authenticated"}), content_type= "application/json",
+                                status=401)
+        
+        return HttpResponse(content=json.dumps({"message" : "ASM Deactivated"}), content_type= "application/json",
+                                status=200)
+        
     def register_area_service_manager(self, request, **kwargs):
-        '''
-           Register a new asm
-           params:
-               id: ID of the ASM
-               email: email of the asm
-               phone_number: number of the dealer
-               name: name of the dealer
-               area: region under the asm
-               zsm_id: zsm under which asm belongs
-        '''
+   
         self.is_authenticated(request)
         if request.method != 'POST':
             return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
                                 status=400)
-        if not request.user.is_superuser and not request.user.groups.filter(name=Roles.ZSM).exists():
-            return HttpResponse(json.dumps({"message" : "Not Authorized to add ASM"}), content_type= "application/json",
-                                status=401)
+
         try:
             load = json.loads(request.body)
         except:
             return HttpResponse(content_type="application/json", status=404)
-        asm_id = load.get('id')
+        
+        email = load.get('email')
         try:
-            asm_data = models.AreaServiceManager.objects.get(asm_id=asm_id)
-            data = {'status': 0 , 'message' : 'Area service manager with this id already exists'}
+            user_data = models.User.objects.get(username = email)
+            data = {'status': 0 , 'message' : 'Username already exists, pick another'}
+            
         except Exception as ex:
-            logger.info("[register_area_service_manager]: New ASM registration:: {0}".format(ex))
-            name = load.get('name')
-            area = load.get('area')
-            phone_number = load.get('phone-number')
-            email = load.get('email')
+            logger.info("[register_area_service_manager]: New ASM registration:: {0}".format(ex));
+
             zsm_id = load.get('zsm_id')
-            zsm_data = models.ZonalServiceManager.objects.get(zsm_id=zsm_id)
-            user_data = register_user.register_user(Roles.AREASERVICEMANAGER,
+            password = load.get('password')
+            firstname = load.get('firstname')
+            lastname = load.get('lastname')
+            phone_number = load.get('phonenumber')
+            pincode = load.get('pincode')
+            address = load.get('address')
+            state = load.get('state')
+            country = load.get('country')
+            dob = load.get('dob')
+            gender= load.get('gender')
+            areas = load.get('area')
+            
+            try:
+                zsm_data = models.ZonalServiceManager.objects.get(id=zsm_id)
+            except:
+                HttpResponse(json.dumps({"message" : "ZSM doesn't exist"}),content_type="application/json", status=404)
+            user_auth = register_user.register_user(Roles.AREASERVICEMANAGER,
                                              username=email,
-                                             phone_number=phone_number,
-                                             first_name=name,
-                                             email = email,
-                                             APP=settings.BRAND)
-            asm_data = models.AreaServiceManager(asm_id=asm_id, user=user_data,
-                                        area=area, zsm=zsm_data)
+                                                 first_name=firstname,
+                                                 last_name= lastname, email = email, phone_number = phone_number,
+                                                 address = address, state = state, pincode = pincode,
+                                                 APP=settings.BRAND)
+  
+            user_auth = models.User.objects.get(username= email)
+            user_auth.set_password(str(password))
+            user_auth.save(using=settings.BRAND)
+            
+            user_details = models.UserProfile.objects.get(user_id = user_auth.id)
+            user_details.gender = gender
+            user_details.country = country
+            
+            date=datetime.strptime(dob,'%Y-%m-%d')
+            dob=datetime(date.year,date.month,date.day,0,0,0,0,pytz.timezone('UTC'))
+            user_details.date_of_birth = dob
+            
+            user_details.save()
+               
+            asm_data = get_model('AreaServiceManager')(zsm_id=zsm_id, asm_id=email, user_id= user_auth.id)
             asm_data.save()
-            data = {"status": 1 , "message" : "Area service manager registered successfully"}
+            
+            for area in areas:
+                region_data = models.StateRegion.objects.get(id=area)
+                state_id = region_data.id
+                asm_region_map = get_model('ASMState')(asm_id=asm_data.id, state_id=state_id)
+                asm_region_map.save()
+                
+            data = {"status": 200 , "message" : "Area service manager registered successfully"}
         return HttpResponse(json.dumps(data), content_type="application/json")
     
     def update_area_service_manager(self, request, **kwargs):
         '''
            Update the details of an existing asm
-           params:
-               asm_id: ID of the asm to be updated
-               phone_number: number of the dealer
-               name: name of the dealer
-               area: region under the asm
-               zsm_id: zsm under which asm belongs
         '''
         self.is_authenticated(request)
         if request.method != 'POST':
             return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
                                 status=400)
-        if not request.user.is_superuser and not request.user.groups.filter(name=Roles.ZSM).exists():
-            return HttpResponse(json.dumps({"message" : "Not Authorized to edit ASM"}), content_type= "application/json",
-                                status=401)
+        
         asm_id=kwargs['asm_id']
         try:
-            asm_obj = models.AreaServiceManager.objects.get(pk=asm_id)
+            asm_obj = models.AreaServiceManager.objects.get(id=asm_id)
             load = json.loads(request.body)
             
             asm_profile = asm_obj.user
-            asm_profile.phone_number = load.get('phone-number')
+            asm_profile.phone_number = load.get('phonenumber')
+            asm_profile.address = load.get('address')
+            asm_profile.state = load.get('state')
+            asm_profile.country= load.get('country')
+            
+            dob= load.get('dob')
+            date=datetime.strptime(dob,'%Y-%m-%d')
+            dob=datetime(date.year,date.month,date.day,0,0,0,0,pytz.timezone('UTC'))
+            asm_profile.date_of_birth = dob
+            
+            asm_profile.gender = load.get('gender')
             
             asm_user= asm_obj.user.user
-            asm_user.first_name=load.get('name')
-            
-            asm_obj.area = load.get('area')
+            asm_user.first_name=load.get('firstname')
+            asm_user.last_name=load.get('lastname')
             
             zsm_id=load.get('zsm_id')
-            zsm_data = models.ZonalServiceManager.objects.get(zsm_id=zsm_id)
-            asm_obj.zsm=zsm_data
-
+            zsm_data = models.ZonalServiceManager.objects.get(id=zsm_id)
+            asm_obj.zsm = zsm_data
+        
+            asm_id = asm_obj.id
+            asm_state_map = models.ASMState.objects.filter(asm_id = asm_id)
+            asm_state_map.delete()
+            
+            areas = load.get('area')
+            for area in areas:
+                region_data = models.StateRegion.objects.get(id=area)
+                state_id = region_data.id
+                asm_region_map = get_model('ASMState')(asm_id= asm_id, state_id=state_id)
+                asm_region_map.save()
+                
             asm_user.save(using=settings.BRAND)
             asm_profile.save()
             asm_obj.save()
             data = {'status': 0 , 'message' : 'Regional service manager updated successfully'}
-        except Exception as ex:
+        except Exception as ex :
             logger.info("[update_area_service_manager]: Invalid ASM ID :: {0}".format(ex))
             return HttpResponse(json.dumps({"message" : "ASM ID not found"}),content_type="application/json", status=404)
         return HttpResponse(json.dumps(data), content_type="application/json")
+
 
 
 class DealerResource(CustomBaseModelResource):
@@ -1038,8 +1178,6 @@ class DealerResource(CustomBaseModelResource):
        Dealers under a brand resource
     '''
     user = fields.ForeignKey(UserProfileResource, 'user', full=True)
-    asm = fields.ForeignKey(AreaServiceManagerResource, 'asm', full=True, null=True)
-    sm = fields.ForeignKey(AreaSalesManagerResource, 'sm', full=True, null=True)
     
     class Meta:
         queryset = models.Dealer.objects.all()
@@ -1048,11 +1186,10 @@ class DealerResource(CustomBaseModelResource):
         authorization = MultiAuthorization(DjangoAuthorization(), DealerCustomAuthorization())
         allowed_methods = ['get', 'post']
         filtering = {
-                     "user": ALL_WITH_RELATIONS,
-                     "dealer_id": ALL,
-                     "asm":ALL_WITH_RELATIONS,
-                     "sm":ALL_WITH_RELATIONS,
-                     }
+                    "user": ALL_WITH_RELATIONS,
+                    "dealer_id": ALL,
+#                      "asm":ALL_WITH_RELATIONS,
+                    }
         always_return_data = True
         ordering = ['user']
         
@@ -1062,48 +1199,99 @@ class DealerResource(CustomBaseModelResource):
                      self.wrap_view('register_dealer'), name="register_dealer"),
                 url(r"^(?P<resource_name>%s)/active%s" % (self._meta.resource_name,trailing_slash()),
                                                         self.wrap_view('get_active_dealer'), name="get_active_dealer"),
-                url(r"^(?P<resource_name>%s)/update/(?P<dealer_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
-                     self.wrap_view('update_dealer'), name="update_dealer")
+                url(r"^(?P<resource_name>%s)/update/(?P<user_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('update_dealer'), name="update_dealer"),
+                url(r"^(?P<resource_name>%s)/delete/(?P<user_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('delete_dealer'), name="delete_dealer"),
                
                 ]
     
-    
+    def delete_dealer(self, request, **kwargs):
+       
+        try:
+            self.is_authenticated(request)
+            user_id = kwargs['user_id']
+            
+            Queryset = models.RoleMapping.objects.filter(dealers_id = user_id)
+            
+            for obj in Queryset:
+                obj.active = 0
+                obj.save(update_fields=["active"])
+                
+                branch = obj.user_id
+                auth_data=models.User.objects.get(id = branch)
+                auth_data.is_active = 0
+                auth_data.save(update_fields=["is_active"])
+            
+            return HttpResponse(content=json.dumps({"message" : "Dealer Deactivated"}), content_type= "application/json",
+                                   status=200)
+            
+        except  :
+            return HttpResponse(content=json.dumps({"message" : "Not Authenticated"}), content_type= "application/json",
+                                status=401)
+            
     def register_dealer(self, request, **kwargs):
         '''
            Registers a new dealer.
-           params:
-               username: ID of the dealer
-               phone_number: number of the dealer
-               email: email ID of the dealer
-               name: name of the dealer
-               asm_id: asm under which dealer belongs
         '''
-        if request.method != 'POST':
-            return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
-                                status=400)
+        try:
+            self.is_authenticated(request)
+            if request.method != 'POST':
+                return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                    status=400)
+        except :
+            return HttpResponse(json.dumps({"message" : "Not Authorized"}), content_type= "application/json",
+                                    status=401)
         try:
             load = json.loads(request.body)
         except:
-            return HttpResponse(content_type="application/json", status=404)
-        username = load.get('username')
-        phone_number = load.get('phone-number')
+            return HttpResponse(content_type="application/json", status=400)
+        
         email = load.get('email')
-        name = load.get('name', '')
-        asm = load.get('asm_id', None)
+        password = load.get('password')
+        firstname = load.get('firstname')
+        lastname = load.get('lastname')
+        phone_number = load.get('phonenumber')
+        pincode = load.get('pincode')
+        address = load.get('address')
+        state = load.get('state')
+        country = load.get('country')
+        gender= load.get('gender')
+        asm_id = load.get('asm_id')
+        dealer_id = load.get('dealerId')
         try:
-            user = models.Dealer.objects.get(user__phone_number=phone_number, dealer_id=username)
+            
+            user = models.Dealer.objects.get(user__phone_number=phone_number)
+            dealer = models.Dealer.objects.filter(dealer_id = dealer_id )
             data = {'status': 0 , 'message' : 'Dealer with this id or phone number already exists'}
 
         except Exception as ex:
             logger.info("[register_dealer] : New dealer registration :: {0}".format(ex))
-            user_data = register_user.register_user(Roles.DEALERS,username=username,
-                                             phone_number=phone_number,
-                                             first_name=name,
+            'Auth User'
+
+            user_auth = register_user.register_user(Roles.DEALERS,username=email,
+                                             phone_number= phone_number,
+                                             first_name=firstname,
+                                             last_name = lastname,
+                                             address = address, state = state, pincode = pincode,
                                              email = email, APP=settings.BRAND)
-            if asm:
-                asm = models.AreaServiceManager.objects.get(asm_id=asm)
-            dealer_data = models.Dealer(dealer_id=username, user=user_data, asm=asm)
+            user_auth = models.User.objects.get(username= email)
+            user_auth.set_password(str(password))
+            user_auth.save(using=settings.BRAND)
+            
+            user_details = models.UserProfile.objects.get(user_id = user_auth.id)
+            user_details.gender = gender
+            user_details.country = country
+            
+            user_details.save()
+           
+            dealer_data = get_model('Dealer')(dealer_id=dealer_id, user_id = user_details.user_id, asm_id = asm_id)
             dealer_data.save()
+            
+            rolemapping_data = get_model('RoleMapping')(user_id = dealer_data.user_id, 
+                                                        dealers_id = dealer_data.user_id , role_id = 1, active =1)
+            rolemapping_data.save()
+
             data = {"status": 1 , "message" : "Dealer registered successfully"}
 
         return HttpResponse(json.dumps(data), content_type="application/json")
@@ -1113,7 +1301,7 @@ class DealerResource(CustomBaseModelResource):
            Get the count of active dealers of the day
         '''
         result = []
-        active_today = models.Dealer.objects.filter(last_transaction_date__startswith=date.today()).count()
+        active_today = models.Dealer.objects.filter(user__user__is_active=1).count()
         today = {}
         today['count_on'] = 'Today'
         today['active'] = active_today
@@ -1125,40 +1313,228 @@ class DealerResource(CustomBaseModelResource):
         '''
            Update the details of an existing dealer
            params:
-               dealer_id: ID of the dealer to be updated
-               phone_number: number of the dealer
-               email: email ID of the dealer
-               name: name of the dealer
-               asm_id: asm under which dealer belongs
         '''
         self.is_authenticated(request)
         if request.method != 'POST':
             return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
                                 status=400)
-        dealer_id=kwargs['dealer_id']
+        old_dealerid=kwargs['user_id']
         try:
-            dealer_obj = models.Dealer.objects.get(user__user__id=dealer_id)
+            dealer_obj = models.Dealer.objects.get(user_id = old_dealerid)
             load = json.loads(request.body)
-            asm = load.get('asm_id', None)
-            if asm:
-                asm = models.AreaServiceManager.objects.get(asm_id=asm)
-                dealer_obj.asm=asm
-            dealer_profile = dealer_obj.user
-            dealer_profile.phone_number = load.get('phone-number')
+            dealer_id = load.get('dealerId')
+                
+                
+            asm_id = load.get('asm_id')
+            dealer_obj.asm_id=asm_id
+            dealer_obj.save(update_fields=["asm_id"])
             
+            dealer_profile = dealer_obj.user
+            dealer_profile.phone_number = load.get('phonenumber')
+            dealer_profile.address = load.get('address')
+            dealer_profile.state = load.get('state')
+            dealer_profile.country= load.get('country')            
+            dealer_profile.gender = load.get('gender')
+                                  
             dealer_user= dealer_obj.user.user
-            dealer_user.email=load.get('email')
-            dealer_user.first_name=load.get('name')
-
+            dealer_user.username = load.get('email')
+            dealer_user.first_name=load.get('firstname')
+            dealer_user.last_name=load.get('lastname')
+                            
+            branch_data = models.Dealer.objects.filter(dealer_id__icontains = dealer_obj.dealer_id)
+            
+            for obj in branch_data:
+               
+                dealer_replace = str(obj.dealer_id)
+                prev_dealerid = str(dealer_obj.dealer_id)
+                dealer_id = str(dealer_id)
+                value = dealer_replace.replace(prev_dealerid ,dealer_id )
+                b_data = models.Dealer.objects.get(user_id= obj.user_id)
+                b_data.dealer_id = value
+                b_auth = models.User.objects.get(id=obj.user_id)
+                b_auth.username = value + '@bajajauto.co.in'
+                b_auth.email = value + '@bajajauto.co.in'
+                b_auth.save(update_fields=["username", "email"])
+                b_data.save(update_fields=["dealer_id"])
+                
+        
             dealer_user.save(using=settings.BRAND)
-            dealer_profile.save()
-            dealer_obj.save()
             data = {'status': 0 , 'message' : 'Dealer details updated successfully'}
         except Exception as ex:
             logger.info("[update_dealer] : Invalid Dealer ID ::{0}".format(ex))
             return HttpResponse(json.dumps({"message" : "Dealer ID not found"}),content_type="application/json", status=404)
         return HttpResponse(json.dumps(data), content_type="application/json")
     
+
+class BranchResource(CustomBaseModelResource):
+    
+    
+    user = fields.ForeignKey(UserProfileResource, 'user', full=True, null = True)
+    class Meta:
+        
+        queryset = models.Dealer.objects.all()
+        resource_name = "branches"
+        authentication = AccessTokenAuthentication()
+        authorization = MultiAuthorization(DjangoAuthorization(), DealerCustomAuthorization())
+        allowed_methods = ['get', 'post']
+        
+        filtering = {
+                     "user": ALL_WITH_RELATIONS,
+                     "dealer_id": ALL,
+                     "asm_id":ALL
+                     }
+        
+        always_return_data = True
+        ordering = ["user",]
+    
+    def prepend_urls(self):
+        return [
+                url(r"^(?P<resource_name>%s)/register%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('register_branch'), name="register_branch"),
+                url(r"^(?P<resource_name>%s)/update/(?P<dealer_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('update_branch'), name="update_branch"),
+                url(r"^(?P<resource_name>%s)/delete/(?P<dealer_id>\d+)%s" % (self._meta.resource_name,trailing_slash()),
+                     self.wrap_view('delete_branch'), name="delete_branch"),
+                ]
+    
+    def delete_branch(self, request, **kwargs):
+       
+        try:
+            self.is_authenticated(request)
+            user_id = kwargs['dealer_id']
+            auth_data = models.User.objects.get(id = user_id )
+            auth_data.is_active = 0
+            auth_data.save(update_fields=["is_active"])
+            
+            rolemapping_data = models.RoleMapping.objects.get(user_id = user_id)
+            rolemapping_data.active = 0
+            rolemapping_data.save(update_fields=["active"])
+            
+            return HttpResponse(content=json.dumps({"message" : "Branch Deactivated"}), content_type= "application/json",
+                                   status=200)
+            
+        except Exception as ex:
+            print ex
+            return HttpResponse(content=json.dumps({"message" : "Error"}), content_type= "application/json",
+                                   status=400)
+    
+    def register_branch(self,request, **kwargs):
+        
+        try:
+            self.is_authenticated(request)
+            if request.method != 'POST':
+                return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                    status=400)
+        except :
+            return HttpResponse(json.dumps({"message" : "Not Authorized"}), content_type= "application/json",
+                                    status=401)
+
+        load = json.loads(request.body)
+        parent_Id = load.get('dealerId')
+        try:
+            
+            parent_dealer = models.Dealer.objects.get(user_id = parent_Id)
+            
+            logger.info("[register_dealer] : New dealer registration :: {0}")                
+            # 'Auth User'
+            firstname = load.get('firstname')
+            lastname = load.get('lastname')
+            phone_number = load.get('phonenumber')
+                
+            pincode = load.get('pincode')
+            address = load.get('address')
+
+            state = load.get('state')
+            country = load.get('country')
+            password = 'test@1234'
+            role_id = load.get('role_id')
+
+            role_details = models.Role.objects.get(role_id = role_id)        
+            role_name = role_details.role_name
+            
+            count = models.RoleMapping.objects.filter(dealers_id = parent_Id , role_id = role_id).count() + 1
+            
+            branch_id = str(parent_dealer.dealer_id) + role_name + str(count)
+            branch_email = branch_id + '@bajajauto.co.in'
+            
+            user_auth = register_user.register_user(Roles.DEALERS,username=branch_email,
+                                         phone_number= phone_number,
+                                         first_name=firstname,
+                                         last_name = lastname,
+                                         address = address, state = state, pincode = pincode,
+                                         email = branch_email, APP=settings.BRAND)
+            user_auth = models.User.objects.get(username= branch_email)
+            user_auth.set_password(str(password))
+            user_auth.save(using=settings.BRAND)
+            
+            user_details = models.UserProfile.objects.get(user_id = user_auth.id)
+            user_details.country = country
+            user_details.save()
+            
+#                Dealer
+            branch_data = get_model('Dealer')(dealer_id = branch_id, user_id = user_details.user_id ,
+                                              asm_id = 0, created_date = datetime.now() )
+            branch_data.save()
+            
+            rolemapping_data = get_model('RoleMapping')(dealers_id = parent_Id, user_id = branch_data.user_id,
+                                                        role_id = role_id, active=1) 
+            rolemapping_data.save()
+            
+            data = {'status': 200 , 'message' : 'Branch Added.'}
+            
+        except Exception as ex:
+            data = {'status': 0 , 'message' : 'Main Dealer with this id does not exists'}
+
+        return HttpResponse(json.dumps(data), content_type="application/json")        
+                
+                
+    def update_branch(self, request, **kwargs):
+        
+        '''Updation of Branch'''
+        try:
+            self.is_authenticated(request)
+            if request.method != 'POST':
+                return HttpResponse(json.dumps({"message" : "Method not allowed"}), content_type= "application/json",
+                                    status=400)
+        except :
+            return HttpResponse(json.dumps({"message" : "Not Authorized"}), content_type= "application/json",
+                                    status=401)
+        user_id = kwargs['dealer_id']
+        try:
+            load = json.loads(request.body)
+            
+            firstname = load.get('firstname')
+            lastname = load.get('lastname')
+            phone_number = load.get('phonenumber')
+            pincode = load.get('pincode')
+            address = load.get('address')
+            state = load.get('state')
+            country = load.get('country')
+ 
+            user_data = models.UserProfile.objects.get(user_id=user_id)
+            auth_data = models.User.objects.get(id=user_id)
+            
+            auth_data.first_name = firstname
+            auth_data.last_name = lastname
+            
+            user_data.pincode = pincode
+            user_data.address = address
+            user_data.country = country
+            user_data.state = state
+            user_data.phone_number = phone_number
+            
+            user_data.save()
+            auth_data.save()
+            
+            data = {'status': 200 , 'message' : 'Branch Updated.'}
+                
+        except Exception as ex:
+            print ex
+            data = {'status': 0 , 'message' : 'Error'}
+        return HttpResponse(json.dumps(data),content_type="application/json")
+        
+        
+        
 class AuthorizedServiceCenterResource(CustomBaseModelResource):
     '''
        Authorized service centers who service the vehicles resource

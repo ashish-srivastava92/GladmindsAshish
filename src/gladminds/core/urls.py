@@ -29,6 +29,7 @@ api_v1.register(user_apis.AreaSalesManagerResource())
 api_v1.register(user_apis.ZonalServiceManagerResource())
 api_v1.register(user_apis.AreaServiceManagerResource())
 api_v1.register(user_apis.DealerResource())
+api_v1.register(user_apis.BranchResource())
 api_v1.register(user_apis.AuthorizedServiceCenterResource())
 api_v1.register(user_apis.ServiceAdvisorResource())
 
@@ -99,6 +100,7 @@ admin.autodiscover()
 
 api_v1.register(SMSResources())
 
+
 urlpatterns = patterns('',
     url(r'', include(api_v1.urls)),
     url(r'^$', 'gladminds.core.views.home'),
@@ -107,9 +109,9 @@ urlpatterns = patterns('',
     url(r'^login/$', 'gladminds.core.views.auth_login'),
     url(r'^logout/$', 'gladminds.core.views.user_logout'),
     url(r'^services/$', 'gladminds.core.views.home'),
-
     url(r'^api/v1/feed/\?wsdl$', 'gladminds.core.webservice.all_service'),
     url(r'^api/v1/feed/$', 'gladminds.core.webservice.all_service'),
+    
     
     url(r'^add/servicedesk-user/$', 'gladminds.core.services.service_desk.servicedesk_views.add_servicedesk_user', name='add_servicedesk_user'),
     url(r'^aftersell/users/(?P<users>[a-zA-Z0-9]+)$', 'gladminds.core.views.users'),
@@ -157,4 +159,5 @@ urlpatterns = patterns('',
     url(r'^accumulation-download/(?P<choice>[a-zA-Z0-9]+)$', loyalty.download_accumulation_detail, name='download_accumulation_detail'),
     url(r'^loyalty/(?P<report_choice>[a-zA-Z]+)/$', 'gladminds.core.views.get_loyalty_reports'),
     url(r'^powerrewards/$', 'gladminds.core.views.get_loyalty_login'),
+    
 )

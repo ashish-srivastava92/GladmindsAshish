@@ -21,6 +21,36 @@ class UserProfile(base_models.UserProfile):
     class Meta(base_models.UserProfile.Meta):
         app_label = _APP_NAME
 
+
+
+class Zone(base_models.Zone):
+    
+    class Meta(base_models.Zone.Meta):
+        app_label = _APP_NAME
+
+class Territory(base_models.Territory):
+    '''List of territories'''
+    
+    class Meta(base_models.Territory.Meta):
+        app_label = _APP_NAME
+
+    
+class State(base_models.State):
+    ''' List of states mapped to territory'''
+    territory = models.ForeignKey(Territory, null=True, blank=True)
+  
+    class Meta(base_models.State.Meta):
+        app_label = _APP_NAME
+
+class StateRegion(base_models.StateRegion):
+    '''details of State_Region'''
+    state = models.ForeignKey(State, null = False, blank= False )
+    zone = models.ForeignKey(Zone, null = False, blank = False )
+    
+    class Meta(base_models.StateRegion.Meta):
+        app_label = _APP_NAME
+    
+
 class ZonalServiceManager(base_models.ZonalServiceManager):
     '''details of Zonal Service Manager'''
     user = models.ForeignKey(UserProfile, null=True, blank=True)
@@ -28,15 +58,36 @@ class ZonalServiceManager(base_models.ZonalServiceManager):
     class Meta(base_models.ZonalServiceManager.Meta):
         app_label = _APP_NAME 
 
+class ZSMState(base_models.ZSMState):
+    '''  Manual Mapping of StateRegion & ZonalServiceManager  '''
+    zsm = models.ForeignKey(ZonalServiceManager, null = True, blank = True)
+    state = models.ForeignKey(StateRegion, null = True, blank = True)
+    
+    class Meta(base_models.ZSMState.Meta):
+        app_label = _APP_NAME
 
 class AreaServiceManager(base_models.AreaServiceManager):
     '''details of Area Service Manager'''
     user = models.ForeignKey(UserProfile, null=True, blank=True)
     zsm = models.ForeignKey(ZonalServiceManager, null=True, blank=True)
     
+    
     class Meta(base_models.AreaServiceManager.Meta):
         app_label = _APP_NAME 
-        
+
+# class Region(base_models.Region):
+#     
+#     class Meta(base_models.Region.Meta):
+#         app_label = _APP_NAME 
+
+class ASMState(base_models.ASMState):
+    '''  Manual Mapping of StateRegion & AreaServiceManager  '''
+    asm = models.ForeignKey(AreaServiceManager, null = True , blank =True)
+    state = models.ForeignKey(StateRegion, null= True, blank = True)
+    
+    class Meta(base_models.ASMState.Meta):
+        app_label = _APP_NAME
+            
 class CircleHead(base_models.CircleHead):
     '''details of Circle Heads'''
     user =  models.OneToOneField(UserProfile)
@@ -58,12 +109,6 @@ class Territory(base_models.Territory):
     class Meta(base_models.Territory.Meta):
         app_label = _APP_NAME
 
-class State(base_models.State):
-    ''' List of states mapped to territory'''
-    territory = models.ForeignKey(Territory, null=True, blank=True)
- 
-    class Meta(base_models.State.Meta):
-        app_label = _APP_NAME
         
 class AreaSalesManager(base_models.AreaSalesManager):
     '''details of Area Sales Manager'''
@@ -81,10 +126,23 @@ class AreaSalesManager(base_models.AreaSalesManager):
 class Dealer(base_models.Dealer):
     user = models.OneToOneField(UserProfile, primary_key=True,
                                 related_name='core_registered_dealer')
-    asm = models.ForeignKey(AreaServiceManager, null=True, blank=True)
-    
 
     class Meta(base_models.Dealer.Meta):
+        app_label = _APP_NAME
+
+class City(base_models.City):
+     
+    class Meta(base_models.City.Meta):
+        app_label = _APP_NAME
+ 
+class Role(base_models.Role):
+     
+    class Meta(base_models.Role.Meta):
+        app_label = _APP_NAME
+        
+class RoleMapping(base_models.RoleMapping):
+     
+    class Meta(base_models.RoleMapping.Meta):
         app_label = _APP_NAME
 
 class AuthorizedServiceCenter(base_models.AuthorizedServiceCenter):
@@ -397,18 +455,7 @@ class ContainerTracker(base_models.ContainerTracker):
         app_label = _APP_NAME
 
 #######################LOYALTY MODELS#################################
-class Territory(base_models.Territory):
-    '''List of territories'''
-    
-    class Meta(base_models.Territory.Meta):
-        app_label = _APP_NAME
 
-class State(base_models.State):
-    ''' List of states mapped to territory'''
-    territory = models.ForeignKey(Territory, null=True, blank=True)
- 
-    class Meta(base_models.State.Meta):
-        app_label = _APP_NAME
 
 class City(base_models.City):
     ''' List of cities mapped to states'''
